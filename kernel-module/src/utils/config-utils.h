@@ -16,7 +16,6 @@ typedef struct {
 	char *PORT_FILESYSTEM;
 	char *IP_CPU;
 	char *PORT_CPU;
-	char *PORT_LISTEN;
 	char *PLANNING_ALGORITHM;
 	int INITIAL_ESTIMATE;
 	int HRRN_ALFA;

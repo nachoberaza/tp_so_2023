@@ -7,7 +7,7 @@ int main(void) {
 
 	log_config(FILE_SYSTEM_ENV);
 
-	int serverSocketId = start_server(FILE_SYSTEM_ENV->IP, FILE_SYSTEM_ENV->PORT_LISTEN, getLogger());
+	int serverSocketId = start_server(FILE_SYSTEM_ENV->IP, FILE_SYSTEM_ENV->PORT, getLogger());
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Este es un mensaje extra, no deberia estar en el archivo normal");

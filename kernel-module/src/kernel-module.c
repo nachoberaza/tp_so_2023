@@ -10,7 +10,7 @@ int main(void) {
 
 	log_config(KERNEL_ENV);
 
-	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT_LISTEN, getLogger());
+	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, getLogger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Este es un mensaje extra, no deberia estar en el archivo normal");

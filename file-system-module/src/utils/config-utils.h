@@ -12,7 +12,6 @@
 		char *PORT;
 		char *IP_MEMORY;
 		char *PORT_MEMORY;
-		char *PORT_LISTEN;
 		char *PATH_SUPERBLOQUE;
 		char *PATH_BITMAP;
 		char *PATH_BLOQUES;
