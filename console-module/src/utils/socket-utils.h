@@ -6,10 +6,7 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <sys/socket.h>
-
-typedef enum {
-	MESSAGE, PACKAGE
-} op_code;
+#include "shared-sockets.h"
 
 typedef struct {
 	int size;

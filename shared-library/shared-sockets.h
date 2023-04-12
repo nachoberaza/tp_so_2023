@@ -10,6 +10,10 @@
 	#include <commons/log.h>
 	#include "shared-logs.h"
 
+	typedef enum {
+		MESSAGE, PACKAGE
+	} op_code;
+
 	int connect_to_server(char *ip, char *port);
 	void close_connection(int clientSocket);
 	int start_server(char* IP, char* PORT, t_log_grouping* log);

@@ -9,10 +9,6 @@
 	#include "shared-sockets.h"
 	#include "shared-logs.h"
 
-	typedef enum {
-		MESSAGE, PACKAGE
-	} op_code;
-
 	typedef struct {
 		int size;
 		void *stream;

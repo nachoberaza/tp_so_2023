@@ -1,17 +1,14 @@
-#include "file-system-module.h"
-
+#include "memory-module.h"
 
 int main(void) {
-	t_file_system_config *FILE_SYSTEM_ENV = create_file_system_config(MODULE_NAME);
-	init_logger(MODULE_NAME, FILE_SYSTEM_ENV->LOG_LEVEL);
+	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
+	init_logger(MODULE_NAME, MEMORY_ENV->LOG_LEVEL);
 
-	log_config(FILE_SYSTEM_ENV);
+	log_config(MEMORY_ENV);
 
-	int serverSocketId = start_server(FILE_SYSTEM_ENV->IP, FILE_SYSTEM_ENV->PORT, getLogger());
+	int serverSocketId = start_server(MEMORY_ENV->IP, MEMORY_ENV->PORT, getLogger());
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
-
-	int connection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
 	int clientSocketId = await_client(getLogger(), serverSocketId);
 
@@ -26,12 +23,9 @@ int main(void) {
 			commands = decode_package(clientSocketId);
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Me llegaron los siguientes valores:\n");
 			list_iterate(commands, (void*) write_info_to_all_logs);
-			build_package(commands, connection);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Mande valores a un cliente!:\n");
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "el cliente se desconecto. Terminando servidor");
-			cleanup(connection, getLogger());
 			return EXIT_FAILURE;
 		default:
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_WARNING, "Operacion desconocida. No quieras meter la pata");
@@ -41,4 +35,3 @@ int main(void) {
 
 	return EXIT_SUCCESS;
 }
-

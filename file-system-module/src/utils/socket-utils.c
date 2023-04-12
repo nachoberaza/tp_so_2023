@@ -7,7 +7,6 @@ void build_package(t_list* values,int clientSocketId) {
 	delete_package(package);
 }
 
-
 t_package* create_package(void) {
 	t_package *package = malloc(sizeof(t_package));
 	package->operationCode = PACKAGE;
@@ -67,5 +66,4 @@ void fill_package_with_list(t_list* self, t_package* pkg){
 		fill_package(pkg,self->head->data, strlen(self->head->data) + 1);
 		self->head = self->head->next;
 	}
-
 }

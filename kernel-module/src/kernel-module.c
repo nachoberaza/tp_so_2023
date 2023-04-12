@@ -1,9 +1,5 @@
 #include "kernel-module.h"
 
-typedef enum {
-	MESSAGE, PACKAGE
-} op_code;
-
 int main(void) {
 	t_kernel_config *KERNEL_ENV = create_kernel_config(MODULE_NAME);
 	init_logger(MODULE_NAME, KERNEL_ENV->LOG_LEVEL);
@@ -13,7 +9,6 @@ int main(void) {
 	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, getLogger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Este es un mensaje extra, no deberia estar en el archivo normal");
 
 	int clientSocketId = await_client(getLogger(), serverSocketId);
 
