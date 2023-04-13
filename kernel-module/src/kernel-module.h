@@ -9,6 +9,7 @@
 	#include "shared-logs.h"
 	#include "shared-sockets.h"
 	#include "utils/config-utils.h"
+	#include "utils/socket-utils.h"
 	#include "utils/logger-utils.h"
 
 #endif
