@@ -24,18 +24,18 @@ t_kernel_config* create_kernel_config(char *moduleName) {
 }
 
 void log_config(t_kernel_config *config) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "KERNEL CONFIG VALUES: ");
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP_MEMORY: %s", config->IP_MEMORY));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT_MEMORY: %s", config->PORT_MEMORY));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP_FILESYSTEM: %s", config->IP_FILESYSTEM));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT_FILESYSTEM: %s", config->PORT_FILESYSTEM));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP_CPU: %s", config->IP_CPU));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT_CPU: %s", config->PORT_CPU));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PLANNING_ALGORITHM: %s", config->PLANNING_ALGORITHM));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("INITIAL_ESTIMATE: %s", string_itoa(config->INITIAL_ESTIMATE)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("HRRN_ALFA: %s", string_itoa(config->HRRN_ALFA)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("MAX_MULTIPROGRAMMING_LEVEL: %s", string_itoa(config->MAX_MULTIPROGRAMMING_LEVEL)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "KERNEL CONFIG VALUES: ");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP_MEMORY: %s", config->IP_MEMORY));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT_MEMORY: %s", config->PORT_MEMORY));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP_FILESYSTEM: %s", config->IP_FILESYSTEM));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT_FILESYSTEM: %s", config->PORT_FILESYSTEM));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP_CPU: %s", config->IP_CPU));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT_CPU: %s", config->PORT_CPU));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PLANNING_ALGORITHM: %s", config->PLANNING_ALGORITHM));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INITIAL_ESTIMATE: %s", string_itoa(config->INITIAL_ESTIMATE)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("HRRN_ALFA: %s", string_itoa(config->HRRN_ALFA)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("MAX_MULTIPROGRAMMING_LEVEL: %s", string_itoa(config->MAX_MULTIPROGRAMMING_LEVEL)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }
