@@ -7,10 +7,10 @@ int main(void) {
 	log_config(KERNEL_ENV);
 
 	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, getLogger());
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor de kernel listo");
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
 	int clientSocketId = await_client(getLogger(), serverSocketId);
 
 	t_list *commands;
@@ -22,20 +22,20 @@ int main(void) {
 			break;
 		case PACKAGE:
 			commands = decode_package(clientSocketId);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Me llegaron los siguientes valores:\n");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Me llego el siguiente package:\n");
 			list_iterate(commands, (void*) write_info_to_all_logs);
 			t_package* packageReceived = build_package(commands);
 			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
 			send_package(packageReceived, KERNEL_CONNECTIONS->memory);
 			send_package(packageReceived, KERNEL_CONNECTIONS->fileSystem);
 			delete_package(packageReceived);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Mande valores a FileSystem, CPU y MEMORIA!\n");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Mande valores a FileSystem, CPU y MEMORIA!\n");
 			break;
 		case -1:
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "el cliente se desconecto. Terminando servidor");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "La consola se desconecto. Cerrando servidor");
 			return EXIT_FAILURE;
 		default:
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_WARNING, "Operacion desconocida. No quieras meter la pata");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Operacion desconocida.");
 			break;
 		}
 	}
