@@ -1,5 +1,5 @@
-#ifndef SHARED_SOCKETS_H_
-#define SHARED_SOCKETS_H_
+#ifndef SOCKET_SHARED_SERVER_SOCKETS_H_
+#define SOCKET_SHARED_SERVER_SOCKETS_H_
 
 	#include <stdlib.h>
 	#include <commons/collections/list.h>
@@ -8,11 +8,8 @@
 	#include <sys/socket.h>
 	#include <netdb.h>
 	#include <commons/log.h>
-	#include "shared-logs.h"
-
-	typedef enum {
-		MESSAGE, PACKAGE
-	} op_code;
+	#include "../log/shared-logs.h"
+	#include "../structs/socket.h"
 
 	int connect_to_server(char *ip, char *port);
 	void close_connection(int clientSocket);

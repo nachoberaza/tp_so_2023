@@ -1,4 +1,4 @@
-#include "shared-sockets.h"
+#include "shared-server-sockets.h"
 
 int connect_to_server(char *ip, char *port) {
 	struct addrinfo hints;

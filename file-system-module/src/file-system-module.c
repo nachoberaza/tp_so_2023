@@ -11,7 +11,7 @@ int main(void) {
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
-	int connection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
+	int memoryConnection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
 
 	int clientSocketId = await_client(getLogger(), serverSocketId);
 
@@ -24,14 +24,16 @@ int main(void) {
 			break;
 		case PACKAGE:
 			commands = decode_package(clientSocketId);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Me llegaron los siguientes valores:\n");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Me llego el siguiente package:\n");
 			list_iterate(commands, (void*) write_info_to_all_logs);
-			build_package(commands, connection);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Mande valores a un cliente!:\n");
+			t_package* packageReceived = build_package(commands);
+			send_package(packageReceived, memoryConnection);
+			delete_package(packageReceived);
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Mande valores a MEMORIA!\n");
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "el cliente se desconecto. Terminando servidor");
-			cleanup(connection, getLogger());
+			cleanup(memoryConnection, getLogger());
 			return EXIT_FAILURE;
 		default:
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_WARNING, "Operacion desconocida. No quieras meter la pata");

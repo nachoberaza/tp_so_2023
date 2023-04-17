@@ -1,0 +1,19 @@
+#ifndef STRUCTS_SOCKET_H_
+#define STRUCTS_SOCKET_H_
+
+	typedef enum {
+		MESSAGE, PACKAGE
+	} op_code;
+
+	typedef struct {
+		int size;
+		void *stream;
+	} t_buffer;
+
+	typedef struct {
+		op_code operationCode;
+		t_buffer *buffer;
+	} t_package;
+
+
+#endif
