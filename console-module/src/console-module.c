@@ -14,7 +14,7 @@ int main(void) {
 
 	build_package(connection);
 
-	cleanup(connection, getLogger());
+	cleanup(connection, get_logger());
 
 	return EXIT_SUCCESS;
 }

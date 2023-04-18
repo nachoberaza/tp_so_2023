@@ -7,18 +7,18 @@ int main(void) {
 
 	log_config(CPU_ENV);
 
-	int serverSocketId = start_server(CPU_ENV->IP, CPU_ENV->PORT, getLogger());
+	int serverSocketId = start_server(CPU_ENV->IP, CPU_ENV->PORT, get_logger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
-	int clientSocketId = await_client(getLogger(), serverSocketId);
+	int clientSocketId = await_client(get_logger(), serverSocketId);
 
 	t_list *commands;
 	while (1) {
 		int operationCode = receive_operation_code(clientSocketId);
 		switch (operationCode) {
 		case MESSAGE:
-			decode_message(getLogger(),clientSocketId);
+			decode_message(get_logger(),clientSocketId);
 			break;
 		case PACKAGE:
 			commands = decode_package(clientSocketId);

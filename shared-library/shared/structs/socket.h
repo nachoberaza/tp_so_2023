@@ -1,5 +1,5 @@
-#ifndef STRUCTS_SOCKET_H_
-#define STRUCTS_SOCKET_H_
+#ifndef SHARED_STRUCTS_SOCKET_H_
+#define SHARED_STRUCTS_SOCKET_H_
 
 	typedef enum {
 		MESSAGE, PACKAGE

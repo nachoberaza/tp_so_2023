@@ -3,12 +3,12 @@
 
 #define MODULE_NAME "console"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "utils/config-utils.h"
-#include "utils/logger-utils.h"
-#include "log/shared-logs.h"
-#include <socket/shared-server-sockets.h>
-#include <socket/shared-client-sockets.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <shared/logs/log.h>
+	#include <shared/sockets/server-socket.h>
+	#include <shared/sockets/client-socket.h>
+	#include "utils/config-utils.h"
+	#include "utils/logger-utils.h"
 
 #endif

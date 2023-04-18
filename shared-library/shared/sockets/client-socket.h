@@ -1,13 +1,13 @@
-#ifndef SOCKET_SHARED_CLIENT_SOCKETS_H_
-#define SOCKET_SHARED_CLIENT_SOCKETS_H_
+#ifndef SHARED_SOCKETS_CLIENT_SOCKET_H_
+#define SHARED_SOCKETS_CLIENT_SOCKET_H_
 
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include <commons/collections/list.h>
 	#include <string.h>
 	#include <readline/readline.h>
 	#include <sys/socket.h>
-	#include "../log/shared-logs.h"
+	#include <commons/collections/list.h>
+	#include "../logs/log.h"
 	#include "../structs/socket.h"
 
 	t_package* build_package(t_list* values);

@@ -7,8 +7,8 @@
 	#include <stdlib.h>
 	#include <commons/log.h>
 	#include <commons/string.h>
-	#include "log/shared-logs.h"
-	#include <socket/shared-server-sockets.h>
+	#include <shared/logs/log.h>
+	#include <shared/sockets/server-socket.h>
 	#include "utils/config-utils.h"
 	#include "utils/logger-utils.h"
 

@@ -19,6 +19,6 @@ void write_info_to_all_logs(char* message) {
 	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, message);
 }
 
-t_log_grouping* getLogger(){
+t_log_grouping* get_logger(){
 	return logger;
 }

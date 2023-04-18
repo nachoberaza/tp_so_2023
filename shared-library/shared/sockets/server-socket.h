@@ -1,14 +1,14 @@
-#ifndef SOCKET_SHARED_SERVER_SOCKETS_H_
-#define SOCKET_SHARED_SERVER_SOCKETS_H_
+#ifndef SHARED_SOCKETS_SERVER_SOCKET_H_
+#define SHARED_SOCKETS_SERVER_SOCKET_H_
 
 	#include <stdlib.h>
-	#include <commons/collections/list.h>
-	#include <commons/string.h>
 	#include <string.h>
 	#include <sys/socket.h>
 	#include <netdb.h>
+	#include <commons/collections/list.h>
+	#include <commons/string.h>
 	#include <commons/log.h>
-	#include "../log/shared-logs.h"
+	#include "../logs/log.h"
 	#include "../structs/socket.h"
 
 	int connect_to_server(char *ip, char *port);

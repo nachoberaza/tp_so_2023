@@ -6,19 +6,19 @@ int main(void) {
 
 	log_config(KERNEL_ENV);
 
-	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, getLogger());
+	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, get_logger());
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor de kernel listo");
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
-	int clientSocketId = await_client(getLogger(), serverSocketId);
+	int clientSocketId = await_client(get_logger(), serverSocketId);
 
 	t_list *commands;
 	while (1) {
 		int operationCode = receive_operation_code(clientSocketId);
 		switch (operationCode) {
 		case MESSAGE:
-			decode_message(getLogger(),clientSocketId);
+			decode_message(get_logger(),clientSocketId);
 			break;
 		case PACKAGE:
 			commands = decode_package(clientSocketId);
