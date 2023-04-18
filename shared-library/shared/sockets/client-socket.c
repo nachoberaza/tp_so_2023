@@ -1,10 +1,9 @@
-#include "socket-utils.h"
+#include "client-socket.h"
 
-void build_package(t_list* values,int clientSocketId) {
+t_package* build_package(t_list* values) {
 	t_package* package = create_package();
 	fill_package_with_list(values, package);
-	send_package(package, clientSocketId);
-	delete_package(package);
+	return package;
 }
 
 t_package* create_package(void) {

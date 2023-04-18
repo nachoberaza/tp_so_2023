@@ -1,4 +1,4 @@
-#include "shared-logs.h"
+#include "log.h"
 
 t_log* start_logger(char *module, t_log_level logLevel, int writeToConsole) {
 	char *fileName = string_from_format("%s.log", module);

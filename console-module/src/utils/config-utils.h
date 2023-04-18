@@ -4,7 +4,7 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/log.h>
-#include "shared-logs.h"
+#include <shared/logs/log.h>
 
 typedef struct {
 	char *IP_KERNEL;
