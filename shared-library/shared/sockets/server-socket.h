@@ -11,7 +11,7 @@
 	#include "../logs/log.h"
 	#include "../structs/socket.h"
 
-	int connect_to_server(char *ip, char *port);
+
 	void close_connection(int clientSocket);
 	int start_server(char* IP, char* PORT, t_log_grouping* log);
 	void cleanup(int connection, t_log_grouping *logger);

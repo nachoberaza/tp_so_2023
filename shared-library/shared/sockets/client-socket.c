@@ -1,5 +1,26 @@
 #include "client-socket.h"
 
+int connect_to_server(char *ip, char *port) {
+	struct addrinfo hints;
+	struct addrinfo *server_info;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	getaddrinfo(ip, port, &hints, &server_info);
+
+	int client_socket = socket(server_info->ai_family,
+			server_info->ai_socktype, server_info->ai_protocol);
+
+	connect(client_socket, server_info->ai_addr, server_info->ai_addrlen);
+
+	freeaddrinfo(server_info);
+
+	return client_socket;
+}
+
 t_package* build_package(t_list* values) {
 	t_package* package = create_package();
 	fill_package_with_list(values, package);
@@ -19,7 +40,7 @@ void create_buffer(t_package *package) {
 	package->buffer->stream = NULL;
 }
 
-void fill_package(t_package *package, void *lineValue, int lineSize) {
+void fill_buffer(t_package *package, void *lineValue, int lineSize) {
 	package->buffer->stream = realloc(package->buffer->stream,
 			package->buffer->size + lineSize + sizeof(int));
 
@@ -62,7 +83,7 @@ void delete_package(t_package *package) {
 
 void fill_package_with_list(t_list* self, t_package* pkg){
 	while (self->head != NULL){
-		fill_package(pkg,self->head->data, strlen(self->head->data) + 1);
+		fill_buffer(pkg,self->head->data, strlen(self->head->data) + 1);
 		self->head = self->head->next;
 	}
 }

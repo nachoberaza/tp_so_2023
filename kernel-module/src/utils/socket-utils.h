@@ -1,6 +1,7 @@
 #ifndef SOCKET_UTILS_H_
 #define SOCKET_UTILS_H_
 
+	#include <shared/sockets/client-socket.h>
 	#include "config-utils.h"
 
 	typedef struct {
