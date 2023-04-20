@@ -1,21 +1,21 @@
 #include "file-utils.h"
 
 void fill_package_from_file(t_package *package){
-	FILE * filePointer;
+	FILE * file;
 	char * line = NULL;
 	size_t length = 0;
-	ssize_t read;
+	ssize_t lineValue;
 
-	filePointer = fopen("console.code", "r");
-	if (filePointer == NULL)
+	file = fopen("console.code", "r");
+	if (file == NULL)
 		exit(EXIT_FAILURE);
 
-	while ((read = getline(&line, &length, filePointer)) != -1) {
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Linea: %s", line));
-		fill_package(package, line, read);
+	while ((lineValue = getline(&line, &length, file)) != -1) {
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Line value: %s", line));
+		fill_buffer(package, line, lineValue);
 	}
 
-	fclose(filePointer);
+	fclose(file);
 	if (line)
 		free(line);
 }

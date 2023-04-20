@@ -11,7 +11,7 @@ int main(void) {
 			CONSOLE_ENV->PORT_KERNEL);
 
 	t_package* package = create_package();
-	read_console_commands(package);
+	fill_package_from_file(package);
 	send_package(package, kernelConnection);
 	cleanup(kernelConnection, get_logger());
 
