@@ -7,6 +7,8 @@ int main(void) {
 
 	log_config(CPU_ENV);
 
+	int connectionMemory = connect_to_server(CPU_ENV->IP_MEMORY, CPU_ENV->PORT_MEMORY);
+
 	int serverSocketId = start_server(CPU_ENV->IP, CPU_ENV->PORT, get_logger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
@@ -24,6 +26,9 @@ int main(void) {
 			commands = decode_package(clientSocketId);
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Me llegaron los siguientes valores:\n");
 			list_iterate(commands, (void*) write_info_to_all_logs);
+			t_package* packageReceived = build_package(commands);
+			send_package(packageReceived, connectionMemory);
+			delete_package(packageReceived);
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "el cliente se desconecto. Terminando servidor");
