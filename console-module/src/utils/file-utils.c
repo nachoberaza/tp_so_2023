@@ -1,14 +1,21 @@
 #include "file-utils.h"
 
-void read_console_commands(t_package* package) {
-	char* readLine;
-	int size;
+void fill_package_from_file(t_package *package){
+	FILE * file;
+	char * line = NULL;
+	size_t length = 0;
+	ssize_t lineValue;
 
-	readLine = readline("> ");
-	do {
-		size = strlen(readLine) + 1;
-		fill_buffer(package, readLine, size);
+	file = fopen("console.code", "r");
+	if (file == NULL)
+		exit(EXIT_FAILURE);
 
-		readLine = readline("> ");
-	}while (strcmp(readLine, "\0"));
+	while ((lineValue = getline(&line, &length, file)) != -1) {
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Line value: %s", line));
+		fill_buffer(package, line, lineValue);
+	}
+
+	fclose(file);
+	if (line)
+		free(line);
 }
