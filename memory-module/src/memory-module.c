@@ -2,6 +2,8 @@
 
 pthread_t tid[2];
 
+int handShakeClient(int socket);
+
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
 	init_logger(MODULE_NAME, MEMORY_ENV->LOG_LEVEL);
@@ -12,15 +14,20 @@ int main(void) {
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
-
-	for	(int i=0;i<3;i++)
+	for	(int i=2;i<3;i++)
 	{
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Inside %d", i));
 		int clientSocketId = await_client(get_logger(), serverSocketId);
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
 
-	    int err = pthread_create(&(tid[i]), NULL, handleConnection, (void*) &clientSocketId);
+		// HandShake
+		int handShake = handShakeClient(clientSocketId);
+		if (handShake != 0){
+			continue;
+		}
 
+		// Handle connection
+	    int err = pthread_create(&(tid[i]), NULL, handleConnection, (void*) &clientSocketId);
 	    if (err != 0){
 	    	printf("\nHubo un problema al crear el thread :[%s]", strerror(err));
 	    	return err;
@@ -32,6 +39,24 @@ int main(void) {
     pthread_join(tid[2], NULL);
 
 	return EXIT_SUCCESS;
+}
+
+int handShakeClient(int socket){
+	uint32_t handshake;
+	uint32_t resultOk = 0;
+	uint32_t resultError = -1;
+
+	printf("Doing the handshake\n\n\n");
+	recv(socket, &handshake, sizeof(uint32_t), MSG_WAITALL);
+	if(handshake == CPU || handshake == KRN || handshake == FS){
+		printf("Successfull handshake\n\n\n");
+		send(socket, &resultOk, sizeof(uint32_t), NULL);
+	   return 0;
+	}
+
+	printf("Unsucessfully handshake\n\n\n");
+	send(socket, &resultError, sizeof(uint32_t), NULL);
+	return -1;
 }
 
 void* handleConnection(void *clientSocket)

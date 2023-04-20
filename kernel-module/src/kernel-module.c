@@ -28,8 +28,8 @@ int main(void) {
 			list_iterate(commands, (void*) write_info_to_all_logs);
 			t_package* packageReceived = build_package(commands);
 
-			int cpuHandShake = clientHandShake(KERNEL_CONNECTIONS->cpu);
-			if (cpuHandShake != 0){
+			int memoryHandShake = clientHandShake(KERNEL_CONNECTIONS->memory);
+			if (memoryHandShake != 0){
 				return EXIT_FAILURE;
 			}
 			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
@@ -55,7 +55,10 @@ int clientHandShake(int socket){
 	uint32_t handshake = KRN;
 	uint32_t result;
 
+	printf("Doing the handshake\n\n\n");
 	send(socket, &handshake, sizeof(uint32_t), NULL);
 	recv(socket, &result, sizeof(uint32_t), MSG_WAITALL);
-	return 0;
+	printf("Handshake Done\n\n\n");
+
+	return result;
 }
