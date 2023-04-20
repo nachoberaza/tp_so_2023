@@ -15,5 +15,11 @@
 		t_buffer *buffer;
 	} t_package;
 
+	typedef enum {
+		KRN,
+		CPU,
+		FS
+	} module_handshakes;
+
 
 #endif

@@ -1,5 +1,7 @@
 #include "kernel-module.h"
 
+int clientHandShake(int socket);
+
 int main(void) {
 	t_kernel_config *KERNEL_ENV = create_kernel_config(MODULE_NAME);
 	init_logger(MODULE_NAME, KERNEL_ENV->LOG_LEVEL);
@@ -25,7 +27,13 @@ int main(void) {
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Me llego el siguiente package:\n");
 			list_iterate(commands, (void*) write_info_to_all_logs);
 			t_package* packageReceived = build_package(commands);
+
+			int cpuHandShake = clientHandShake(KERNEL_CONNECTIONS->cpu);
+			if (cpuHandShake != 0){
+				return EXIT_FAILURE;
+			}
 			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
+
 			send_package(packageReceived, KERNEL_CONNECTIONS->memory);
 			send_package(packageReceived, KERNEL_CONNECTIONS->fileSystem);
 			delete_package(packageReceived);
@@ -41,4 +49,13 @@ int main(void) {
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int clientHandShake(int socket){
+	uint32_t handshake = KRN;
+	uint32_t result;
+
+	send(socket, &handshake, sizeof(uint32_t), NULL);
+	recv(socket, &result, sizeof(uint32_t), MSG_WAITALL);
+	return 0;
 }
