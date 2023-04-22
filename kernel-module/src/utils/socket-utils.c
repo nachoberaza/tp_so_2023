@@ -7,6 +7,10 @@ t_kernel_connections* start_connections(t_kernel_config* env) {
 	connections->memory = connect_to_server(env->IP_MEMORY, env->PORT_MEMORY);
 	connections->fileSystem = connect_to_server(env->IP_FILESYSTEM, env->PORT_FILESYSTEM);
 
+	int memoryHandShake = init_handshake(connections->memory, KRN);
+	if (memoryHandShake != 0){
+		return -1;
+	}
 	return connections;
 }
 

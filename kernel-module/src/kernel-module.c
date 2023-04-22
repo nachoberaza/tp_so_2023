@@ -1,6 +1,5 @@
 #include "kernel-module.h"
 
-
 int main(void) {
 	t_kernel_config *KERNEL_ENV = create_kernel_config(MODULE_NAME);
 	init_logger(MODULE_NAME, KERNEL_ENV->LOG_LEVEL);
@@ -11,14 +10,14 @@ int main(void) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor de kernel listo");
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
 
-	int memoryHandShake = init_handshake(KERNEL_CONNECTIONS->memory, KRN);
-	if (memoryHandShake != 0){
-		//TODO: Ver que hacer en caso de no poder conectarse a memory
+	//TODO: Ver que hacer en caso de no poder conectarse a memory
+	if (KERNEL_CONNECTIONS == -1){
 		printf("No fue posible conectarse a memory");
 		return EXIT_FAILURE;
 	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
 
 	int clientSocketId = await_client(get_logger(), serverSocketId);
 

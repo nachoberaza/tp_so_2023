@@ -2,8 +2,6 @@
 
 pthread_t tid[2];
 
-int handle_handshake(int socket);
-
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
 	init_logger(MODULE_NAME, MEMORY_ENV->LOG_LEVEL);
@@ -14,7 +12,7 @@ int main(void) {
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
-	for	(int i=2;i<3;i++)
+	for	(int i=0;i<3;i++)
 	{
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Inside %d", i));
 		int clientSocketId = await_client(get_logger(), serverSocketId);

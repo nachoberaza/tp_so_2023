@@ -14,5 +14,6 @@
 	#include "utils/logger-utils.h"
 
 	void* handleConnection(void *clientSocket);
+	int handle_handshake(int socket);
 
 #endif
