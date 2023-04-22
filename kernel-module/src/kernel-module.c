@@ -1,6 +1,5 @@
 #include "kernel-module.h"
 
-int clientHandShake(int socket);
 
 int main(void) {
 	t_kernel_config *KERNEL_ENV = create_kernel_config(MODULE_NAME);
@@ -13,6 +12,14 @@ int main(void) {
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
+
+	int memoryHandShake = init_handshake(KERNEL_CONNECTIONS->memory, KRN);
+	if (memoryHandShake != 0){
+		//TODO: Ver que hacer en caso de no poder conectarse a memory
+		printf("No fue posible conectarse a memory");
+		return EXIT_FAILURE;
+	}
+
 	int clientSocketId = await_client(get_logger(), serverSocketId);
 
 	t_list *commands;
@@ -28,10 +35,6 @@ int main(void) {
 			list_iterate(commands, (void*) write_info_to_all_logs);
 			t_package* packageReceived = build_package(commands);
 
-			int memoryHandShake = clientHandShake(KERNEL_CONNECTIONS->memory);
-			if (memoryHandShake != 0){
-				return EXIT_FAILURE;
-			}
 			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
 
 			send_package(packageReceived, KERNEL_CONNECTIONS->memory);
@@ -51,14 +54,4 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-int clientHandShake(int socket){
-	uint32_t handshake = KRN;
-	uint32_t result;
 
-	printf("Doing the handshake\n\n\n");
-	send(socket, &handshake, sizeof(uint32_t), NULL);
-	recv(socket, &result, sizeof(uint32_t), MSG_WAITALL);
-	printf("Handshake Done\n\n\n");
-
-	return result;
-}

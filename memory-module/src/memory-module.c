@@ -2,7 +2,7 @@
 
 pthread_t tid[2];
 
-int handShakeClient(int socket);
+int handle_handshake(int socket);
 
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
@@ -21,7 +21,7 @@ int main(void) {
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
 
 		// HandShake
-		int handShake = handShakeClient(clientSocketId);
+		int handShake = handle_handshake(clientSocketId);
 		if (handShake != 0){
 			continue;
 		}
@@ -41,20 +41,17 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-int handShakeClient(int socket){
-	uint32_t handshake;
+int handle_handshake(int socket){
+	module_handshakes handshake;
 	uint32_t resultOk = 0;
 	uint32_t resultError = -1;
 
-	printf("Doing the handshake\n\n\n");
-	recv(socket, &handshake, sizeof(uint32_t), MSG_WAITALL);
-	if(handshake == CPU || handshake == KRN || handshake == FS){
-		printf("Successfull handshake\n\n\n");
+	recv(socket, &handshake, sizeof(module_handshakes), MSG_WAITALL);
+	if(handshake == KRN || handshake == CPU || handshake == FS ){
 		send(socket, &resultOk, sizeof(uint32_t), NULL);
 	   return 0;
 	}
 
-	printf("Unsucessfully handshake\n\n\n");
 	send(socket, &resultError, sizeof(uint32_t), NULL);
 	return -1;
 }

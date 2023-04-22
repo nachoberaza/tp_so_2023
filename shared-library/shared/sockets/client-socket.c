@@ -87,3 +87,13 @@ void fill_package_with_list(t_list* self, t_package* pkg){
 		self->head = self->head->next;
 	}
 }
+
+int init_handshake(int socket, module_handshakes module){
+	module_handshakes handshake = module ;
+	uint32_t result;
+
+	send(socket, &handshake, sizeof(module_handshakes), NULL);
+	recv(socket, &result, sizeof(uint32_t), MSG_WAITALL);
+
+	return result;
+}
