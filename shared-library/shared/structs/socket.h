@@ -16,9 +16,9 @@
 	} t_package;
 
 	typedef enum {
-		KRN,
+		KERNEL,
 		CPU,
-		FS
+		FILESYSTEM
 	} module_handshakes;
 
 

@@ -14,13 +14,12 @@ int main(void) {
 
 	for	(int i=0;i<3;i++)
 	{
-		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Inside %d", i));
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Inside %d", i));
 		int clientSocketId = await_client(get_logger(), serverSocketId);
-		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
 
-		// HandShake
-		int handShake = handle_handshake(clientSocketId);
-		if (handShake != 0){
+		int handshake = handle_handshake(clientSocketId);
+		if (handshake != 0){
 			continue;
 		}
 
@@ -40,18 +39,28 @@ int main(void) {
 }
 
 int handle_handshake(int socket){
-	module_handshakes handshake;
 	uint32_t resultOk = 0;
 	uint32_t resultError = -1;
 
-	recv(socket, &handshake, sizeof(module_handshakes), MSG_WAITALL);
-	if(handshake == KRN || handshake == CPU || handshake == FS ){
+	int handshake = receive_handshake(socket);
+	switch (handshake) {
+	case KERNEL:
 		send(socket, &resultOk, sizeof(uint32_t), NULL);
-	   return 0;
+		break;
+	case CPU:
+		send(socket, &resultOk, sizeof(uint32_t), NULL);
+		break;
+	case FILESYSTEM:
+		send(socket, &resultOk, sizeof(uint32_t), NULL);
+		break;
+	default:
+		printf("%i\n", handshake);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Un modulo desconocido intento conectarse");
+		send(socket, &resultError, sizeof(uint32_t), NULL);
+		return -1;
 	}
 
-	send(socket, &resultError, sizeof(uint32_t), NULL);
-	return -1;
+	return 0;
 }
 
 void* handleConnection(void *clientSocket)

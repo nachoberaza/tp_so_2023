@@ -68,7 +68,14 @@ void* receive_buffer(int *bufferSize, int clientSocket) {
 
 	return buffer;
 }
+int receive_handshake(int clientSocket){
+	int handshake;
+	recv(socket, &handshake, sizeof(int), MSG_WAITALL);
+	printf("El valor del handshake es ");
+	printf("%i\n", handshake);
+	return handshake;
 
+}
 t_list* decode_package(int clientSocket) {
 	int bufferSize, valueSize, offset = 0;
 	void *buffer;
