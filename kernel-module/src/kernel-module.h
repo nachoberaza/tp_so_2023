@@ -17,5 +17,8 @@
 	#include "utils/pcb-utils.h"
 
 
+	void send_package_to_all_targets(t_list *commands, t_kernel_connections* KERNEL_CONNECTIONS);
+	void build_pcb_and_log(t_list *commands);
+	int handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId);
 
 #endif

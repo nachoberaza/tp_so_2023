@@ -11,5 +11,6 @@
 
 	//Only reason for this is so it can be passed as a parameter with only a char*
 	void write_info_to_all_logs(char* message);
+	void write_info_to_internal_log(char* message);
 
 #endif
