@@ -77,7 +77,7 @@
 	t_pcb* new_pcb(void);
 	t_pcb* create_pcb_from_lines(t_list* intructions);
 	t_kernel_instruction* create_instruction(char* instruction);
-	t_list* create_instruction_list_from_lines(t_list* userInput);
+	void populate_instruction_list_from_lines(t_list* instructions,t_list* userInput);
 	void add_intruction(t_pcb* pcb, t_kernel_instruction* instruction);
 	void add_segment(t_pcb* pcb, t_segment_row* segment);
 	void add_file(t_pcb* pcb, t_open_file_row* openFile);

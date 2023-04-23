@@ -18,22 +18,16 @@ t_pcb* new_pcb(void){
 t_pcb* create_pcb_from_lines(t_list* lines){
 	t_pcb *pcb = new_pcb();
 
-	list_destroy(pcb->instructions);
-
-	pcb->instructions = create_instruction_list_from_lines(lines);
+	populate_instruction_list_from_lines(pcb->instructions,lines);
 
 	return pcb;
 }
 
-t_list* create_instruction_list_from_lines(t_list* userInput){
-	t_list* instructions = list_create();
-
+void populate_instruction_list_from_lines(t_list* instructions,t_list* userInput){
 	for (int i=0; i < list_size(userInput); i++){
 		t_kernel_instruction * inst = create_instruction(list_get(userInput, i));
 		list_add(instructions, inst);
 	}
-
-	return instructions;
 }
 
 t_kernel_instruction* create_instruction(char* instruction){
