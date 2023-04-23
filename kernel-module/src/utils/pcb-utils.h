@@ -85,9 +85,9 @@
 	void write_intructions_to_all_logs(t_kernel_instruction* instruction);
 	kernel_command kernel_command_from_string(char * command);
 	char * kernel_command_as_string(kernel_command command);
-	void destroy_open_files_table(t_open_file_row* openFileRow);
-	void destroy_kernel_instructions(t_kernel_instruction* instruction);
-	void destroy_segment_table(t_segment_row* segmentRow);
+	void destroy_open_files_row(t_open_file_row* openFileRow);
+	void destroy_kernel_instruction(t_kernel_instruction* instruction);
+	void destroy_segment_row(t_segment_row* segmentRow);
 	int get_pid();
 	void write_segment_row_to_internal_logs(t_segment_row* segmentRow);
 	void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow);

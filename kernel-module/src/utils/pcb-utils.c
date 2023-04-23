@@ -64,42 +64,39 @@ void add_file(t_pcb* pcb, t_open_file_row* openFile){
 }
 
 void free_pcb(t_pcb* pcb){
-	//TODO: crear funcion que destruya elementos
-	//list_destroy_and_destroy_elements(pcb,funcionDestructiva)
-
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando free_pcb");
 
 	free(pcb->CPU_registers);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "CPU_registers liberado");
 
-	list_destroy_and_destroy_elements(pcb->open_files_table, (void*) destroy_open_files_table);
+	list_destroy_and_destroy_elements(pcb->open_files_table, (void*) destroy_open_files_row);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "open_files_table liberada");
 
-	list_destroy_and_destroy_elements(pcb->segment_table, (void*) destroy_segment_table);
+	list_destroy_and_destroy_elements(pcb->segment_table, (void*) destroy_segment_row);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "segment_table liberada");
 
-	list_destroy_and_destroy_elements(pcb->instructions, (void*) destroy_kernel_instructions);
+	list_destroy_and_destroy_elements(pcb->instructions, (void*) destroy_kernel_instruction);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "instructions liberadas");
 
 	free(pcb);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "pcb liberado");
 }
 
-void destroy_kernel_instructions(t_kernel_instruction* instruction) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_kernel_instructions:");
+void destroy_kernel_instruction(t_kernel_instruction* instruction) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_kernel_instruction:");
 
 	list_destroy(instruction->parameters);
 	free(instruction);
 }
 
-void destroy_segment_table(t_segment_row* segmentRow) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_segment_table");
+void destroy_segment_row(t_segment_row* segmentRow) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_segment_row");
 
 	free(segmentRow);
 }
 
-void destroy_open_files_table(t_open_file_row* openFileRow) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_open_files_table");
+void destroy_open_files_row(t_open_file_row* openFileRow) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_open_files_row");
 
 	free(openFileRow);
 }
@@ -123,7 +120,7 @@ char * kernel_command_as_string(kernel_command command) {
 }
 
 int get_pid() {
-	//Hay un race condition aca donde si teoricamente se llamara a esta func en simultaneo
+	//Hay un race condition aca donde si se llamara a esta func en simultaneo
 	//podria devolver el mismo currentPid, esto deberia hacerse con semaforos una vez
 	//tengamos hilos funcionando, al entrar a este metodo debe chequear si el semaforo esta
 	//en verde, de ser asi lo pone en rojo guarda el valor a devolver, modifica la variable,
@@ -175,7 +172,6 @@ void write_instruction_to_internal_logs(t_kernel_instruction* instruction) {
 }
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
-
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("file: %s", openFileRow->file));
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("pointer: %s", openFileRow->pointer));

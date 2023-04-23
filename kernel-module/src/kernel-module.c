@@ -16,6 +16,7 @@ int main(void) {
 }
 
 int handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId) {
+	//Este método no es representativo de como tiene q funcionar la app realmente, está acá para limpiar el main nomás
 	int clientSocketId = await_client(get_logger(), serverSocketId);
 
 	while (1) {
