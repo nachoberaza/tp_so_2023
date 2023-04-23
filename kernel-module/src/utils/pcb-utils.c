@@ -176,8 +176,6 @@ void write_instruction_to_internal_logs(t_kernel_instruction* instruction) {
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("openfilerow"));
-
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("file: %s", openFileRow->file));
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("pointer: %s", openFileRow->pointer));
