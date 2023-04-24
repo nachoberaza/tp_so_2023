@@ -90,10 +90,10 @@ void fill_package_with_list(t_list* self, t_package* pkg){
 
 int init_handshake(int socket, int module){
 	int handshake = module ;
-	uint32_t result;
+	int result;
 
 	send(socket, &handshake, sizeof(int), NULL);
-	recv(socket, &result, sizeof(uint32_t), MSG_WAITALL);
+	recv(socket, &result, sizeof(int), MSG_WAITALL);
 
 	return result;
 }

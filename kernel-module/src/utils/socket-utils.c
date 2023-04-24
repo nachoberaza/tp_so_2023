@@ -8,7 +8,7 @@ t_kernel_connections* start_connections(t_kernel_config* env) {
 	connections->fileSystem = connect_to_server(env->IP_FILESYSTEM, env->PORT_FILESYSTEM);
 
 	int memoryHandShake = init_handshake(connections->memory, KERNEL);
-	if (memoryHandShake != 0){
+	if (memoryHandShake == ERROR){
 		return -1;
 	}
 	return connections;

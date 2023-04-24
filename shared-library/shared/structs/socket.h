@@ -3,7 +3,7 @@
 
 	typedef enum {
 		MESSAGE, PACKAGE
-	} op_code;
+	} operation_code;
 
 	typedef struct {
 		int size;
@@ -11,7 +11,7 @@
 	} t_buffer;
 
 	typedef struct {
-		op_code operationCode;
+		operation_code operationCode;
 		t_buffer *buffer;
 	} t_package;
 
@@ -19,7 +19,11 @@
 		KERNEL,
 		CPU,
 		FILESYSTEM
-	} module_handshakes;
+	} t_module_handshakes;
 
+	typedef enum{
+		OK,
+		ERROR
+	}t_operation_result;
 
 #endif
