@@ -18,7 +18,7 @@
 
 
 	void send_package_to_all_targets(t_list *commands, t_kernel_connections* KERNEL_CONNECTIONS);
-	void build_pcb_and_log(t_list *commands);
-	int handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId);
+	void build_pcb(t_list *commands);
+	void handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId);
 
 #endif

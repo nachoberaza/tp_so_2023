@@ -12,10 +12,12 @@ int main(void) {
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
 
-	return handle_console(KERNEL_CONNECTIONS, serverSocketId);
+	handle_console(KERNEL_CONNECTIONS, serverSocketId);
+
+	return EXIT_SUCCESS;
 }
 
-int handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId) {
+void handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId) {
 	//Este método no es representativo de como tiene q funcionar la app realmente, está acá para limpiar el main nomás
 	int clientSocketId = await_client(get_logger(), serverSocketId);
 
@@ -26,24 +28,22 @@ int handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId)
 			decode_message(get_logger(),clientSocketId);
 			break;
 		case PACKAGE:
-			t_list * commands = decode_package(clientSocketId);
+			t_list * lines = decode_package(clientSocketId);
 
-			build_pcb_and_log(commands);
+			build_pcb(lines);
 
-			send_package_to_all_targets(commands, KERNEL_CONNECTIONS);
+			send_package_to_all_targets(lines, KERNEL_CONNECTIONS);
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Mande valores a FileSystem, CPU y MEMORIA!\n");
 
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "La consola se desconecto. Cerrando servidor");
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		default:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Operacion desconocida.");
 			break;
 		}
 	}
-
-	return EXIT_SUCCESS;
 }
 
 void send_package_to_all_targets(t_list *commands, t_kernel_connections* KERNEL_CONNECTIONS) {
@@ -59,10 +59,10 @@ void send_package_to_all_targets(t_list *commands, t_kernel_connections* KERNEL_
 	delete_package(packageReceived);
 }
 
-void build_pcb_and_log(t_list *commands) {
+void build_pcb(t_list *lines) {
 	//Este método no es representativo de como tiene q funcionar la app realmente, está acá para limpiar el main nomás
 
-	t_pcb* pcb = create_pcb_from_lines(commands);
+	t_pcb* pcb = create_pcb_from_lines(lines);
 
 	t_open_file_row* open_file_row = malloc(sizeof(t_open_file_row));
 	open_file_row->file = "asd";
