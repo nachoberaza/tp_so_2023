@@ -69,11 +69,10 @@ void* receive_buffer(int *bufferSize, int clientSocket) {
 	return buffer;
 }
 
-t_module_handshakes* receive_handshake(int clientSocket){
+int receive_handshake(int clientSocket){
 	int handshake;
-	recv(clientSocket, &handshake, sizeof(t_module_handshakes), MSG_WAITALL);
+	recv(clientSocket, &handshake, sizeof(int), MSG_WAITALL);
 	return handshake;
-
 }
 
 t_list* decode_package(int clientSocket) {

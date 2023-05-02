@@ -13,6 +13,7 @@ int main(void) {
 
 	//TODO: Ver que hacer en caso de no poder conectarse a memory
 	if (KERNEL_CONNECTIONS == NULL){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al conectarse a la memoria");
 		return EXIT_FAILURE;
 	}
 

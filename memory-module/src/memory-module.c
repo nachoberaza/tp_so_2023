@@ -3,7 +3,7 @@
 
 void acceptModule(void *socketId, t_module_handshakes *module);
 
-void handle_connection(int clientSocketID, t_module_handshakes *module);
+int handle_connection(int clientSocketID,  int module);
 
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
@@ -19,51 +19,57 @@ int main(void) {
 		int clientSocketId = await_client(get_logger(), serverSocketId);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
 
-		t_module_handshakes* handshakeModule = handle_handshake(clientSocketId);
-		if (handshakeModule == NULL){
+		int handshakeModule = handle_handshake(clientSocketId);
+		if (handshakeModule != 0){
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al hacer handshake");
 			return EXIT_FAILURE;
 		}
 
 		// handle_connection
-		handle_connection(clientSocketId, handshakeModule);
+		if(handle_connection(clientSocketId, handshakeModule)!= 0){
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al manejar una conexion");
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;
 }
 
 // TODO: Move to other file
-void acceptModule(void *socketId, t_module_handshakes *module){
-	send(socketId, OK, sizeof(int), NULL); // TODO: send pointer of t_operation_result
+void acceptModule(void *clientSocketId, t_module_handshakes *module){
+	send(clientSocketId, OK, sizeof(t_operation_result), NULL); // TODO: send pointer of t_operation_result
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Accept a %p module", *module)); // TODO: print pointer struct value
 }
 
 // TODO: Move to other file
-t_module_handshakes* handle_handshake(void *socketId){
-	t_module_handshakes* handshake = receive_handshake(socketId);
+int handle_handshake(void *clientSocketId){
+	int handshake = receive_handshake(clientSocketId);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Me llego algo: %d", clientSocketId));
+	/*
 	switch (*handshake) {
 	case KERNEL:
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Handshake ok with a kernel module");
-		acceptModule(socketId, handshake);
+		acceptModule(clientSocketId, handshake);
 		break;
 	case CPU:
-		send(socket, OK, sizeof(int), NULL);
+		send(clientSocketId, OK, sizeof(t_operation_result), NULL);
 		break;
 	case FILESYSTEM:
-		send(socket, OK, sizeof(int), NULL);
+		send(clientSocketId, OK, sizeof(t_operation_result), NULL);
 		break;
 	default:
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Un modulo desconocido intento conectarse");
-		send(socket, ERROR, sizeof(int), NULL);
+		send(clientSocketId, ERROR, sizeof(t_operation_result), NULL);
 		return NULL;
 	}
-
+*/
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("El valor del handshake es: %i", handshake));
 	return handshake;
 }
 
-void handle_connection(int clientSocketId, t_module_handshakes *module){
+int handle_connection(int clientSocketId, int module){
 
-	switch(*module){
+	switch(module){
 	case KERNEL:;
 
 		pthread_t kernel_thread_id;

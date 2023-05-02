@@ -14,6 +14,6 @@
 	#include "utils/logger-utils.h"
 
 	int listen_kernel_connection(void *clientSocketId);
-	t_module_handshakes* handle_handshake(void *clientSocketId);
+	int handle_handshake(void *clientSocketId);
 
 #endif
