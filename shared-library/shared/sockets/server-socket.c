@@ -71,8 +71,11 @@ void* receive_buffer(int *bufferSize, int clientSocket) {
 
 int receive_handshake(int clientSocket){
 	int handshake;
+	int handshake2;
 	recv(clientSocket, &handshake, sizeof(int), MSG_WAITALL);
-	return handshake;
+	handshake2 = handshake;
+	free(handshake);
+	return handshake2;
 }
 
 t_list* decode_package(int clientSocket) {
