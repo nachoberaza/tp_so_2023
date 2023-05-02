@@ -11,8 +11,8 @@ int main(void) {
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 
-	//TODO: Ver que hacer en caso de no poder conectarse a memory
-	if (KERNEL_CONNECTIONS == NULL){
+	//TODO: Esta validacion deberia ir en cada una de las conexiones (CPU, FILESYSTEM, MEMORY)
+	if (KERNEL_CONNECTIONS->memory == NULL){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al conectarse a la memoria");
 		return EXIT_FAILURE;
 	}
