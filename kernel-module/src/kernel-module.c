@@ -12,8 +12,7 @@ int main(void) {
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 
 	//TODO: Ver que hacer en caso de no poder conectarse a memory
-	if (KERNEL_CONNECTIONS == -1){
-		printf("No fue posible conectarse a memory");
+	if (KERNEL_CONNECTIONS == NULL){
 		return EXIT_FAILURE;
 	}
 

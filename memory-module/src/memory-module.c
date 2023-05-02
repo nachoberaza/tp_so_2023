@@ -1,6 +1,9 @@
 #include "memory-module.h"
 
-pthread_t tid[2];
+
+void acceptModule(void *socketId, t_module_handshakes *module);
+
+void handle_connection(int clientSocketID, t_module_handshakes *module);
 
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
@@ -11,44 +14,37 @@ int main(void) {
 	int serverSocketId = start_server(MEMORY_ENV->IP, MEMORY_ENV->PORT, get_logger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
-/*
-	for	(int i=1;i<3;i++)
-	{*/
-		//write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Inside %d", i));
+
+	while(1){
 		int clientSocketId = await_client(get_logger(), serverSocketId);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
 
-		int handshake = handle_handshake(clientSocketId, serverSocketId);
-		if (handshake != 0){
+		t_module_handshakes* handshakeModule = handle_handshake(clientSocketId);
+		if (handshakeModule == NULL){
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al hacer handshake");
 			return EXIT_FAILURE;
 		}
 
-		// Handle connection
-	    /*int err = pthread_create(&(tid[i]), NULL, handle_connection, (void*) &clientSocketId);
-	    if (err != 0){
-	    	printf("\nHubo un problema al crear el thread :[%s]", strerror(err));
-	    	return err;
-	    }*/
-
-
-    pthread_join(tid[0], NULL);
-    pthread_join(tid[1], NULL);
-    pthread_join(tid[2], NULL);
+		// handle_connection
+		handle_connection(clientSocketId, handshakeModule);
+	}
 
 	return EXIT_SUCCESS;
 }
 
-int handle_handshake(void *clientSocketId,int serverSocketId){
-	int handshake = receive_handshake(clientSocketId);
-	switch (handshake) {
+// TODO: Move to other file
+void acceptModule(void *socketId, t_module_handshakes *module){
+	send(socketId, OK, sizeof(int), NULL); // TODO: send pointer of t_operation_result
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Accept a %p module", *module)); // TODO: print pointer struct value
+}
+
+// TODO: Move to other file
+t_module_handshakes* handle_handshake(void *socketId){
+	t_module_handshakes* handshake = receive_handshake(socketId);
+	switch (*handshake) {
 	case KERNEL:
-		send(socket, OK, sizeof(int), NULL);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Handshake Ok ==> ready to listen kernel");
-		int err = pthread_create(&(tid[0]), NULL, listen_kernel_connection, (void*) &clientSocketId);
-		if (err != 0){
-			printf("\nHubo un problema al crear el thread de kernel", strerror(err));
-			return err;
-		}
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Handshake ok with a kernel module");
+		acceptModule(socketId, handshake);
 		break;
 	case CPU:
 		send(socket, OK, sizeof(int), NULL);
@@ -59,42 +55,50 @@ int handle_handshake(void *clientSocketId,int serverSocketId){
 	default:
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Un modulo desconocido intento conectarse");
 		send(socket, ERROR, sizeof(int), NULL);
-		return -1;
+		return NULL;
 	}
 
-	return 0;
+	return handshake;
 }
 
-void* listen_kernel_connection(void *clientSocket)
-{
-	//int clientSocketId = await_client(get_logger(), serverSocketId);
-	int clientSocketId = (int) &clientSocket;
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Waiting for a kernel message in socket %d...\n",clientSocketId));
+void handle_connection(int clientSocketId, t_module_handshakes *module){
 
-	t_list *commands;
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("clientsocket inside handle: %d", clientSocketId));
+	switch(*module){
+	case KERNEL:;
 
-	while (1) {
-		int operationCode = receive_operation_code(clientSocketId);
-		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Operation code received: %d", operationCode));
+		pthread_t kernel_thread_id;
+		int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection, (void*) &clientSocketId);
+		if (err != 0){
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error creating thread to listen kernel");
+			return err;
+		}
 
-		switch (operationCode) {
+		break;
+	case CPU:
+		break;
+	case FILESYSTEM:
+		break;
+	}
+}
+
+// TODO: Move to other file
+int listen_kernel_connection(void *clientSocket){
+	while(1){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Listen a kernel module...");
+
+		int operationCode = receive_operation_code(clientSocket);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Received operation code: %d", operationCode));
+
+		switch(operationCode){
 		case MESSAGE:
-			decode_message(get_logger(),clientSocketId);
-			break;
-		case PACKAGE:
-			commands = decode_package(clientSocketId);
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("clientSocket %d, Me llegaron los siguientes valores:\n", clientSocketId));
-			list_iterate(commands, (void*) write_info_to_all_logs);
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Recibiendo mensaje");
 			break;
 		case -1:
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "el cliente se desconecto. Terminando servidor");
-			exit(EXIT_SUCCESS);
-			break;
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "La consola se desconecto. Cerrando servidor");
+			return EXIT_FAILURE;
 		default:
-			write_to_log(LOG_TARGET_ALL, LOG_LEVEL_WARNING, "Operacion desconocida. No quieras meter la pata");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Operacion desconocida.");
 			break;
 		}
 	}
-
 }

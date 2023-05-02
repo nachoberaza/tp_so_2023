@@ -88,12 +88,14 @@ void fill_package_with_list(t_list* self, t_package* pkg){
 	}
 }
 
-int init_handshake(int socket, int module){
-	int handshake = module ;
-	int result;
+t_operation_result *init_handshake(int socket, t_module_handshakes module){
+	t_module_handshakes handshake = module; //TODO: correct this
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_to_format("Sending: %i", handshake));
 
-	send(socket, &handshake, sizeof(int), NULL);
-	recv(socket, &result, sizeof(int), MSG_WAITALL);
+	t_operation_result result;
 
-	return result;
+	send(socket, &handshake, sizeof(t_module_handshakes), NULL);
+	recv(socket, &result, sizeof(t_operation_result), MSG_WAITALL);
+
+	return &result;
 }

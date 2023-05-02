@@ -20,6 +20,6 @@
 	void* serialize_package(t_package *package, int bytes);
 	void delete_package(t_package *package);
 	void fill_package_with_list(t_list* self, t_package* pkg);
-	int init_handshake(int socket, int module);
+	t_operation_result *init_handshake(int socket, t_module_handshakes module);
 
 #endif

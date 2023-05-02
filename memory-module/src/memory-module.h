@@ -13,7 +13,7 @@
 	#include "utils/config-utils.h"
 	#include "utils/logger-utils.h"
 
-	void* listen_kernel_connection(void *clientSocketId);
-	int handle_handshake(void *clientSocketId,int serverSocketId);
+	int listen_kernel_connection(void *clientSocketId);
+	t_module_handshakes* handle_handshake(void *clientSocketId);
 
 #endif
