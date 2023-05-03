@@ -80,7 +80,7 @@ int handle_connection(int clientSocketId, int module){
 	switch(module){
 	case KERNEL:;
 		pthread_t kernel_thread_id;
-		int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection, (void*) &clientSocketId);
+		int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection, &clientSocketId);
 		if (err != 0){
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error creating thread to listen kernel");
 			return err;
@@ -96,21 +96,28 @@ int handle_connection(int clientSocketId, int module){
 }
 
 // TODO: Remove this method
-int receive_operation_code_2(void* clientSocket) {
-	int operationCode;
-	recv(clientSocket, &operationCode, sizeof(int), MSG_WAITALL);
-	return operationCode;
+int receive_operation_code_2(int clientSocket) {
+	int* operationCode;
+	recv(clientSocket, operationCode, sizeof(int), MSG_WAITALL);
+	return &operationCode;
 }
 
 // TODO: Move to other file
-int listen_kernel_connection(void *clientSocket){
-
-		int operationCode = receive_operation_code_2(clientSocket);
+void* listen_kernel_connection(void* clientSocket){
+	int clientSocketId = *(int*)clientSocket;
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "aaaaa");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("%d", clientSocketId));
+		int operationCode = receive_operation_code(clientSocketId);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Received operation code: %i", operationCode));
 
 		switch(operationCode){
 		case MESSAGE:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Recibiendo mensaje");
+			break;
+		case PACKAGE:
+			t_list *commands = decode_package(clientSocketId);
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Me llego el siguiente package:\n");
+			list_iterate(commands, (void*) write_info_to_all_logs);
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "El kernel se desconecto. Cerrando servidor");

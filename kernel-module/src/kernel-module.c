@@ -34,9 +34,9 @@ int main(void) {
 			list_iterate(commands, (void*) write_info_to_all_logs);
 			t_package* packageReceived = build_package(commands);
 
-			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
-
 			send_package(packageReceived, KERNEL_CONNECTIONS->memory);
+
+			send_package(packageReceived, KERNEL_CONNECTIONS->cpu);
 			send_package(packageReceived, KERNEL_CONNECTIONS->fileSystem);
 			delete_package(packageReceived);
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Mande valores a FileSystem, CPU y MEMORIA!\n");
