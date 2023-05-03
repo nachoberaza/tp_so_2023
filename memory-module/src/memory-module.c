@@ -1,10 +1,5 @@
 #include "memory-module.h"
 
-
-void accept_module(void *socketId, int module);
-
-int handle_connection(int clientSocketID,  int module);
-
 int main(void) {
 	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
 	init_logger(MODULE_NAME, MEMORY_ENV->LOG_LEVEL);
@@ -16,45 +11,61 @@ int main(void) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
 
-		int clientSocketId = await_client(get_logger(), serverSocketId);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Me llego algo: %d", clientSocketId));
+	int clientSocketId = await_client(get_logger(), serverSocketId);
 
-		int handshakeModule = handle_handshake(clientSocketId);
-		if (handshakeModule != 0){
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al hacer handshake");
-			return EXIT_FAILURE;
-		}
+	int handshakeModule = handle_handshake(clientSocketId);
+	if (handshakeModule != 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al hacer handshake");
+		return EXIT_FAILURE;
+	}
 
-
-
-		// handle_connection
-		if(handle_connection(clientSocketId, handshakeModule)!= 0){
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al manejar una conexion");
-			return EXIT_FAILURE;
-		}
-
+	/* Handle connection */
+	if(handle_connection(clientSocketId, handshakeModule)!= 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al manejar una conexion");
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
+
+// TODO: Check if this method is necessary
+char* determinate_module(int module){
+	switch(module){
+	case KERNEL:
+		return "KERNEL";
+		break;
+	case CPU:
+		return "CPU";
+		break;
+	case FILESYSTEM:
+		return "FILESYSTEM";
+		break;
+	}
+	return "";
+};
 
 // TODO: Move to other file
 void accept_module(void *clientSocketId, int module){
 	t_operation_result result = (t_operation_result) OK;
 	send(clientSocketId, &result, sizeof(t_operation_result), NULL);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("%s modulo aceptado", determinate_module(module)));
 }
 
 // TODO: Move to other file
 int handle_handshake(void *clientSocketId){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
+
 	int handshake = receive_handshake(clientSocketId);
 	switch (handshake) {
 	case KERNEL:
 		accept_module(clientSocketId, handshake);
 		break;
 	case CPU:
-		send(clientSocketId, OK, sizeof(t_operation_result), NULL);
+		accept_module(clientSocketId, handshake);
 		break;
 	case FILESYSTEM:
-		send(clientSocketId, OK, sizeof(t_operation_result), NULL);
+		accept_module(clientSocketId, handshake);
 		break;
 	default:
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Un modulo desconocido intento conectarse");
@@ -81,8 +92,10 @@ int handle_connection(int clientSocketId, int module){
 	case FILESYSTEM:
 		break;
 	}
+	return 0;
 }
 
+// TODO: Remove this method
 int receive_operation_code_2(void* clientSocket) {
 	int operationCode;
 	recv(clientSocket, &operationCode, sizeof(int), MSG_WAITALL);
@@ -106,5 +119,5 @@ int listen_kernel_connection(void *clientSocket){
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, "Operacion desconocida.");
 			break;
 		}
-
+		return 0;
 }
