@@ -16,7 +16,12 @@ void write_to_log(t_log_target target, t_log_level logLevel, char* message) {
 }
 
 void write_info_to_all_logs(char* message) {
+	//Deprecated
 	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, message);
+}
+
+void write_info_to_internal_log(char* message) {
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, message);
 }
 
 t_log_grouping* get_logger(){
