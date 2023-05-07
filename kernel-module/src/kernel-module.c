@@ -11,9 +11,7 @@ int main(void) {
 
 	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
 
-	//TODO: Esta validacion deberia ir en cada una de las conexiones (CPU, FILESYSTEM, MEMORY)
-	if (KERNEL_CONNECTIONS->memory == NULL){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "Error al conectarse a la memoria");
+	if (KERNEL_CONNECTIONS == ERROR){
 		return EXIT_FAILURE;
 	}
 
@@ -34,7 +32,7 @@ void handle_console(t_kernel_connections* KERNEL_CONNECTIONS, int serverSocketId
 		case MESSAGE:
 			decode_message(get_logger(),clientSocketId);
 			break;
-		case PACKAGE:
+		case PACKAGE:;
 			t_list * lines = decode_package(clientSocketId);
 
 			build_pcb(lines);
