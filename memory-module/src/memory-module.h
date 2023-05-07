@@ -12,10 +12,6 @@
 	#include <pthread.h>
 	#include "utils/config-utils.h"
 	#include "utils/logger-utils.h"
-
-	void* listen_kernel_connection(void *clientSocket);
-	int handle_handshake(void* clientSocketId);
-	void accept_module(void* socketId, int module);
-	int handle_connection(int clientSocketID,  int module);
+	#include "utils/socket-utils.h"
 
 #endif
