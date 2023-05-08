@@ -4,13 +4,14 @@
 	#include <pthread.h>
 	#include "config-utils.h"
 	#include "logger-utils.h"
+    #include "structs.h"
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
 
-	int handle_handshake(void* clientSocketId);
-	char* determinate_module(int module);
-	void accept_module(void* socketId, int module);
+	pthread_t* handle_handshake(int clientSocketId);
+	char *module_as_string(module_handshakes module);
+	void accept_module(int clientSocketId, int module);
 	void* listen_kernel_connection(void *clientSocket);
-	int handle_kernel_connection(void *clientSocket);
+	pthread_t handle_kernel_connection(int clientSocketId);
 
 #endif

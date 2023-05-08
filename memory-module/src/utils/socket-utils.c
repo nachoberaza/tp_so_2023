@@ -1,72 +1,67 @@
 #include "socket-utils.h"
 
-int handle_handshake(void *clientSocket) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
+void add_pthread_id(pthread_t *kernel_thread_id, pthread_t *modules_thread_id){
+	for(int i = 0; i < MODULE_ENUM_SIZE; i++){
+		if(modules_thread_id[i]==NULL){
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Agregando threadid %i a la lista",kernel_thread_id));
+			modules_thread_id[i]=kernel_thread_id;
+		}
+	}
+}
 
-	int handshake = receive_handshake(clientSocket);
+pthread_t* handle_handshake(int clientSocketId) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
+	pthread_t modules_thread_id[3];
+	int handshake = receive_handshake(clientSocketId);
 	switch (handshake) {
 	case KERNEL:
-		accept_module(clientSocket, handshake);
-
-		int err = handle_kernel_connection(clientSocket);
-		if (err != 0) {
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"Error handle kernel connection");
-			return -1;
-		}
-
+		accept_module(clientSocketId, handshake);
+		pthread_t kernel_thread_id = handle_kernel_connection(clientSocketId);
+		add_pthread_id(&kernel_thread_id, modules_thread_id);
+		pthread_join(kernel_thread_id,NULL);
 		break;
 	case CPU:
-		accept_module(clientSocket, handshake);
+		accept_module(clientSocketId, handshake);
 		break;
 	case FILESYSTEM:
-		accept_module(clientSocket, handshake);
+		accept_module(clientSocketId, handshake);
 		break;
 	default:
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Un modulo desconocido intento conectarse");
-		send(clientSocket, ERROR, sizeof(t_operation_result), NULL);
-		return NULL;
+		send(clientSocketId, OPERATION_RESULT_ERROR, sizeof(operation_result), NULL);
+		exit(EXIT_FAILURE);
 	}
-	return handshake;
+	return modules_thread_id;
 }
 
-char* determinate_module(int module) {
-	switch (module) {
-	case KERNEL:
-		return "KERNEL";
-		break;
-	case CPU:
-		return "CPU";
-		break;
-	case FILESYSTEM:
-		return "FILESYSTEM";
-		break;
-	}
-	return "";
-}
-;
-
-void accept_module(void *clientSocketId, int module) {
-	t_operation_result result = (t_operation_result) OK;
-	send(clientSocketId, &result, sizeof(t_operation_result), NULL);
-
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("%s modulo aceptado",determinate_module(module)));
+char * module_as_string(module_handshakes module) {
+	return moduleNames[module];
 }
 
-int handle_kernel_connection(void *clientSocket) {
+void accept_module(int clientSocketId, int module) {
+	operation_result result = (operation_result) OPERATION_RESULT_OK;
+	send(clientSocketId, &result, sizeof(operation_result), NULL);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("El valor del client id aceptado es %i",clientSocketId));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Modulo %s aceptado",module_as_string(module)));
+}
+
+pthread_t handle_kernel_connection(int clientSocketId) {
 	pthread_t kernel_thread_id;
-
-	int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection,&clientSocket);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Voy a crear el hilo para escuchar a kernel");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,string_from_format("El valor del client id a crear es %i",clientSocketId));
+	int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection,&clientSocketId);
 	if (err != 0) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"Error creating thread to listen kernel");
-		return err;
+		exit(EXIT_FAILURE);
 	}
-	pthread_join(kernel_thread_id, NULL); // TODO: Revisar si esto es necesario
 
-	return 0;
+	return kernel_thread_id;
 }
 
 void* listen_kernel_connection(void *clientSocket) {
-	int clientSocketId = *(int*) clientSocket;
+	//TODO: Error en casteo de datos. Se pierde el valor del clientSocketId
+	int clientSocketId = *((int*) clientSocket);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,string_from_format("El valor del client socket id recibido: %i", clientSocketId));
 	while(1){
 		int operationCode = receive_operation_code(clientSocketId);
