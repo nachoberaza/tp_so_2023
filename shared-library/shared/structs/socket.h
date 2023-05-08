@@ -19,11 +19,11 @@
 		KERNEL,
 		CPU,
 		FILESYSTEM
-	} t_module_handshakes;
+	} module_handshakes;
 
 	typedef enum{
-		OK,
-		ERROR
-	}t_operation_result;
+		OPERATION_RESULT_OK,
+		OPERATION_RESULT_ERROR
+	}operation_result;
 
 #endif

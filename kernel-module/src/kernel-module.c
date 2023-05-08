@@ -9,15 +9,11 @@ int main(void) {
 	int serverSocketId = start_server(KERNEL_ENV->IP, KERNEL_ENV->PORT, get_logger());
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor de kernel listo");
 
-	t_kernel_connections* KERNEL_CONNECTIONS = start_connections(KERNEL_ENV);
-
-	if (KERNEL_CONNECTIONS == ERROR){
-		return EXIT_FAILURE;
-	}
+	t_kernel_connections* kernelConnections = start_connections(KERNEL_ENV);
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Kernel conectado a CPU, FileSystem y Memoria");
 
-	handle_console(KERNEL_CONNECTIONS, serverSocketId);
+	handle_console(kernelConnections, serverSocketId);
 
 	return EXIT_SUCCESS;
 }
