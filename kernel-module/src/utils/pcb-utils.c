@@ -1,10 +1,17 @@
 #include "pcb-utils.h"
 
 int currentPid = 0;
+t_list * pcbList;
 
-t_pcb* new_pcb(void){
+void start_pcb_list() {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "PCB List creado");
+	pcbList = list_create();
+}
+
+t_pcb* new_pcb(int clientSocketId){
 	t_pcb *pcb = malloc(sizeof(t_pcb));
 
+	pcb->clientSocketId = clientSocketId;
 	pcb->pid = get_pid();
 	pcb->instructions = list_create();
 	pcb->segmentTable = list_create();
@@ -15,8 +22,25 @@ t_pcb* new_pcb(void){
 	return pcb;
 }
 
-t_pcb* create_pcb_from_lines(t_list* lines){
-	t_pcb *pcb = new_pcb();
+void build_pcb(t_list *lines, int clientSocketId) {
+	t_pcb* pcb = create_pcb_from_lines(lines, clientSocketId);
+
+	t_open_file_row* open_file_row = malloc(sizeof(t_open_file_row));
+	// TODO: Eliminar valores hardcodeados.
+	open_file_row->file = "asd";
+	open_file_row->pointer = "asd2";
+	add_file(pcb, open_file_row);
+
+	t_segment_row* segment_row = malloc(sizeof(t_segment_row));
+	add_segment(pcb, segment_row);
+
+	log_pcb(pcb);
+
+	list_add(pcbList, pcb);
+}
+
+t_pcb* create_pcb_from_lines(t_list* lines, int clientSocketId){
+	t_pcb *pcb = new_pcb(clientSocketId);
 
 	populate_instruction_list_from_lines(pcb->instructions,lines);
 
@@ -127,6 +151,8 @@ void log_pcb(t_pcb* pcb) {
 	t_log_level log_level = LOG_LEVEL_INFO;
 
 	write_to_log(LOG_TARGET_INTERNAL, log_level, "Logging PCB:\n");
+
+	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("clientSocketId: %d", pcb->clientSocketId));
 
 	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("pid: %d", pcb->pid));
 

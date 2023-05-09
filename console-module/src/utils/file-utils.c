@@ -1,6 +1,6 @@
 #include "file-utils.h"
 
-void fill_package_from_file(t_package *package){
+void fill_buffer_from_file(t_buffer* buffer){
 	FILE * file;
 	char * line = NULL;
 	//variable para uso interno del getLine, no viene al caso y no deberiamos usarla
@@ -17,7 +17,7 @@ void fill_package_from_file(t_package *package){
 		}
 
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Line value: %s", line));
-		fill_buffer(package, line, lineLength);
+		fill_buffer_with_string(buffer, line, lineLength);
 	}
 
 	fclose(file);

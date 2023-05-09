@@ -10,4 +10,37 @@ t_kernel_connections* start_connections(t_kernel_config* env) {
 	return connections;
 }
 
+int handle_console_handshake(int clientSocketId) {
+	int resultOk = 0, resultError = 1;
+	int handshake;
+	recv(clientSocketId, &handshake, sizeof(int), MSG_WAITALL);
+	if (handshake != 0){
+		send(clientSocketId, &resultError, sizeof(int), 0);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Consola con clientSocketId: %d, RECHAZADA", clientSocketId));
+		close(clientSocketId);
+		return -1;
+	}
 
+	send(clientSocketId, &resultOk, sizeof(int), 0);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Consola con clientSocketId: %d, ACEPTADA", clientSocketId));
+	return handshake;
+}
+
+void listen_consoles(int serverSocketId) {
+	int clientSocketId, handshakeStatus;
+	t_list * lines;
+	start_pcb_list();
+	int cont = 0;
+	while (cont < 3) {
+		clientSocketId = await_client(get_logger(), serverSocketId);
+		handshakeStatus = handle_console_handshake(clientSocketId);
+		if(handshakeStatus != 0){
+			continue;
+		}
+		lines = decode_package(clientSocketId);
+
+		build_pcb(lines, clientSocketId);
+		list_destroy(lines);
+		cont++;
+	}
+}

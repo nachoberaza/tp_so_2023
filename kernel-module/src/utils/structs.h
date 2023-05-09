@@ -41,6 +41,7 @@
 	}t_cpu_register;
 
 	typedef struct {
+		int clientSocketId;
 		int pid;
 		t_list* instructions; //lista con elementos t_kernel_instructions
 		int program_counter;

@@ -1,19 +1,21 @@
 #include "console-module.h"
 
 int main(void) {
-	t_console_config *CONSOLE_ENV = create_console_config(MODULE_NAME);
+	t_console_config *consoleEnv = create_console_config(MODULE_NAME);
 
-	init_logger(MODULE_NAME, CONSOLE_ENV->LOG_LEVEL);
+	init_logger(MODULE_NAME, consoleEnv->LOG_LEVEL);
 
-	log_config(CONSOLE_ENV);
+	log_config(consoleEnv);
 
-	int kernelConnection = connect_to_server(CONSOLE_ENV->IP_KERNEL,
-			CONSOLE_ENV->PORT_KERNEL);
+	connect_to_kernel(consoleEnv);
 
-	t_package* package = create_package();
-	fill_package_from_file(package);
-	send_package(package, kernelConnection);
-	cleanup(kernelConnection, get_logger());
+	handle_kernel_handshake();
+
+	send_instructions_to_kernel();
+
+	handle_kernel_response();
+
+	cleanup(get_kernel_connection(), get_logger());
 
 	return EXIT_SUCCESS;
 }
