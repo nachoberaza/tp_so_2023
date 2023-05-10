@@ -1,5 +1,7 @@
 #include "socket-utils.h"
 
+pthread_t modules_thread_id[3];
+
 void add_pthread_id(pthread_t *kernel_thread_id, pthread_t *modules_thread_id){
 	for(int i = 0; i < MODULE_ENUM_SIZE; i++){
 		if(modules_thread_id[i]==NULL){
@@ -11,13 +13,12 @@ void add_pthread_id(pthread_t *kernel_thread_id, pthread_t *modules_thread_id){
 
 pthread_t* handle_handshake(int clientSocketId) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
-	pthread_t modules_thread_id[3];
 	int handshake = receive_handshake(clientSocketId);
 	switch (handshake) {
 	case KERNEL:
 		accept_module(clientSocketId, handshake);
-		pthread_t kernel_thread_id = handle_kernel_connection(clientSocketId);
-		add_pthread_id(&kernel_thread_id, modules_thread_id);
+		pthread_t kernel_thread_id = handle_kernel_connection(&clientSocketId);
+		//add_pthread_id(&kernel_thread_id, modules_thread_id);
 		pthread_join(kernel_thread_id,NULL);
 		break;
 	case CPU:
@@ -46,11 +47,10 @@ void accept_module(int clientSocketId, int module) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Modulo %s aceptado",module_as_string(module)));
 }
 
-pthread_t handle_kernel_connection(int clientSocketId) {
+pthread_t handle_kernel_connection(int *clientSocketId) {
 	pthread_t kernel_thread_id;
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Voy a crear el hilo para escuchar a kernel");
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,string_from_format("El valor del client id a crear es %i",clientSocketId));
-	int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection,&clientSocketId);
+
+	int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection,(void*) clientSocketId);
 	if (err != 0) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"Error creating thread to listen kernel");
 		exit(EXIT_FAILURE);
@@ -61,8 +61,7 @@ pthread_t handle_kernel_connection(int clientSocketId) {
 
 void* listen_kernel_connection(void *clientSocket) {
 	//TODO: Error en casteo de datos. Se pierde el valor del clientSocketId
-	int clientSocketId = *((int*) clientSocket);
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,string_from_format("El valor del client socket id recibido: %i", clientSocketId));
+	int clientSocketId = *(int*) clientSocket;
 	while(1){
 		int operationCode = receive_operation_code(clientSocketId);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Listen kernel connection -> Received operation code: %i",operationCode));

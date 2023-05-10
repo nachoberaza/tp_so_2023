@@ -12,6 +12,6 @@
 	char *module_as_string(module_handshakes module);
 	void accept_module(int clientSocketId, int module);
 	void* listen_kernel_connection(void *clientSocket);
-	pthread_t handle_kernel_connection(int clientSocketId);
+	pthread_t handle_kernel_connection(int *clientSocketId);
 
 #endif

@@ -17,6 +17,7 @@ int main(void) {
 
 	modules_thread_id= handle_handshake(clientSocketId);
 
-	pthread_join(modules_thread_id[0],NULL);
+	//pthread_join(modules_thread_id[0],NULL);
+
 	return EXIT_SUCCESS;
 }
