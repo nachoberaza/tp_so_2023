@@ -10,7 +10,7 @@ t_kernel_connections* start_connections(t_kernel_config* env) {
 
 	operation_result memoryHandShake = init_handshake(connections->memory, (module_handshakes) KERNEL);
 
-	if (memoryHandShake == OPERATION_RESULT_ERROR){
+	if ((operation_result)memoryHandShake == OPERATION_RESULT_ERROR){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "No se pudo establecer conexion con el modulo de memoria");
 		exit(EXIT_FAILURE);
 	}

@@ -8,4 +8,11 @@
 			[CPU] = "CPU",
 			[FILESYSTEM] = "FILESYSTEM",
 		};
+
+	typedef struct {
+		pthread_t kernelThread;
+		pthread_t cpuThread;
+		pthread_t fileSystemThread;
+	} t_modules_thread_id;
+
 #endif
