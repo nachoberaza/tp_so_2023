@@ -90,8 +90,8 @@ void fill_package_with_list(t_list* self, t_package* pkg){
 
 operation_result init_handshake(int socket, module_handshakes module){
 	operation_result result;
-
-	send(socket, &module, sizeof(module_handshakes), NULL);
+	module_handshakes moduleToSend= module;
+	send(socket, &moduleToSend, sizeof(module_handshakes), NULL);
 	recv(socket, &result, sizeof(module_handshakes), MSG_WAITALL);
 
 	return result;

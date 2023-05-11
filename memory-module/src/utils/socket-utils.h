@@ -8,10 +8,12 @@
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
 
-	void handle_handshake(int clientSocketId, t_modules_thread_id *modules_thread_id);
+	void handle_handshake(int clientSocketId);
 	char *module_as_string(module_handshakes module);
 	void accept_module(int clientSocketId, int module);
-	void* listen_kernel_connection(void *clientSocket);
-	pthread_t handle_kernel_connection(int *clientSocketId);
+	void listen_kernel_connection(int clientSocketId);
+	void handle_kernel_connection(int clientSocketId);
+	t_modules_thread_id *get_modules_thread_id();
+	void init_modules();
 
 #endif

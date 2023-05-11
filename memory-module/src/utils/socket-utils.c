@@ -1,13 +1,14 @@
 #include "socket-utils.h"
 
-void handle_handshake(int clientSocketId, t_modules_thread_id *modules_thread_id) {
+t_modules_thread_id *modulesThreadId;
+
+void handle_handshake(int clientSocketId) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
 	int handshake = receive_handshake(clientSocketId);
 	switch (handshake) {
 	case KERNEL:
 		accept_module(clientSocketId, handshake);
-		pthread_t kernel_thread_id = handle_kernel_connection(&clientSocketId);
-		modules_thread_id->kernelThread = kernel_thread_id;
+		handle_kernel_connection(clientSocketId);
 		break;
 	case CPU:
 		accept_module(clientSocketId, handshake);
@@ -15,15 +16,22 @@ void handle_handshake(int clientSocketId, t_modules_thread_id *modules_thread_id
 	case FILESYSTEM:
 		accept_module(clientSocketId, handshake);
 		break;
-	default:
+	default:;
+		operation_result response= OPERATION_RESULT_ERROR;
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Un modulo desconocido intento conectarse");
-		send(clientSocketId, OPERATION_RESULT_ERROR, sizeof(operation_result), NULL);
+		send(clientSocketId, &response, sizeof(operation_result), NULL);
 		exit(EXIT_FAILURE);
 	}
 }
 
-char * module_as_string(module_handshakes module) {
+char *module_as_string(module_handshakes module) {
 	return moduleNames[module];
+}
+void init_modules(){
+	modulesThreadId=malloc(sizeof(t_modules_thread_id));
+}
+t_modules_thread_id *get_modules_thread_id(){
+	return modulesThreadId;
 }
 
 void accept_module(int clientSocketId, int module) {
@@ -32,20 +40,15 @@ void accept_module(int clientSocketId, int module) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Modulo %s aceptado",module_as_string(module)));
 }
 
-pthread_t handle_kernel_connection(int *clientSocketId) {
-	pthread_t kernel_thread_id;
-
-	int err = pthread_create(&kernel_thread_id, NULL, listen_kernel_connection,(void*) clientSocketId);
+void handle_kernel_connection(int clientSocketId) {
+	int err = pthread_create(&modulesThreadId->kernelThread, NULL, listen_kernel_connection,clientSocketId);
 	if (err != 0) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"Error creating thread to listen kernel");
 		exit(EXIT_FAILURE);
 	}
-
-	return kernel_thread_id;
 }
 
-void* listen_kernel_connection(void *clientSocket) {
-	int clientSocketId = *(int*) clientSocket;
+void listen_kernel_connection(int clientSocketId) {
 	while(1){
 		int operationCode = receive_operation_code(clientSocketId);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Listen kernel connection -> Received operation code: %i",operationCode));
@@ -60,11 +63,10 @@ void* listen_kernel_connection(void *clientSocket) {
 			break;
 		case -1:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"El kernel se desconecto. Cerrando servidor");
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		default:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Operacion desconocida.");
 			break;
 		}
 	}
-	return 0;
 }
