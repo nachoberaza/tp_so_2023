@@ -96,7 +96,7 @@ t_buffer* create_buffer() {
 	return buffer;
 }
 
-void fill_buffer_with_string(t_buffer *buffer, void *lineValue, int lineSize) {
+void fill_buffer(t_buffer *buffer, void *lineValue, int lineSize) {
 	buffer->stream = realloc(buffer->stream,
 			buffer->size + lineSize + sizeof(int));
 

@@ -12,11 +12,18 @@
 	#include <shared/logs/log.h>
 	#include <shared/sockets/server-socket.h>
 	#include <shared/sockets/client-socket.h>
+	#include <shared/serialization/serialization.h>
 	#include "utils/config-utils.h"
 	#include "utils/socket-utils.h"
 	#include "utils/logger-utils.h"
 	#include "utils/pcb-utils.h"
 	#include "utils/thread-utils.h"
+	#include "utils/cpu-communication-utils.h"
 
-	void placeholder_function();
+	//Only for sleep, must be removed eventually
+	#include <unistd.h>
+
+	void placeholder_function(t_kernel_connections* kernelConnections);
+	void nosequeponerle(t_kernel_connections* kernelConnections);
+
 #endif

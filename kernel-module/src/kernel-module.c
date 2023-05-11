@@ -14,13 +14,24 @@ int main(void) {
 
 	create_listener_thread(serverSocketId);
 
-	// TODO: Reemplazar funcion con la funcion que haga el procesamiento.
-    placeholder_function();
+    placeholder_function(kernelConnections);
 
 	pthread_join(get_listener_thread(), NULL);
 	return EXIT_SUCCESS;
 }
 
-void placeholder_function() {
+void placeholder_function(t_kernel_connections* kernelConnections) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Placeholder - Pase el thread create");
+
+	while(1){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "Sleeping 5");
+		sleep(5);
+
+		int size = list_size(get_pcb_list());
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Cant de elementos en PCB: %d", size));
+
+		if (size > 0){
+			nosequeponerle(kernelConnections);
+		}
+	}
 }

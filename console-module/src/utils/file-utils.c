@@ -14,10 +14,11 @@ void fill_buffer_from_file(t_buffer* buffer){
 	while ((lineLength = getline(&line, &bufferSize, file)) != -1) {
 		if (string_ends_with(line,"\n")){
 			line = string_substring(line, 0, lineLength-1);
-		}
+		}else
+			lineLength++;
 
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Line value: %s", line));
-		fill_buffer_with_string(buffer, line, lineLength);
+		fill_buffer(buffer, line, lineLength);
 	}
 
 	fclose(file);

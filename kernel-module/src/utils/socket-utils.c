@@ -40,7 +40,6 @@ void listen_consoles(int serverSocketId) {
 		lines = decode_package(clientSocketId);
 
 		build_pcb(lines, clientSocketId);
-		list_destroy(lines);
 		cont++;
 	}
 }
