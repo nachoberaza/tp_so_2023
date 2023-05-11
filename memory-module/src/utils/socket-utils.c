@@ -50,23 +50,7 @@ void handle_kernel_connection(int clientSocketId) {
 
 void listen_kernel_connection(int clientSocketId) {
 	while(1){
-		int operationCode = receive_operation_code(clientSocketId);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Listen kernel connection -> Received operation code: %i",operationCode));
-		switch (operationCode) {
-		case MESSAGE:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Recibiendo mensaje");
-			break;
-		case PACKAGE:;
-			t_list *commands = decode_package(clientSocketId);
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,"Me llego el siguiente package:\n");
-			list_iterate(commands, (void*) write_info_to_all_logs);
-			break;
-		case -1:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"El kernel se desconecto. Cerrando servidor");
-			exit(EXIT_FAILURE);
-		default:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING,"Operacion desconocida.");
-			break;
-		}
+		sleep(30);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Listen Kernel Connection");
 	}
 }
