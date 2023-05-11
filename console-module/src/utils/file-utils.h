@@ -9,6 +9,6 @@
 	#include <readline/readline.h>
 	#include "logger-utils.h"
 
-	void fill_package_from_file(t_package *package);
+	void fill_buffer_from_file(t_buffer *buffer);
 
 #endif

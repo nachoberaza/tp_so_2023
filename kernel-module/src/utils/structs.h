@@ -1,61 +1,20 @@
 #ifndef UTILS_STRUCTS_H_
 #define UTILS_STRUCTS_H_
 
-	#define COMMAND_ENUM_SIZE 3
 	#define STATE_PROCESS_ENUM_SIZE 4
+	#include <shared/sockets/client-socket.h>
+	#include <shared/structs/execution-context.h>
 
 	typedef enum {
-		NEW, READY, EXEC,BLOCK
+		NEW, READY, RUNNING,BLOCK
 	} state_process;
-
-	typedef enum {
-			SET,YIELD,EXIT
-	} kernel_command;
-
-	static char * commandNames[COMMAND_ENUM_SIZE] = {
-		[SET] = "SET",
-		[YIELD] = "YIELD",
-		[EXIT] = "EXIT",
-	};
 
 	static char * stateNames[STATE_PROCESS_ENUM_SIZE] = {
 		[NEW] = "NEW",
 		[READY] = "READY",
-		[EXEC] = "EXEC",
+		[RUNNING] = "RUNNING",
 		[BLOCK] = "BLOCK",
 	};
-
-	typedef struct {
-			char AX[4];
-			char BX[4];
-			char CX[4];
-			char DX[4];
-			char EAX[8];
-			char EBX[8];
-			char ECX[8];
-			char EDX[8];
-			char RAX[16];
-			char RBX[16];
-			char RCX[16];
-			char RDX[16];
-	}t_cpu_register;
-
-	typedef struct {
-		int pid;
-		t_list* instructions; //lista con elementos t_kernel_instructions
-		int program_counter;
-		t_cpu_register* cpuRegisters;
-		t_list* segmentTable; //lista con elementos t_segment_row
-		float nextBurstEstimate;
-		int timeArrivalReady; //puede ser time_t
-		t_list* openFilesTable;//lista con elementos t_open_file_row
-		state_process state;
-	} t_pcb;
-
-	typedef struct {
-		kernel_command command;
-		t_list* parameters;
-	} t_kernel_instruction;
 
 	typedef struct {
 		int id;
@@ -67,5 +26,15 @@
 		char* file;
 		char* pointer;
 	} t_open_file_row;
+
+	typedef struct {
+		int clientSocketId;
+		t_list* segmentTable; //lista con elementos t_segment_row
+		float nextBurstEstimate;
+		int timeArrivalReady;
+		t_list* openFilesTable;//lista con elementos t_open_file_row
+		state_process state;
+		t_execution_context* executionContext;
+	} t_pcb;
 
 #endif

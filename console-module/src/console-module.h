@@ -11,5 +11,6 @@
 	#include "utils/config-utils.h"
 	#include "utils/logger-utils.h"
 	#include "utils/file-utils.h"
+	#include "utils/socket-utils.h"
 
 #endif

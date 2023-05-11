@@ -44,6 +44,7 @@ int start_server(char* IP, char* PORT, t_log_grouping* loggers) {
 int await_client(t_log_grouping* logger, int serverSocket) {
 	// Aceptamos un nuevo cliente
 	int clientSocket = accept(serverSocket, NULL, NULL);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("serverSocketId: [%d]", serverSocket));
 	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, "Se conecto un cliente!");
 
 	return clientSocket;

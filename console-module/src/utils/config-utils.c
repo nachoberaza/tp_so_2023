@@ -12,7 +12,6 @@ t_console_config* create_console_config(char *moduleName) {
 
 	consoleConfig->LOG_LEVEL = log_level_from_string(
 			config_get_string_value(config, "LOG_LEVEL"));
-
 	return consoleConfig;
 }
 

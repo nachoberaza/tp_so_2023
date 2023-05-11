@@ -1,42 +1,95 @@
 #include "pcb-utils.h"
 
 int currentPid = 0;
+t_list * pcbList;
 
-t_pcb* new_pcb(void){
+void start_pcb_list() {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "PCB List creado");
+	pcbList = list_create();
+}
+
+t_list* get_pcb_list(){
+	return pcbList;
+}
+
+t_pcb* new_pcb(int clientSocketId){
 	t_pcb *pcb = malloc(sizeof(t_pcb));
 
-	pcb->pid = get_pid();
-	pcb->instructions = list_create();
+	pcb->clientSocketId = clientSocketId;
 	pcb->segmentTable = list_create();
 	pcb->openFilesTable = list_create();
-	pcb->cpuRegisters = malloc(sizeof(t_kernel_instruction));
+	pcb->executionContext = malloc(sizeof(t_execution_context));
+	pcb->executionContext->pid = get_pid();
+	pcb->executionContext->cpuRegisters = malloc(sizeof(t_cpu_register));
+	pcb->executionContext->instructions = list_create();
+	pcb->executionContext->programCounter = 0;
 	pcb->state = NEW;
 
 	return pcb;
 }
 
-t_pcb* create_pcb_from_lines(t_list* lines){
-	t_pcb *pcb = new_pcb();
+void build_pcb(t_list *lines, int clientSocketId) {
+	t_pcb* pcb = create_pcb_from_lines(lines, clientSocketId);
 
-	populate_instruction_list_from_lines(pcb->instructions,lines);
+	t_open_file_row* open_file_row = malloc(sizeof(t_open_file_row));
+	// TODO: Eliminar valores hardcodeados.
+	open_file_row->file = "asd";
+	open_file_row->pointer = "asd2";
+	add_file(pcb, open_file_row);
+
+	t_segment_row* segment_row = malloc(sizeof(t_segment_row));
+	add_segment(pcb, segment_row);
+
+	pcb->executionContext->exitReason = REASON_BLOCK;
+
+	strncpy(pcb->executionContext->cpuRegisters->AX, "Hi", sizeof(char) * 4);
+	t_instruction* inst = list_get(pcb->executionContext->instructions, 0);
+
+	char* value = list_get(inst->parameters, 1);
+	strncpy(pcb->executionContext->cpuRegisters->AX, value, sizeof(char) * 4);
+
+	strncpy(pcb->executionContext->cpuRegisters->BX, "Hi", sizeof(char) * 4);
+	strncpy(pcb->executionContext->cpuRegisters->CX, "Hi", sizeof(char) * 4);
+	strncpy(pcb->executionContext->cpuRegisters->DX, "Hi", sizeof(char) * 4);
+
+	strncpy(pcb->executionContext->cpuRegisters->EAX, "Hello", sizeof(char) * 8);
+	strncpy(pcb->executionContext->cpuRegisters->EBX, "Hello", sizeof(char) * 8);
+	strncpy(pcb->executionContext->cpuRegisters->ECX, "Hello", sizeof(char) * 8);
+	strncpy(pcb->executionContext->cpuRegisters->EDX, "Hello", sizeof(char) * 8);
+
+	strncpy(pcb->executionContext->cpuRegisters->RAX, "Hello there", sizeof(char) * 16);
+	strncpy(pcb->executionContext->cpuRegisters->RBX, "Hello there", sizeof(char) * 16);
+	strncpy(pcb->executionContext->cpuRegisters->RCX, "Hello there", sizeof(char) * 16);
+	strncpy(pcb->executionContext->cpuRegisters->RDX, "Hello there", sizeof(char) * 16);
+
+
+	log_pcb(pcb);
+
+	list_add(pcbList, pcb);
+}
+
+t_pcb* create_pcb_from_lines(t_list* lines, int clientSocketId){
+	t_pcb *pcb = new_pcb(clientSocketId);
+
+	populate_instruction_list_from_lines(pcb->executionContext->instructions,lines);
 
 	return pcb;
 }
 
 void populate_instruction_list_from_lines(t_list* instructions,t_list* lines){
 	for (int i=0; i < list_size(lines); i++){
-		t_kernel_instruction * instruction = create_instruction(list_get(lines, i));
+		t_instruction * instruction = create_instruction(list_get(lines, i));
 		list_add(instructions, instruction);
 	}
 }
 
-t_kernel_instruction* create_instruction(char* line){
-	t_kernel_instruction * instruction = malloc(sizeof(t_kernel_instruction));
+t_instruction* create_instruction(char* line){
+	t_instruction * instruction = malloc(sizeof(t_instruction));
 	instruction->parameters = list_create();
 
 	char** splitLine = string_split(line," ");
 
-	instruction->command= kernel_command_from_string(splitLine[0]);
+	instruction->command= command_from_string(get_logger(), splitLine[0]);
 	for (int i=1; i< string_array_size(splitLine);i++){
 		list_add(instruction->parameters, splitLine[i]);
 	}
@@ -45,8 +98,8 @@ t_kernel_instruction* create_instruction(char* line){
 }
 
 
-void add_instruction(t_pcb* pcb, t_kernel_instruction* instruction){
-	list_add(pcb->instructions, instruction);
+void add_instruction(t_pcb* pcb, t_instruction* instruction){
+	list_add(pcb->executionContext->instructions, instruction);
 }
 
 void add_segment(t_pcb* pcb, t_segment_row* segment){
@@ -60,8 +113,7 @@ void add_file(t_pcb* pcb, t_open_file_row* openFile){
 void free_pcb(t_pcb* pcb){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando free_pcb");
 
-	free(pcb->cpuRegisters);
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "CPU_registers liberado");
+	destroy_execution_context(get_logger(), pcb->executionContext);
 
 	list_destroy_and_destroy_elements(pcb->openFilesTable, (void*) destroy_open_files_row);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "open_files_table liberada");
@@ -69,19 +121,11 @@ void free_pcb(t_pcb* pcb){
 	list_destroy_and_destroy_elements(pcb->segmentTable, (void*) destroy_segment_row);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "segment_table liberada");
 
-	list_destroy_and_destroy_elements(pcb->instructions, (void*) destroy_kernel_instruction);
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "instructions liberadas");
 
 	free(pcb);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "pcb liberado");
 }
 
-void destroy_kernel_instruction(t_kernel_instruction* instruction) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_kernel_instruction:");
-
-	list_destroy(instruction->parameters);
-	free(instruction);
-}
 
 void destroy_segment_row(t_segment_row* segmentRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_segment_row");
@@ -93,24 +137,6 @@ void destroy_open_files_row(t_open_file_row* openFileRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_open_files_row");
 
 	free(openFileRow);
-}
-
-kernel_command kernel_command_from_string(char * command) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Ejecutando kernel_command_from_string, parametros : %s",command));
-
-	for (int i = 0; i < COMMAND_ENUM_SIZE; i++) {
-		if (string_equals_ignore_case(command, commandNames[i])){
-			return i;
-		}
-	}
-
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Command no se corresponde a un valor existente"));
-
-	return -1;
-}
-
-char * kernel_command_as_string(kernel_command command) {
-	return commandNames[command];
 }
 
 int get_pid() {
@@ -128,17 +154,8 @@ void log_pcb(t_pcb* pcb) {
 
 	write_to_log(LOG_TARGET_INTERNAL, log_level, "Logging PCB:\n");
 
-	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("pid: %d", pcb->pid));
-
-	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("Program counter: %d \n", pcb->program_counter));
-
-	t_cpu_register* cpu_register = pcb->cpuRegisters;
-
-	write_to_log(LOG_TARGET_INTERNAL, log_level, "CPU Registers:");
-
-	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("AX: %s, BX: %s, CX: %s, DX: %s", cpu_register->AX, cpu_register->BX, cpu_register->CX, cpu_register->DX));
-	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("EAX: %s, EBX: %s, ECX: %s, EDX: %s", cpu_register->EAX, cpu_register->EBX, cpu_register->ECX, cpu_register->EDX));
-	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("RAX: %s, RBX: %s, RCX: %s, RDX: %s \n", cpu_register->RAX, cpu_register->RBX, cpu_register->RCX, cpu_register->RDX));
+	log_context(get_logger(), LOG_LEVEL_INFO, pcb->executionContext);
+	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("clientSocketId: %d", pcb->clientSocketId));
 
 	//Segment table
 	write_to_log(LOG_TARGET_INTERNAL, log_level, "Segment table:");
@@ -155,15 +172,8 @@ void log_pcb(t_pcb* pcb) {
 
 	write_to_log(LOG_TARGET_INTERNAL, log_level, string_from_format("state: %s \n", stateNames[pcb->state]));
 
-
-	write_to_log(LOG_TARGET_INTERNAL, log_level, "Instrucciones:");
-	list_iterate(pcb->instructions, (void*) write_instruction_to_internal_logs);
 }
 
-void write_instruction_to_internal_logs(t_kernel_instruction* instruction) {
-	write_info_to_all_logs(kernel_command_as_string(instruction->command));
-	list_iterate(instruction->parameters, (void*) write_info_to_all_logs);
-}
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("file: %s", openFileRow->file));

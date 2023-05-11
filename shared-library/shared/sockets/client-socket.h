@@ -12,14 +12,19 @@
 	#include "../structs/socket.h"
 
 	int connect_to_server(char *ip, char *port);
-	t_package* build_package(t_list* values);
+
 	t_package* create_package(void);
-	void create_buffer(t_package *package);
-	void fill_buffer(t_package *package, void *value, int lineSize);
+	void create_package_buffer(t_package *package);
+	t_package* build_package(t_list* values);
+	void fill_package_with_list(t_list* self, t_package* pkg);
+	void fill_package_buffer(t_package *package, void *value, int lineSize);
 	void send_package(t_package *package, int clientSocket);
 	void* serialize_package(t_package *package, int bytes);
 	void delete_package(t_package *package);
-	void fill_package_with_list(t_list* self, t_package* pkg);
 	operation_result init_handshake(int socket, module_handshakes module);
+	t_buffer* create_buffer();
+	void fill_buffer(t_buffer *buffer, void *lineValue, int lineSize);
+	void send_buffer(t_buffer *buffer, int clientSocket);
+	void* serialize_buffer(t_buffer *buffer, int bytes);
 
 #endif
