@@ -67,7 +67,14 @@ void send_package(t_package *package, int clientSocket) {
 
 	free(serializedPackage);
 }
+void handle_memory_handshake(int memorySocketId, int module){
+	operation_result memoryHandShake = init_handshake(memorySocketId, (module_handshakes) module);
 
+	if ((operation_result)memoryHandShake == OPERATION_RESULT_ERROR){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "No se pudo establecer conexion con el modulo de memoria");
+		exit(EXIT_FAILURE);
+	}
+}
 void* serialize_package(t_package *package, int bytes) {
 	void *magic = malloc(bytes);
 	int offset = 0;

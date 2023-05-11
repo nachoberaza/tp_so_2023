@@ -12,7 +12,11 @@
 	char *module_as_string(module_handshakes module);
 	void accept_module(int clientSocketId, int module);
 	void listen_kernel_connection(int clientSocketId);
+	void listen_cpu_connection(int clientSocketId);
+	void listen_filesystem_connection(int clientSocketId);
 	void handle_kernel_connection(int clientSocketId);
+	void handle_cpu_connection(int clientSocketId);
+	void handle_filesystem_connection(int clientSocketId);
 	t_modules_thread_id *get_modules_thread_id();
 	void init_modules();
 

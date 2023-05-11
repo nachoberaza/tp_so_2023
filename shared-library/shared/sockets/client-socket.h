@@ -26,5 +26,6 @@
 	void fill_buffer(t_buffer *buffer, void *lineValue, int lineSize);
 	void send_buffer(t_buffer *buffer, int clientSocket);
 	void* serialize_buffer(t_buffer *buffer, int bytes);
+	void handle_memory_handshake(int memorySocketId, int module);
 
 #endif
