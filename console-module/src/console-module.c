@@ -7,8 +7,7 @@ int main(void) {
 
 	log_config(CONSOLE_ENV);
 
-	int kernelConnection = connect_to_server(CONSOLE_ENV->IP_KERNEL,
-			CONSOLE_ENV->PORT_KERNEL);
+	int kernelConnection = connect_to_server(CONSOLE_ENV->IP_KERNEL, CONSOLE_ENV->PORT_KERNEL);
 
 	t_package* package = create_package();
 	fill_package_from_file(package);

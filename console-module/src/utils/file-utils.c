@@ -8,6 +8,7 @@ void fill_package_from_file(t_package *package){
 	ssize_t lineLength;
 
 	file = fopen("console.code", "r");
+
 	if (file == NULL)
 		exit(EXIT_FAILURE);
 
