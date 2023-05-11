@@ -1,25 +1,27 @@
 #include "socket-utils.h"
 
-pthread_t modules_thread_id[3];
 
-void add_pthread_id(pthread_t *kernel_thread_id, pthread_t *modules_thread_id){
-	for(int i = 0; i < MODULE_ENUM_SIZE; i++){
+void add_pthread_id(pthread_t *module_thread, pthread_t *modules_thread_id){
+	pthread_t module_thread_id=*(pthread_t *)module_thread;
+	for(int i = 0; i < MODULE_ENUM_SIZE; i++){ //TODO: Mejorar método
 		if(modules_thread_id[i]==NULL){
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Agregando threadid %i a la lista",kernel_thread_id));
-			modules_thread_id[i]=kernel_thread_id;
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,"Agregue un thread id a la lista");
+			modules_thread_id[i]=module_thread_id;
+			i=MODULE_ENUM_SIZE;
 		}
 	}
 }
 
-pthread_t* handle_handshake(int clientSocketId) {
+
+void handle_handshake(int clientSocketId, pthread_t *modules_thread_id) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Iniciando Handshake...");
 	int handshake = receive_handshake(clientSocketId);
 	switch (handshake) {
 	case KERNEL:
 		accept_module(clientSocketId, handshake);
 		pthread_t kernel_thread_id = handle_kernel_connection(&clientSocketId);
-		//add_pthread_id(&kernel_thread_id, modules_thread_id);
-		pthread_join(kernel_thread_id,NULL);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("El valor del thread id a agregar es %li",kernel_thread_id));
+		add_pthread_id(&kernel_thread_id, modules_thread_id);
 		break;
 	case CPU:
 		accept_module(clientSocketId, handshake);
@@ -32,7 +34,6 @@ pthread_t* handle_handshake(int clientSocketId) {
 		send(clientSocketId, OPERATION_RESULT_ERROR, sizeof(operation_result), NULL);
 		exit(EXIT_FAILURE);
 	}
-	return modules_thread_id;
 }
 
 char * module_as_string(module_handshakes module) {
@@ -60,7 +61,6 @@ pthread_t handle_kernel_connection(int *clientSocketId) {
 }
 
 void* listen_kernel_connection(void *clientSocket) {
-	//TODO: Error en casteo de datos. Se pierde el valor del clientSocketId
 	int clientSocketId = *(int*) clientSocket;
 	while(1){
 		int operationCode = receive_operation_code(clientSocketId);
