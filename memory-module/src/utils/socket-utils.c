@@ -39,7 +39,7 @@ char *module_as_string(module_handshakes module) {
 }
 
 void accept_module(int clientSocketId, int module) {
-	operation_result result = (operation_result) OPERATION_RESULT_OK;
+	operation_result result = OPERATION_RESULT_OK;
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,string_from_format("Modulo %s aceptado",module_as_string(module)));
 }
