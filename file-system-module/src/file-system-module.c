@@ -12,6 +12,7 @@ int main(void) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");
 
 	int memoryConnection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
+	handle_memory_handshake(memoryConnection,FILESYSTEM);
 
 	int clientSocketId = await_client(get_logger(), serverSocketId);
 

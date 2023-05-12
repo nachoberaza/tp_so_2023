@@ -8,6 +8,7 @@ void fill_buffer_from_file(t_buffer* buffer){
 	ssize_t lineLength;
 
 	file = fopen("console.code", "r");
+
 	if (file == NULL)
 		exit(EXIT_FAILURE);
 

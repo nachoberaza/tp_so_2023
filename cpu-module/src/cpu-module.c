@@ -7,6 +7,9 @@ int main(void) {
 
 	log_config(CPU_ENV);
 
+	int connectionMemory = connect_to_server(CPU_ENV->IP_MEMORY, CPU_ENV->PORT_MEMORY);
+	handle_memory_handshake(connectionMemory, CPU);
+
 	int serverSocketId = start_server(CPU_ENV->IP, CPU_ENV->PORT, get_logger());
 
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "Servidor listo para recibir al cliente");

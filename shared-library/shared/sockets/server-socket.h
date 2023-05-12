@@ -18,6 +18,7 @@
 	int await_client(t_log_grouping* logger, int serverSocket);
 	int receive_operation_code(int clientSocket);
 	void* receive_buffer(int *bufferSize, int clientSocket);
+	int receive_handshake(int clientSocket);
 	void decode_message(t_log_grouping* logger, int clientSocket);
 	t_list* decode_package(int clientSocket);
 

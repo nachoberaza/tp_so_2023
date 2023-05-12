@@ -58,3 +58,7 @@ dkms.conf
 *.settings.xml
 */.settings/
 */Debug/
+#.cproject
+.autotools
+*/.vscode
+*/Release/

@@ -121,16 +121,8 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="console-module.cdt.managedbuild.target.gnu.exe.1780907602" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.837020104;cdt.managedbuild.config.gnu.exe.debug.837020104.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.893646757;cdt.managedbuild.tool.gnu.c.compiler.input.677721529">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.821849758;cdt.managedbuild.config.gnu.exe.release.821849758.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.304436147;cdt.managedbuild.tool.gnu.c.compiler.input.258134747">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="scannerConfiguration"/>
 </cproject>

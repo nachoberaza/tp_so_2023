@@ -2,9 +2,8 @@
 #define SHARED_STRUCTS_SOCKET_H_
 
 	typedef enum {
-		MESSAGE,
-		PACKAGE
-	} op_code;
+		MESSAGE, PACKAGE
+	} operation_code;
 
 	typedef struct {
 		int size;
@@ -12,8 +11,19 @@
 	} t_buffer;
 
 	typedef struct {
-		op_code operationCode;
+		operation_code operationCode;
 		t_buffer *buffer;
 	} t_package;
+
+	typedef enum {
+		KERNEL,
+		CPU,
+		FILESYSTEM
+	} module_handshakes;
+
+	typedef enum{
+		OPERATION_RESULT_OK,
+		OPERATION_RESULT_ERROR
+	}operation_result;
 
 #endif

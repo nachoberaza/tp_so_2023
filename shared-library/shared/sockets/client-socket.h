@@ -21,10 +21,11 @@
 	void send_package(t_package *package, int clientSocket);
 	void* serialize_package(t_package *package, int bytes);
 	void delete_package(t_package *package);
-
+	operation_result init_handshake(int socket, module_handshakes module);
 	t_buffer* create_buffer();
 	void fill_buffer(t_buffer *buffer, void *lineValue, int lineSize);
 	void send_buffer(t_buffer *buffer, int clientSocket);
 	void* serialize_buffer(t_buffer *buffer, int bytes);
+	void handle_memory_handshake(int memorySocketId, int module);
 
 #endif
