@@ -50,3 +50,15 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+/.metadata/
+
+# Log files
+*.log
+
+*.settings.xml
+*/.settings/
+*/Debug/
+#.cproject
+.autotools
+*/.vscode
+*/Release/
