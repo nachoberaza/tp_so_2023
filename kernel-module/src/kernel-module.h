@@ -3,7 +3,6 @@
 
 #define MODULE_NAME "kernel"
 
-
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <pthread.h>
@@ -19,11 +18,5 @@
 	#include "utils/pcb-utils.h"
 	#include "utils/thread-utils.h"
 	#include "utils/cpu-communication-utils.h"
-
-	//Only for sleep, must be removed eventually
-	#include <unistd.h>
-
-	void placeholder_function(t_kernel_connections* kernelConnections);
-	void nosequeponerle(t_kernel_connections* kernelConnections);
 
 #endif

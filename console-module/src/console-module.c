@@ -9,8 +9,6 @@ int main(void) {
 
 	connect_to_kernel(consoleEnv);
 
-	handle_kernel_handshake();
-
 	send_instructions_to_kernel();
 
 	handle_kernel_response();

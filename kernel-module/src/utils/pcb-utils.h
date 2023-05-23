@@ -8,9 +8,9 @@
 	#include <shared/logs/log.h>
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/structs/execution-context.h>
+	#include "../structs/pcb.h"
 	#include "logger-utils.h"
-	#include "structs.h"
-
+	
 	t_instruction* create_instruction(char* instruction);
 	void start_pcb_list();
 	t_pcb* new_pcb(int clientSocketId);
@@ -23,7 +23,7 @@
 	void free_pcb(t_pcb* pcb);
 	void destroy_open_files_row(t_open_file_row* openFileRow);
 	void destroy_segment_row(t_segment_row* segmentRow);
-	int get_pid();
+	int get_current_pid();
 	void log_pcb(t_pcb* pcb);
 	void write_segment_row_to_internal_logs(t_segment_row* segmentRow);
 	void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow);

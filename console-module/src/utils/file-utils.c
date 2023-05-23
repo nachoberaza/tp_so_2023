@@ -3,7 +3,7 @@
 void fill_buffer_from_file(t_buffer* buffer){
 	FILE * file;
 	char * line = NULL;
-	//variable para uso interno del getLine, no viene al caso y no deberiamos usarla
+	// Variable para uso interno de getline
 	size_t bufferSize = 0;
 	ssize_t lineLength;
 
@@ -18,7 +18,7 @@ void fill_buffer_from_file(t_buffer* buffer){
 		}else
 			lineLength++;
 
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Line value: %s", line));
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - fill_buffer_from_file] Valor de la linea: %s", line));
 		fill_buffer(buffer, line, lineLength);
 	}
 

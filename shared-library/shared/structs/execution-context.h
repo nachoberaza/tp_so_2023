@@ -9,7 +9,7 @@
 				SET,YIELD,EXIT
 	} command;
 
-	static char * commandNames[COMMAND_ENUM_SIZE] = {
+	static char *commandNames[COMMAND_ENUM_SIZE] = {
 		[SET] = "SET",
 		[YIELD] = "YIELD",
 		[EXIT] = "EXIT",
@@ -22,7 +22,7 @@
 		REASON_RUNNING
 	} exit_reason;
 
-	static char * exitReasonNames[EXIT_REASON_ENUM_SIZE] = {
+	static char *exitReasonNames[EXIT_REASON_ENUM_SIZE] = {
 		[REASON_FINISH] = "REASON FINISH",
 		[REASON_ERROR] = "REASON ERROR",
 		[REASON_BLOCK] = "REASON BLOCK",

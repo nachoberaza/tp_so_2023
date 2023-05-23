@@ -1,9 +1,9 @@
 #include "server-socket.h"
 
-void decode_message(t_log_grouping* logger, int clientSocket) {
+void decode_message(t_log_grouping* logger, int clientSocketId) {
 	int bufferSize;
-	char *buffer = receive_buffer(&bufferSize, clientSocket);
-	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Me llego el mensaje %s", buffer));
+	char *buffer = receive_buffer(&bufferSize, clientSocketId);
+	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[shared/sockets/server-socket - decode_message] Me llego el mensaje %s", buffer));
 	free(buffer);
 }
 
@@ -17,7 +17,7 @@ void cleanup(int connection, t_log_grouping *logger) {
 	close_connection(connection);
 }
 
-int start_server(char* IP, char* PORT, t_log_grouping* loggers) {
+int start_server(char* IP, char* PORT, t_log_grouping* loggers, char *moduleName) {
 	struct addrinfo hints, *serverInfo;
 	int serverSocket;
 
@@ -36,52 +36,55 @@ int start_server(char* IP, char* PORT, t_log_grouping* loggers) {
 	listen(serverSocket, SOMAXCONN);
 
 	freeaddrinfo(serverInfo);
-	write_log_grouping(loggers, LOG_TARGET_ALL, LOG_LEVEL_INFO, "Listo para escuchar a mi cliente");
+	write_log_grouping(
+		loggers,
+		LOG_TARGET_ALL,
+		LOG_LEVEL_INFO,
+		string_from_format("[shared/sockets/server-socket - start_server] %s escuchando clientes", moduleName)
+	);
 
 	return serverSocket;
 }
 
-int await_client(t_log_grouping* logger, int serverSocket) {
-	// Aceptamos un nuevo cliente
-	int clientSocket = accept(serverSocket, NULL, NULL);
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("serverSocketId: [%d]", serverSocket));
-	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, "Se conecto un cliente!");
+int await_client(t_log_grouping* logger, int serverSocketId) {
+	int clientSocketId = accept(serverSocketId, NULL, NULL);
+	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, "[shared/sockets/server-socket - await_client] Se conecto un cliente");
 
-	return clientSocket;
+	return clientSocketId;
 }
 
-int receive_operation_code(int clientSocket) {
+int receive_operation_code(int clientSocketId) {
 	int operationCode;
-	if (recv(clientSocket, &operationCode, sizeof(int), MSG_WAITALL) > 0)
+	if (recv(clientSocketId, &operationCode, sizeof(int), MSG_WAITALL) > 0)
 		return operationCode;
 	else {
-		close(clientSocket);
+		close(clientSocketId);
 		return -1;
 	}
 }
 
-void* receive_buffer(int *bufferSize, int clientSocket) {
+void* receive_buffer(int *bufferSize, int clientSocketId) {
 	void *buffer;
 
-	recv(clientSocket, bufferSize, sizeof(int), MSG_WAITALL);
+	recv(clientSocketId, bufferSize, sizeof(int), MSG_WAITALL);
 	buffer = malloc(*bufferSize);
-	recv(clientSocket, buffer, *bufferSize, MSG_WAITALL);
+	recv(clientSocketId, buffer, *bufferSize, MSG_WAITALL);
 
 	return buffer;
 }
 
-int receive_handshake(int clientSocket){
+int receive_handshake(int clientSocketId){
 	int handshake;
-	recv(clientSocket, &handshake, sizeof(int), MSG_WAITALL);
+	recv(clientSocketId, &handshake, sizeof(int), MSG_WAITALL);
 	return handshake;
 }
 
-t_list* decode_package(int clientSocket) {
+t_list* decode_package(int clientSocketId) {
 	int bufferSize, valueSize, offset = 0;
 	void *buffer;
 	t_list *values = list_create();
 
-	buffer = receive_buffer(&bufferSize, clientSocket);
+	buffer = receive_buffer(&bufferSize, clientSocketId);
 	while (offset < bufferSize) {
 		memcpy(&valueSize, buffer + offset, sizeof(int));
 		offset += sizeof(int);

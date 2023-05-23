@@ -11,14 +11,10 @@ void init_logger(char* moduleName, t_log_level logLevel) {
 	logger->internal = start_logger(internalLogName, logLevel, 1);
 }
 
-void write_to_log(t_log_target target, t_log_level logLevel, char* message) {
-	write_log_grouping(logger, target, logLevel, message);
-}
-
-void write_info_to_all_logs(char* message) {
-	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, message);
-}
-
 t_log_grouping* get_logger(){
 	return logger;
+}
+
+void write_to_log(t_log_target target, t_log_level logLevel, char* message) {
+	write_log_grouping(logger, target, logLevel, message);
 }

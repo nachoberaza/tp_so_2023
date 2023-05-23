@@ -1,5 +1,5 @@
-#ifndef UTILS_STRUCTS_H_
-#define UTILS_STRUCTS_H_
+#ifndef STRUCTS_MODULES_H_
+#define STRUCTS_MODULES_H_
 	#include <shared/structs/socket.h>
 	#define MODULE_ENUM_SIZE 3
 

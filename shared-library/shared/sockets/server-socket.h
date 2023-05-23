@@ -12,14 +12,14 @@
 	#include "../structs/socket.h"
 
 
-	void close_connection(int clientSocket);
-	int start_server(char* IP, char* PORT, t_log_grouping* log);
+	void close_connection(int clientSocketId);
+	int start_server(char* IP, char* PORT, t_log_grouping* log, char *moduleName);
 	void cleanup(int connection, t_log_grouping *logger);
-	int await_client(t_log_grouping* logger, int serverSocket);
-	int receive_operation_code(int clientSocket);
-	void* receive_buffer(int *bufferSize, int clientSocket);
-	int receive_handshake(int clientSocket);
-	void decode_message(t_log_grouping* logger, int clientSocket);
-	t_list* decode_package(int clientSocket);
+	int await_client(t_log_grouping* logger, int serverSocketId);
+	int receive_operation_code(int clientSocketId);
+	void* receive_buffer(int *bufferSize, int clientSocketId);
+	int receive_handshake(int clientSocketId);
+	void decode_message(t_log_grouping* logger, int clientSocketId);
+	t_list* decode_package(int clientSocketId);
 
 #endif

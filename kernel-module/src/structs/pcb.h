@@ -1,5 +1,5 @@
-#ifndef UTILS_STRUCTS_H_
-#define UTILS_STRUCTS_H_
+#ifndef STRUCTS_PCB_H_
+#define STRUCTS_PCB_H_
 
 	#define STATE_PROCESS_ENUM_SIZE 4
 	#include <shared/sockets/client-socket.h>

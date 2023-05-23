@@ -16,11 +16,14 @@
 	#include "logger-utils.h"
 	#include "pcb-utils.h"
 	#include "thread-utils.h"
-	#include "structs.h"
+	#include "../structs/pcb.h"
+	// For sleep
+	#include <unistd.h>
 
-	void send_context_to_cpu(t_execution_context *commands, t_kernel_connections* KERNEL_CONNECTIONS);
-	t_execution_context* listen_cpu_response(int cpuSocket);
-	void nosequeponerle(t_kernel_connections* kernelConnections);
+	void handle_processes();
+	void execute_process();
+	void send_context_to_cpu(t_execution_context *commands);
+	t_execution_context* listen_cpu_response();
 	void handle_cpu_response(t_pcb* pcb);
 
 #endif

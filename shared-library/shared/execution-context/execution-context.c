@@ -2,18 +2,18 @@
 
 void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_context* context) {
 
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "Logging context:\n");
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Logeando contexto:\n");
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("pid: %d", context->pid));
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Program counter: %d \n", context->programCounter));
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Exit reason: %s \n", exitReasonNames[context->exitReason]));
 
 	t_cpu_register* cpu_register = context->cpuRegisters;
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "CPU Registers:");
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Registros del contexto:");
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("AX: %s, BX: %s, CX: %s, DX: %s", cpu_register->AX, cpu_register->BX, cpu_register->CX, cpu_register->DX));
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel,  string_from_format("EAX: %s, EBX: %s, ECX: %s, EDX: %s", cpu_register->EAX, cpu_register->EBX, cpu_register->ECX, cpu_register->EDX));
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("RAX: %s, RBX: %s, RCX: %s, RDX: %s \n", cpu_register->RAX, cpu_register->RBX, cpu_register->RCX, cpu_register->RDX));
 
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "Instrucciones:");
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Instrucciones del contexto:");
 	write_instructions_to_internal_logs(logger, logLevel, context->instructions);
 
 }
@@ -39,19 +39,17 @@ void destroy_instruction(t_instruction* instruction) {
 }
 
 void destroy_instructions(t_log_grouping* logger,t_list* instructions) {
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_instructions");
-
 	list_destroy_and_destroy_elements(instructions, (void*) destroy_instruction);
 
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Instructions liberadas");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_instructions] Instructiones liberadas");
 }
 
 
 void destroy_execution_context(t_log_grouping* logger, t_execution_context* executionContext) {
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "Ejecutando destroy_execution_context");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_execution_context] Ejecutando destroy_execution_context");
 
 	free(executionContext->cpuRegisters);
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "CPU_registers liberado");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_execution_context] CPU Registers liberados");
 
 	destroy_instructions(logger ,executionContext->instructions);
 
@@ -59,14 +57,15 @@ void destroy_execution_context(t_log_grouping* logger, t_execution_context* exec
 }
 
 command command_from_string(t_log_grouping* logger, char * command) {
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Ejecutando command_from_string, parametros : %s",command));
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[shared/execution-context - command_from_string] Comando a buscar : %s",command));
 
 	for (int i = 0; i < COMMAND_ENUM_SIZE; i++) {
 		if (string_equals_ignore_case(command, commandNames[i])){
+			write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - command_from_string] Comando encontrado");
 			return i;
 		}
 	}
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("Command no se corresponde a un valor existente"));
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("[shared/execution-context - command_from_string] El comando no se corresponde a un valor existente"));
 
 	return -1;
 }
@@ -78,7 +77,6 @@ char * command_as_string(command command) {
 
 
 t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel, int clientSocket) {
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Decoding"));
 	int bufferSize, offset = 0;
 	void *buffer;
 
@@ -102,7 +100,12 @@ t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level log
 	t_list* instructions = list_create();
 
 	int instructionsCount = extract_int_from_buffer(buffer, offset);
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Instruction count: %d", instructionsCount));
+	write_log_grouping(
+		logger,
+		LOG_TARGET_INTERNAL,
+		logLevel,
+		string_from_format("[shared/execution-context - extract_instructions_from_buffer] Cantidad de instrucciones: %d", instructionsCount)
+	);
 
 	for (int i = 0; i < instructionsCount; i++){
 		t_instruction* instruction = malloc(sizeof(t_instruction));
@@ -111,7 +114,6 @@ t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level log
 		instruction->command = extract_command_from_buffer(buffer, offset);
 
 		int parameterCount = extract_int_from_buffer(buffer, offset);
-		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Parameter count: %d", parameterCount));
 
 		for (int j = 0; j < parameterCount; j++){
 			char* value = extract_string_from_buffer(buffer, offset);
@@ -159,15 +161,20 @@ void fill_package_with_context(t_log_grouping* logger,t_execution_context* conte
 
 void fill_buffer_with_instructions(t_log_grouping* logger,t_list* instructions, t_package* pkg){
 	//Para listas, el primer número va a ser la cant de elementos
-	int instructionCount = list_size(instructions);
-	fill_package_buffer(pkg, &instructionCount, sizeof(int));
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Instruction Count: %d", instructionCount));
+	int instructionsCount = list_size(instructions);
+	fill_package_buffer(pkg, &instructionsCount, sizeof(int));
+	write_log_grouping(
+		logger,
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_DEBUG,
+		string_from_format("[shared/execution-context - fill_buffer_with_instructions] Cantidad de instrucciones: %d", instructionsCount)
+	);
 
 	//Por cada elemento de la lista envio el elemento, no mando al buffer &struct
 	//porque trae problemas, ej en este caso el struct lo que tiene es un puntero
 	//a una lista, entonces mando cada parte del elemento por separado y del otro lado
 	//asumo que se sabe que cada elemento se corresponde a una parte de la struct
-	for (int i = 0; i < instructionCount; i++){
+	for (int i = 0; i < instructionsCount; i++){
 		t_instruction* instruction = list_get(instructions, i);
 		fill_package_buffer(pkg, &(instruction->command), sizeof(command));
 
