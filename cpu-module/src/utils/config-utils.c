@@ -1,20 +1,25 @@
 #include "config-utils.h"
 
-t_cpu_config* create_cpu_config(char *moduleName) {
+t_cpu_config * cpuEnv;
+
+t_cpu_config* get_cpu_env(){
+	return cpuEnv;
+}
+
+void create_cpu_config(char *moduleName) {
 	char *fileName = string_from_format("%s.config", moduleName);
 
 	t_config *config = config_create(fileName);
-	t_cpu_config *cpuConfig = malloc(sizeof(t_cpu_config));
+	cpuEnv = malloc(sizeof(t_cpu_config));
 
-	cpuConfig->IP = config_get_string_value(config, "IP");
-	cpuConfig->INSTRUCTION_DELAY = config_get_int_value(config, "RETARDO_INSTRUCCION");
-	cpuConfig->IP_MEMORY = config_get_string_value(config, "IP_MEMORIA");
-	cpuConfig->PORT_MEMORY = config_get_string_value(config, "PUERTO_MEMORIA");
-	cpuConfig->PORT = config_get_string_value(config, "PUERTO_ESCUCHA");
-	cpuConfig->SEGMENT_MAX_SIZE = config_get_int_value(config, "TAM_MAX_SEGMENTO");
-	cpuConfig->LOG_LEVEL = log_level_from_string(config_get_string_value(config, "LOG_LEVEL"));
+	cpuEnv->IP = config_get_string_value(config, "IP");
+	cpuEnv->INSTRUCTION_DELAY = config_get_int_value(config, "RETARDO_INSTRUCCION");
+	cpuEnv->IP_MEMORY = config_get_string_value(config, "IP_MEMORIA");
+	cpuEnv->PORT_MEMORY = config_get_string_value(config, "PUERTO_MEMORIA");
+	cpuEnv->PORT = config_get_string_value(config, "PUERTO_ESCUCHA");
+	cpuEnv->SEGMENT_MAX_SIZE = config_get_int_value(config, "TAM_MAX_SEGMENTO");
+	cpuEnv->LOG_LEVEL = log_level_from_string(config_get_string_value(config, "LOG_LEVEL"));
 
-	return cpuConfig;
 }
 
 void log_config(t_cpu_config *config) {

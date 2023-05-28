@@ -17,6 +17,8 @@ t_kernel_config* create_kernel_config(char *moduleName) {
 	kernelConfig->PLANNING_ALGORITHM = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
 	kernelConfig->INITIAL_ESTIMATE = config_get_int_value(config, "ESTIMACION_INICIAL");
 	kernelConfig->HRRN_ALFA = config_get_int_value(config, "HRRN_ALFA");
+	kernelConfig->RESOURCES = config_get_array_value(config, "RECURSOS");
+	kernelConfig->RESOURCES_INSTANCES = config_get_array_value(config, "INSTANCIAS_RECURSOS");
 	kernelConfig->MAX_MULTIPROGRAMMING_LEVEL = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
 	kernelConfig->LOG_LEVEL = log_level_from_string(config_get_string_value(config, "LOG_LEVEL"));
 
@@ -36,6 +38,14 @@ void log_config(t_kernel_config *config) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PLANNING_ALGORITHM: %s", config->PLANNING_ALGORITHM));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INITIAL_ESTIMATE: %s", string_itoa(config->INITIAL_ESTIMATE)));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("HRRN_ALFA: %s", string_itoa(config->HRRN_ALFA)));
+
+	//contemplamos que ambas listas tiene el = size
+	for (int i = 0; i < string_array_size(config->RESOURCES); i++){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("RESOURCES %d: %s", i, config->RESOURCES[i]));
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INSTANCES %d: %s", i, config->RESOURCES_INSTANCES[i]));
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("RESOURCES_INSTANCES: %s", string_itoa(config->HRRN_ALFA)));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("MAX_MULTIPROGRAMMING_LEVEL: %s", string_itoa(config->MAX_MULTIPROGRAMMING_LEVEL)));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }

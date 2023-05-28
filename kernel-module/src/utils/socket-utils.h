@@ -21,5 +21,6 @@
 	int get_memory_connection();
 	int handle_console_handshake(int clientSocketId);
 	void listen_consoles(int serverSocket);
+	void execute_long_term_scheduler();
 
 #endif

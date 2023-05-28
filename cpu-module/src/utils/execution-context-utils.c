@@ -18,22 +18,33 @@ void return_execution_context(t_execution_context* context, int clientSocketId) 
 
 void execute_execution_context(t_execution_context* context) {
 	int size = list_size(context->instructions);
-	while (context->programCounter <= size){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/execution-context-utils - execute_execution_context] Ejecutando proceso: %d", context->pid));
+
+	while (context->programCounter < size){
 		int result;
 		t_instruction* current = list_get(context->instructions, context->programCounter);
 		switch(current->command){
-		case SET:
-			result = execute_set(context,current);
-			break;
-		case YIELD:
-			result = execute_yield(context);
-			break;
-		case EXIT:
-			result = execute_exit(context);
-			break;
-		default:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/execution-context-utils - execute_execution_context] Comando no pertenece al CPU");
-			return;
+			case SET:
+				result = execute_set(context);
+				break;
+			case YIELD:
+				result = execute_yield(context);
+				break;
+			case EXIT:
+				result = execute_exit(context);
+				break;
+			case WAIT:
+				result = execute_wait(context);
+				break;
+			case SIGNAL:
+				result = execute_signal(context);
+				break;
+			case IO:
+				result = execute_io(context);
+				break;
+			default:
+				write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/execution-context-utils - execute_execution_context] Comando no pertenece al CPU");
+				return;
 			break;
 		}
 		context->programCounter++;
@@ -41,5 +52,5 @@ void execute_execution_context(t_execution_context* context) {
 			return;
 	}
 
-	context->exitReason = REASON_FINISH;
+	context->reason->executionContextState = REASON_FINISH;
 }

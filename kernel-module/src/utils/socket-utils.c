@@ -16,7 +16,7 @@ void start_connections(t_kernel_config* env) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/socket-utils - start_connections] No se pudo establecer conexion con el modulo de memoria");
 		exit(EXIT_FAILURE);
 	}
-
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("[utils/socket-utils - start_connections] CPU Socket: %d", kernelConnections->cpu));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - start_connections] Kernel conectado a CPU, FileSystem y Memoria");
 }
 
@@ -69,5 +69,19 @@ void listen_consoles(int serverSocketId) {
 		lines = decode_package(clientSocketId);
 
 		build_pcb(lines, clientSocketId);
+
+		execute_long_term_scheduler();
 	}
+}
+
+void execute_long_term_scheduler(){
+	//TODO: Reescribir
+	int size = list_size(get_new_pcb_list());
+	for (int i=0; i<size; i++){
+		t_pcb* pcb = list_get(get_new_pcb_list(), 0);
+		pcb->state = READY;
+		list_add(get_short_term_list(), pcb);
+	}
+
+	list_clean(get_new_pcb_list());
 }

@@ -5,7 +5,9 @@ void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_conte
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Logeando contexto:\n");
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("pid: %d", context->pid));
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Program counter: %d \n", context->programCounter));
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Exit reason: %s \n", exitReasonNames[context->exitReason]));
+
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Reason del contexto:");
+	write_execution_context_reason_to_internal_logs(logger, logLevel, context->reason);
 
 	t_cpu_register* cpu_register = context->cpuRegisters;
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Registros del contexto:");
@@ -33,6 +35,15 @@ void write_parameter_to_internal_logs(t_log_grouping* logger, t_log_level logLev
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("Parameter: %s", parameter));
 }
 
+void write_execution_context_reason_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, t_execution_context_reason* reason) {
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, execution_context_state_as_string(reason->executionContextState));
+
+	for (int i=0; i < list_size(reason->parameters); i++){
+		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, list_get(reason->parameters, i));
+	}
+}
+
+
 void destroy_instruction(t_instruction* instruction) {
 	list_destroy(instruction->parameters);
 	free(instruction);
@@ -41,27 +52,35 @@ void destroy_instruction(t_instruction* instruction) {
 void destroy_instructions(t_log_grouping* logger,t_list* instructions) {
 	list_destroy_and_destroy_elements(instructions, (void*) destroy_instruction);
 
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_instructions] Instructiones liberadas");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - destroy_instructions] Instructiones liberadas");
+}
+
+void destroy_execution_context_reason(t_log_grouping* logger, t_execution_context_reason* reason) {
+	list_destroy(reason->parameters);
+
+	free(reason);
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - destroy_execution_context_reason] Reason liberado");
 }
 
 
 void destroy_execution_context(t_log_grouping* logger, t_execution_context* executionContext) {
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_execution_context] Ejecutando destroy_execution_context");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - destroy_execution_context] Ejecutando destroy_execution_context");
 
 	free(executionContext->cpuRegisters);
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - destroy_execution_context] CPU Registers liberados");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - destroy_execution_context] CPU Registers liberados");
 
 	destroy_instructions(logger ,executionContext->instructions);
+	destroy_execution_context_reason(logger ,executionContext->reason);
 
 	free(executionContext);
 }
 
 command command_from_string(t_log_grouping* logger, char * command) {
-	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[shared/execution-context - command_from_string] Comando a buscar : %s",command));
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("[shared/execution-context - command_from_string] Comando a buscar : %s",command));
 
 	for (int i = 0; i < COMMAND_ENUM_SIZE; i++) {
 		if (string_equals_ignore_case(command, commandNames[i])){
-			write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[shared/execution-context - command_from_string] Comando encontrado");
+			write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - command_from_string] Comando encontrado");
 			return i;
 		}
 	}
@@ -75,6 +94,10 @@ char * command_as_string(command command) {
 	return commandNames[command];
 }
 
+char * execution_context_state_as_string(execution_context_state executionContextState) {
+	return executionContextStateNames[executionContextState];
+}
+
 
 t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel, int clientSocket) {
 	int bufferSize, offset = 0;
@@ -86,7 +109,7 @@ t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel
 
 	context->pid = extract_int_from_buffer(buffer, &offset);
 	context->programCounter = extract_int_from_buffer(buffer, &offset);
-	context->exitReason = extract_exit_reason_from_buffer(buffer, &offset);
+	context->reason = extract_execution_context_reason_from_buffer(buffer, &offset);
 	context->instructions = extract_instructions_from_buffer(logger, logLevel, buffer, &offset);
 	context->cpuRegisters = extract_cpu_register_from_buffer(buffer, &offset);
 
@@ -94,6 +117,37 @@ t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel
 
 	return context;
 }
+
+t_execution_context_reason* extract_execution_context_reason_from_buffer(void * buffer, int* offset){
+
+	t_execution_context_reason* reason = malloc(sizeof(t_execution_context_reason));
+
+	reason->parameters = list_create();
+
+	reason->executionContextState = extract_execution_context_state_from_buffer(buffer, offset);
+
+	int parametersCount = extract_int_from_buffer(buffer, offset);
+
+	for (int j = 0; j < parametersCount; j++){
+		char* value = extract_string_from_buffer(buffer, offset);
+		list_add(reason->parameters, value);
+	}
+
+	return reason;
+}
+
+
+execution_context_state extract_execution_context_state_from_buffer(void* buffer, int* offset){
+	int valueSize = 0;
+	execution_context_state returnValue;
+	memcpy(&valueSize, buffer + *offset, sizeof(int));
+	*offset += sizeof(int);
+	memcpy(&returnValue, buffer + *offset, sizeof(execution_context_state));
+	*offset += sizeof(int);
+
+	return returnValue;
+}
+
 
 t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset){
 
@@ -153,10 +207,26 @@ void fill_package_with_context(t_log_grouping* logger,t_execution_context* conte
 	//Paso paquete, puntero a variable que quiero se envie y el tamaño de la variable
 	fill_package_buffer(pkg, &(context->pid), sizeof(int));
 	fill_package_buffer(pkg, &(context->programCounter), sizeof(int));
-	fill_package_buffer(pkg, &(context->exitReason), sizeof(exit_reason));
 
+	fill_buffer_with_execution_context_reason(logger,context->reason,pkg);
 	fill_buffer_with_instructions(logger,context->instructions,pkg);
 	fill_buffer_with_cpu_register(context->cpuRegisters, pkg);
+}
+
+void fill_buffer_with_execution_context_reason(t_log_grouping* logger,t_execution_context_reason* reason, t_package* pkg){
+	//Para listas, el primer número va a ser la cant de elementos
+
+	fill_package_buffer(pkg, &(reason->executionContextState), sizeof(execution_context_state));
+
+
+	int parameterCount = list_size(reason->parameters);
+	fill_package_buffer(pkg, &parameterCount, sizeof(int));
+
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(reason->parameters, j);
+
+		fill_package_buffer(pkg, parameter, strlen(parameter) + 1);
+	}
 }
 
 void fill_buffer_with_instructions(t_log_grouping* logger,t_list* instructions, t_package* pkg){
@@ -166,7 +236,7 @@ void fill_buffer_with_instructions(t_log_grouping* logger,t_list* instructions, 
 	write_log_grouping(
 		logger,
 		LOG_TARGET_INTERNAL,
-		LOG_LEVEL_DEBUG,
+		LOG_LEVEL_TRACE,
 		string_from_format("[shared/execution-context - fill_buffer_with_instructions] Cantidad de instrucciones: %d", instructionsCount)
 	);
 

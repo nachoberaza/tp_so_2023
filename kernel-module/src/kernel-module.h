@@ -18,5 +18,7 @@
 	#include "utils/pcb-utils.h"
 	#include "utils/thread-utils.h"
 	#include "utils/cpu-communication-utils.h"
+	#include "utils/resource-utils.h"
+	#include "utils/semaphore-utils.h"
 
 #endif

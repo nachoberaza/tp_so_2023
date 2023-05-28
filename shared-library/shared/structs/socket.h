@@ -2,7 +2,7 @@
 #define SHARED_STRUCTS_SOCKET_H_
 
 	typedef enum {
-		MESSAGE, PACKAGE
+		MESSAGE, PACKAGE,
 	} operation_code;
 
 	typedef struct {

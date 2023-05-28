@@ -1,14 +1,20 @@
 #include "pcb-utils.h"
 
 int currentPid = 0;
-t_list * pcbList;
+t_list * newPcbList;
+t_list * readyPcbList;
 
 void start_pcb_list() {
-	pcbList = list_create();
+	newPcbList = list_create();
+	readyPcbList = list_create();
 }
 
-t_list* get_pcb_list(){
-	return pcbList;
+t_list* get_new_pcb_list(){
+	return newPcbList;
+}
+
+t_list* get_short_term_list(){
+	return readyPcbList;
 }
 
 t_pcb* new_pcb(int clientSocketId){
@@ -17,11 +23,15 @@ t_pcb* new_pcb(int clientSocketId){
 	pcb->clientSocketId = clientSocketId;
 	pcb->segmentTable = list_create();
 	pcb->openFilesTable = list_create();
+
+	//TODO: Modular a executionContext
 	pcb->executionContext = malloc(sizeof(t_execution_context));
 	pcb->executionContext->pid = get_current_pid();
 	pcb->executionContext->cpuRegisters = malloc(sizeof(t_cpu_register));
 	pcb->executionContext->instructions = list_create();
 	pcb->executionContext->programCounter = 0;
+	pcb->executionContext->reason = malloc(sizeof(t_execution_context_reason));
+	pcb->executionContext->reason->parameters = list_create();
 	pcb->state = NEW;
 
 	return pcb;
@@ -40,14 +50,9 @@ void build_pcb(t_list *lines, int clientSocketId) {
 	t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
 	add_segment(pcb, segmentRow);
 
-	pcb->executionContext->exitReason = REASON_BLOCK;
+	pcb->executionContext->reason->executionContextState = REASON_YIELD;
 
 	strncpy(pcb->executionContext->cpuRegisters->AX, "Hi", sizeof(char) * 4);
-	t_instruction* firstInstruction = list_get(pcb->executionContext->instructions, 0);
-
-	char* valueParameter = list_get(firstInstruction->parameters, 1);
-	strncpy(pcb->executionContext->cpuRegisters->AX, valueParameter, sizeof(char) * 4);
-
 	strncpy(pcb->executionContext->cpuRegisters->BX, "Hi", sizeof(char) * 4);
 	strncpy(pcb->executionContext->cpuRegisters->CX, "Hi", sizeof(char) * 4);
 	strncpy(pcb->executionContext->cpuRegisters->DX, "Hi", sizeof(char) * 4);
@@ -64,7 +69,13 @@ void build_pcb(t_list *lines, int clientSocketId) {
 
 	log_pcb(pcb);
 
-	list_add(pcbList, pcb);
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("[utils/pcb-utils - build_pcb] Se crea el proceso %d en NEW", pcb->executionContext->pid)
+	);
+
+	list_add(newPcbList, pcb);
 }
 
 t_pcb* create_pcb_from_lines(t_list* lines, int clientSocketId){
@@ -112,7 +123,7 @@ void add_file(t_pcb* pcb, t_open_file_row* openFile){
 void free_pcb(t_pcb* pcb){
 	write_to_log(
 			LOG_TARGET_INTERNAL,
-			LOG_LEVEL_DEBUG,
+			LOG_LEVEL_TRACE,
 			string_from_format("[utils/pcb-utils - free_pcb] Liberando de memoria PID: %d", pcb->executionContext->pid)
 	);
 
@@ -144,11 +155,11 @@ int get_current_pid() {
 }
 
 void log_pcb(t_pcb* pcb) {
-	t_log_level logLevel = LOG_LEVEL_DEBUG;
+	t_log_level logLevel = LOG_LEVEL_TRACE;
 
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Logeando PCB:\n");
 
-	log_context(get_logger(), LOG_LEVEL_INFO, pcb->executionContext);
+	log_context(get_logger(), LOG_LEVEL_TRACE, pcb->executionContext);
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("ClientSocketId: %d", pcb->clientSocketId));
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("NextBurstEstimate: %lf", pcb->nextBurstEstimate));
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("TimeArrivalReady: %d \n", pcb->timeArrivalReady));
@@ -164,14 +175,61 @@ void log_pcb(t_pcb* pcb) {
 
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("File: %s", openFileRow->file));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Pointer: %s \n", openFileRow->pointer));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("File: %s", openFileRow->file));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %s \n", openFileRow->pointer));
 }
 
 
 void write_segment_row_to_internal_logs(t_segment_row* segmentRow) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("Id: %d", segmentRow->id));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("BaseDirection: %d", segmentRow->baseDirection));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("SegmentSize: %d \n", segmentRow->segmentSize));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Id: %d", segmentRow->id));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("BaseDirection: %d", segmentRow->baseDirection));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("SegmentSize: %d \n", segmentRow->segmentSize));
+}
+
+void log_pcb_state(t_pcb* pcb){
+	write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_DEBUG,
+			string_from_format("[utils/pcb-utils - log_pcb_state] PID: %d, estado: %s", pcb->executionContext->pid, stateNames[pcb->state])
+	);
+}
+
+int pcb_is_ready(t_pcb* pcb){
+	return (pcb->state == READY);
+}
+
+int pcb_is_running(t_pcb* pcb){
+	return (pcb->state == RUNNING);
+}
+
+int pcb_is_not_blocked(t_pcb* pcb){
+	return (pcb->state != BLOCK);
+}
+
+void move_to_ready(t_pcb* pcb){
+	write_to_log(
+						LOG_TARGET_INTERNAL,
+						LOG_LEVEL_TRACE,
+						string_from_format("[utils/pcb-utils - move_to_ready] Moviendo PID: %d", pcb->executionContext->pid)
+				);
+	pcb->state = READY;
+}
+
+void move_to_running(t_pcb* pcb){
+	write_to_log(
+						LOG_TARGET_INTERNAL,
+						LOG_LEVEL_TRACE,
+						string_from_format("[utils/pcb-utils - move_to_running] Moviendo PID: %d", pcb->executionContext->pid)
+				);
+	pcb->state = RUNNING;
+}
+
+void move_to_blocked(t_pcb* pcb){
+	write_to_log(
+						LOG_TARGET_INTERNAL,
+						LOG_LEVEL_TRACE,
+						string_from_format("[utils/pcb-utils - move_to_blocked] Moviendo PID: %d", pcb->executionContext->pid)
+				);
+	pcb->state = BLOCK;
 }
 

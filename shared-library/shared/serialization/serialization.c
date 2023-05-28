@@ -29,16 +29,6 @@ command extract_command_from_buffer(void* buffer, int* offset){
 	return returnValue;
 }
 
-exit_reason extract_exit_reason_from_buffer(void* buffer, int* offset){
-	int valueSize = 0;
-	exit_reason returnValue;
-	memcpy(&valueSize, buffer + *offset, sizeof(int));
-	*offset += sizeof(int);
-	memcpy(&returnValue, buffer + *offset, sizeof(exit_reason));
-	*offset += sizeof(int);
-
-	return returnValue;
-}
 
 int extract_int_from_buffer(void* buffer, int* offset){
 	int valueSize = 0, returnValue;
