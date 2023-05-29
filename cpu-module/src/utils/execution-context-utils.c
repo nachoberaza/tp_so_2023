@@ -43,7 +43,7 @@ void execute_execution_context(t_execution_context* context) {
 				result = execute_io(context);
 				break;
 			case MOV_IN:
-					// TODO: result = execute_mov_in(context);
+				result = execute_mov_in(context);
 					break;
 			case MOV_OUT:
 					// TODO: result = execute_mov_out(context);

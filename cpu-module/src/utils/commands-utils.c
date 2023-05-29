@@ -134,6 +134,45 @@ int execute_io(t_execution_context* context){
 	return 0;
 }
 
+int execute_mov_in(t_execution_context* context){
+	return 0;
+}
+
+int execute_mov_out(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_open(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_close(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_seek(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_read(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_write(t_execution_context* context){
+	return 0;
+}
+
+int execute_f_truncate(t_execution_context* context){
+	return 0;
+}
+
+int execute_create_segment(t_execution_context* context){
+	return 0;
+}
+
+int execute_delete_segment(t_execution_context* context){
+	return 0;
+}
 void pass_instructions_parameters_to_reason_parameters(t_instruction* currentInstruction, t_list* reasonParameters){
 	int size = list_size(currentInstruction->parameters);
 
