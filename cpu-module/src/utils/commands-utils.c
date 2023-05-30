@@ -135,42 +135,60 @@ int execute_io(t_execution_context* context){
 }
 
 int execute_mov_in(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando MOV_IN");
 	return 0;
 }
 
 int execute_mov_out(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando MOV_OUT");
 	return 0;
 }
 
 int execute_f_open(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_OPEN");
+	context->reason->executionContextState = REASON_F_OPEN;
 	return 0;
 }
 
 int execute_f_close(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_CLOSE");
+	context->reason->executionContextState = REASON_F_CLOSE;
 	return 0;
 }
 
 int execute_f_seek(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_SEEK");
+	context->reason->executionContextState = REASON_F_SEEK;
 	return 0;
 }
 
 int execute_f_read(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_READ");
+	context->reason->executionContextState = REASON_F_READ;
 	return 0;
 }
 
 int execute_f_write(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_WRITE");
+	context->reason->executionContextState = REASON_F_WRITE;
 	return 0;
 }
 
 int execute_f_truncate(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando F_TRUNCATE");
+	context->reason->executionContextState = REASON_F_TRUNCATE;
 	return 0;
 }
 
 int execute_create_segment(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando CREATE_SEGMENT");
+	context->reason->executionContextState = REASON_CREATE_SEGMENT;
 	return 0;
 }
 
 int execute_delete_segment(t_execution_context* context){
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_exit] Ejecutando DELETE_SEGMENT");
+	context->reason->executionContextState = REASON_DELETE_SEGMENT;
 	return 0;
 }
 void pass_instructions_parameters_to_reason_parameters(t_instruction* currentInstruction, t_list* reasonParameters){
