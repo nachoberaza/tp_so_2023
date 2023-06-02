@@ -28,6 +28,14 @@
 	void write_segment_row_to_internal_logs(t_segment_row* segmentRow);
 	void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow);
 	void log_pcb(t_pcb* pcb);
-	t_list* get_pcb_list();
+	t_list* get_new_pcb_list();
+	t_list* get_short_term_list();
+	void log_pcb_state(t_pcb* pcb);
+	int pcb_is_running(t_pcb* pcb);
+	int pcb_is_ready(t_pcb* pcb);
+	int pcb_is_not_blocked(t_pcb* pcb);
+	void move_to_ready(t_pcb* pcb);
+	void move_to_blocked(t_pcb* pcb);
+	void move_to_running(t_pcb* pcb);
 
 #endif

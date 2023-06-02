@@ -19,6 +19,8 @@ typedef struct {
 	char *PLANNING_ALGORITHM;
 	int INITIAL_ESTIMATE;
 	int HRRN_ALFA;
+	char **RESOURCES;
+	char **RESOURCES_INSTANCES;
 	int MAX_MULTIPROGRAMMING_LEVEL;
 	t_log_level LOG_LEVEL;
 } t_kernel_config;

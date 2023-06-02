@@ -7,6 +7,10 @@ int main(void) {
 
 	log_config(kernelEnv);
 
+	init_semaphores();
+
+	build_resources_list(kernelEnv->RESOURCES,kernelEnv->RESOURCES_INSTANCES);
+
 	int serverSocketId = start_server(kernelEnv->IP, kernelEnv->PORT, get_logger(), MODULE_NAME);
 
 	start_connections(kernelEnv);
@@ -18,5 +22,3 @@ int main(void) {
 	pthread_join(get_listener_thread(), NULL);
 	return EXIT_SUCCESS;
 }
-
-

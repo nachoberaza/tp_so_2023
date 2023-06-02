@@ -1,4 +1,3 @@
-
 #ifndef CPU_COMMUNICATION_UTILS_H_
 #define CPU_COMMUNICATION_UTILS_H_
 
@@ -16,14 +15,27 @@
 	#include "logger-utils.h"
 	#include "pcb-utils.h"
 	#include "thread-utils.h"
+	#include "resource-utils.h"
 	#include "../structs/pcb.h"
+	#include "../structs/resource.h"
+	#include "semaphore-utils.h"
+	#include "short-term-scheduler-utils.h"
 	// For sleep
 	#include <unistd.h>
+
+	typedef struct{
+		int timeIO;
+		t_pcb* pcb;
+	}t_io_thread_args;
 
 	void handle_processes();
 	void execute_process();
 	void send_context_to_cpu(t_execution_context *commands);
 	t_execution_context* listen_cpu_response();
 	void handle_cpu_response(t_pcb* pcb);
+	void execute_kernel_wait(t_pcb* pcb);
+	void execute_kernel_signal(t_pcb* pcb);
+	void execute_kernel_io(t_pcb* pcb);
+	void* sleepThread(void* args);
 
 #endif

@@ -17,7 +17,8 @@ typedef struct {
 	t_log_level LOG_LEVEL;
 } t_cpu_config;
 
-t_cpu_config* create_cpu_config(char *moduleName);
+void create_cpu_config(char *moduleName);
 void log_config(t_cpu_config *config);
+t_cpu_config* get_cpu_env();
 
 #endif

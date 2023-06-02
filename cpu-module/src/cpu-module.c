@@ -2,16 +2,16 @@
 
 
 int main(void) {
-	t_cpu_config *CPU_ENV = create_cpu_config(MODULE_NAME);
+	create_cpu_config(MODULE_NAME);
 
-	init_logger(MODULE_NAME, CPU_ENV->LOG_LEVEL);
+	init_logger(MODULE_NAME, get_cpu_env()->LOG_LEVEL);
 
-	log_config(CPU_ENV);
+	log_config(get_cpu_env());
 
-	int memoryConnection = connect_to_server(CPU_ENV->IP_MEMORY, CPU_ENV->PORT_MEMORY);
+	int memoryConnection = connect_to_server(get_cpu_env()->IP_MEMORY, get_cpu_env()->PORT_MEMORY);
 	handle_memory_handshake(memoryConnection, CPU);
 
-	int serverSocketId = start_server(CPU_ENV->IP, CPU_ENV->PORT, get_logger(), MODULE_NAME);
+	int serverSocketId = start_server(get_cpu_env()->IP, get_cpu_env()->PORT, get_logger(), MODULE_NAME);
 
 	int kernelConnection = await_client(get_logger(), serverSocketId);
 
@@ -22,9 +22,9 @@ int main(void) {
 	while (1) {
 		receive_operation_code(kernelConnection);
 
-		context = decode_context(get_logger(), LOG_LEVEL_DEBUG, kernelConnection);
+		context = decode_context(get_logger(), LOG_LEVEL_TRACE, kernelConnection);
 
-		log_context(get_logger(), LOG_LEVEL_DEBUG, context);
+		log_context(get_logger(), LOG_LEVEL_TRACE, context);
 
 		execute_execution_context(context);
 
