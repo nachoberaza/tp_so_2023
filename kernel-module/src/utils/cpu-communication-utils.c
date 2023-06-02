@@ -18,7 +18,7 @@ void handle_processes() {
 
 void execute_process(){
 	t_pcb* pcb = calculate_next_process();
-
+	int startTime, finishTime;
 	write_to_log(
 			LOG_TARGET_INTERNAL,
 			LOG_LEVEL_DEBUG,
@@ -28,12 +28,14 @@ void execute_process(){
 	log_context(get_logger(), LOG_LEVEL_TRACE, pcb->executionContext);
 
 	send_context_to_cpu(pcb->executionContext);
-
+	startTime = (int)time(NULL);
 	t_execution_context* responseContext = listen_cpu_response();
-
+	finishTime = (int)time(NULL);
 	destroy_execution_context(get_logger(), pcb->executionContext);
 	pcb->executionContext = responseContext;
-
+	if(get_planning_algorithm() == HRRN) {
+		add_ready_time_to_processes(finishTime);
+	}
 	handle_cpu_response(pcb);
 }
 
@@ -62,7 +64,7 @@ t_execution_context* listen_cpu_response() {
 void handle_cpu_response(t_pcb* pcb){
 
 	switch(pcb->executionContext->reason->executionContextState){
-		case REASON_YIELD:
+		case REASON_YIELD:;
 			write_to_log(
 					LOG_TARGET_INTERNAL,
 					LOG_LEVEL_DEBUG,

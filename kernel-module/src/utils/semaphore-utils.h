@@ -8,6 +8,7 @@
 	#include <shared/logs/log.h>
 	#include "logger-utils.h"
 
+	void init_semaphores();
 	void wait_short_term();
 	void signal_short_term();
 	void wait_long_term();

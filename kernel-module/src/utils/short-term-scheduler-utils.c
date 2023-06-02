@@ -11,22 +11,58 @@ t_pcb* calculate_next_process (){
 			LOG_LEVEL_DEBUG,
 			string_from_format("[utils/cpu-communication-utils - calculate_next_process] Eligiendo próximo proceso ")
 	);
-	//Get config global, check if fifo or HRRN
-	t_pcb* pcb = get_first_pcb_in_ready();
+
+	t_pcb* pcb = get_next_process();
 	move_to_running(pcb);
 
 	return pcb;
 }
 
-t_pcb* get_first_pcb_in_ready(){
+t_pcb* get_next_process(){
 	wait_short_term();
-	t_list* listReady = list_filter(get_short_term_list(), (void *) pcb_is_ready);
-	if (list_is_empty(listReady))
+	t_list* readyList = list_filter(get_short_term_list(), (void *) pcb_is_ready);
+	if (list_is_empty(readyList))
 			return NULL;
 
 	signal_short_term();
 
-	return list_get(listReady, 0);
+	if(get_planning_algorithm() == HRRN) {
+		return get_next_process_with_hrrn(readyList);
+	}
+
+	return get_next_process_with_fifo(readyList);
+}
+
+t_pcb* get_next_process_with_fifo(t_list* readyList) {
+	wait_short_term();
+		t_pcb* nextProcess = list_get(readyList, 0);
+	signal_short_term();
+
+	return nextProcess;
+}
+
+t_pcb* get_next_process_with_hrrn(t_list* readyList) {
+	wait_short_term();
+	// TODO: Calcular formula para cada uno
+		t_pcb* nextProcess = list_get(readyList, 0);
+	signal_short_term();
+
+	return nextProcess;
+}
+
+void add_ready_time_to_processes(int time) {
+	wait_short_term();
+	t_list* processes = get_short_term_list();
+	for(int i = 0; i < list_size(processes); i++) {
+		t_pcb* process = list_get(processes, i);
+		t_pcb* runningProcess = get_pcb_in_running();
+		if(process->executionContext->pid != runningProcess->executionContext->pid){
+			process->timeArrivalReady = time - process->timeArrivalReady;
+		} else {
+			runningProcess->timeArrivalReady = 0;
+		}
+	}
+	signal_short_term();
 }
 
 t_pcb* get_pcb_in_running(){
