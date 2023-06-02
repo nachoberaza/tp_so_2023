@@ -1,10 +1,12 @@
 #include "config-utils.h"
 
-t_kernel_config* create_kernel_config(char *moduleName) {
+t_kernel_config *kernelConfig;
+
+void init_kernel_config(char *moduleName) {
 	char *fileName = string_from_format("%s.config", moduleName);
 
 	t_config *config = config_create(fileName);
-	t_kernel_config *kernelConfig = malloc(sizeof(t_kernel_config));
+	kernelConfig = malloc(sizeof(t_kernel_config));
 
 	kernelConfig->IP = config_get_string_value(config, "IP");
 	kernelConfig->PORT = config_get_string_value(config, "PUERTO_ESCUCHA");
@@ -21,8 +23,17 @@ t_kernel_config* create_kernel_config(char *moduleName) {
 	kernelConfig->RESOURCES_INSTANCES = config_get_array_value(config, "INSTANCIAS_RECURSOS");
 	kernelConfig->MAX_MULTIPROGRAMMING_LEVEL = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
 	kernelConfig->LOG_LEVEL = log_level_from_string(config_get_string_value(config, "LOG_LEVEL"));
+}
 
+t_kernel_config* get_kernel_config() {
 	return kernelConfig;
+}
+
+planning_algorithm get_planning_algorithm() {
+	if(strcmp(kernelConfig->PLANNING_ALGORITHM, "HRRN") == 0)
+		return HRRN;
+
+	return FIFO;
 }
 
 void log_config(t_kernel_config *config) {
