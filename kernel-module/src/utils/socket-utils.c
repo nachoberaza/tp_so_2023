@@ -73,15 +73,3 @@ void listen_consoles(int serverSocketId) {
 		execute_long_term_scheduler();
 	}
 }
-
-void execute_long_term_scheduler(){
-	//TODO: Reescribir
-	int size = list_size(get_new_pcb_list());
-	for (int i=0; i<size; i++){
-		t_pcb* pcb = list_get(get_new_pcb_list(), 0);
-		pcb->state = READY;
-		list_add(get_short_term_list(), pcb);
-	}
-
-	list_clean(get_new_pcb_list());
-}
