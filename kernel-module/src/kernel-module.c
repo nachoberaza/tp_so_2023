@@ -20,5 +20,6 @@ int main(void) {
 	handle_processes();
 
 	pthread_join(get_listener_thread(), NULL);
+
 	return EXIT_SUCCESS;
 }

@@ -37,6 +37,7 @@ void execute_process(){
 		add_ready_time_to_processes(finishTime);
 	}
 	handle_cpu_response(pcb);
+
 }
 
 
@@ -85,11 +86,12 @@ void handle_cpu_response(t_pcb* pcb){
 				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, "Success")
 			);
 
-
 			wait_short_term();
 			remove_pid_from_short_term_list(pcb);
 			signal_short_term();
 			free_pcb(pcb);
+
+			execute_long_term_scheduler();
 
 			break;
 		case REASON_ERROR:
@@ -105,6 +107,12 @@ void handle_cpu_response(t_pcb* pcb){
 				LOG_LEVEL_INFO,
 				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, list_get(pcb->executionContext->reason->parameters,0))
 			);
+
+			wait_short_term();
+			remove_pid_from_short_term_list(pcb);
+			signal_short_term();
+			free_pcb(pcb);
+			execute_long_term_scheduler();
 
 			exit(EXIT_FAILURE);
 			break;

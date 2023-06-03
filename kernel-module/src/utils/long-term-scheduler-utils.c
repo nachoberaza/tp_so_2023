@@ -2,18 +2,43 @@
 
 void execute_long_term_scheduler(){
 
-	int new_processes_list_size = list_size(get_new_pcb_list());
-	int max_multiprogramming_level = get_kernel_config()->MAX_MULTIPROGRAMMING_LEVEL;
-	int short_term_list_size = list_size(get_short_term_list());
+	int i = 0;
 
-	for (int i=0;
-		(i<new_processes_list_size) && (short_term_list_size <= max_multiprogramming_level);
-		i++
-	){
-		t_pcb* pcb = list_get(get_new_pcb_list(), 0);
+	int newProcessesListSize;
+	int multiprogrammingActualLevel = get_kernel_config()->MAX_MULTIPROGRAMMING_LEVEL;
+	int shortTermListSize;
+
+	while(1){
+
+		newProcessesListSize = list_size(get_new_pcb_list());
+		shortTermListSize = list_size(get_short_term_list());
+
+		if (should_stop_scheduling(i, newProcessesListSize, shortTermListSize, multiprogrammingActualLevel))
+			break;
+
+		// Toma el primero de la lista de new
+		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
+
+		// New -> Ready
 		pcb->state = READY;
+
+		// Quita de la lista de new
+		list_remove(get_new_pcb_list(), 0);
+
+		// Lo agrega a la lista de Ready
 		list_add(get_short_term_list(), pcb);
+
+		// Decremento el grado de multiprogramacion actual
+		multiprogrammingActualLevel--;
+
+		i++;
 	}
 
-	list_clean(get_new_pcb_list());
+}
+
+int should_stop_scheduling(int iteration_number,int newProcessesListSize, int shortTermListSize,int  multiprogrammingActualLevel){
+
+	return ( iteration_number > newProcessesListSize ) 
+		|| ( shortTermListSize > multiprogrammingActualLevel )
+		|| ( newProcessesListSize == 0 );
 }

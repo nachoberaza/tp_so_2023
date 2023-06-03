@@ -44,7 +44,7 @@ t_pcb* get_next_process_with_fifo(t_list* readyList) {
 t_pcb* get_next_process_with_hrrn(t_list* readyList) {
 	wait_short_term();
 	// TODO: Calcular formula para cada uno
-		t_pcb* nextProcess = list_get(readyList, 0);
+	t_pcb* nextProcess = list_get(readyList, 0);
 	signal_short_term();
 
 	return nextProcess;
