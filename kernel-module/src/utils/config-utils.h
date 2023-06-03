@@ -18,8 +18,8 @@ typedef struct {
 	char *IP_CPU;
 	char *PORT_CPU;
 	char *PLANNING_ALGORITHM;
-	int INITIAL_ESTIMATE;
-	int HRRN_ALFA;
+	double INITIAL_ESTIMATE;
+	double HRRN_ALFA;
 	char **RESOURCES;
 	char **RESOURCES_INSTANCES;
 	int MAX_MULTIPROGRAMMING_LEVEL;

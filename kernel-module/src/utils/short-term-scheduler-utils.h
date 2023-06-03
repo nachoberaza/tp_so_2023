@@ -16,5 +16,9 @@
 	void remove_pid_from_short_term_list(t_pcb* pcb);
 	t_pcb* get_next_process_with_fifo(t_list* readyList);
 	t_pcb* get_next_process_with_hrrn(t_list* readyList);
+	void recalculate_hrrn_values_to_processes(int startTime, int endTime);
+	void add_aging_to_process(t_pcb* process, int startTime, int endTime);
+	void reset_aging(t_pcb* process);
+	void recalculate_next_burst_estimate(t_pcb* process, int lastBurst);
 
 #endif

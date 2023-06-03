@@ -35,6 +35,7 @@ t_pcb* new_pcb(int clientSocketId){
 	pcb->executionContext->reason = malloc(sizeof(t_execution_context_reason));
 	pcb->executionContext->reason->parameters = list_create();
 	pcb->state = NEW;
+	pcb->firstTimeInReady = true;
 
 	return pcb;
 }

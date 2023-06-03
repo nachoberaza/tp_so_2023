@@ -34,7 +34,7 @@ void execute_process(){
 	destroy_execution_context(get_logger(), pcb->executionContext);
 	pcb->executionContext = responseContext;
 	if(get_planning_algorithm() == HRRN) {
-		add_ready_time_to_processes(finishTime);
+		recalculate_hrrn_values_to_processes(startTime, finishTime);
 	}
 	handle_cpu_response(pcb);
 

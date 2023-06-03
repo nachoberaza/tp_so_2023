@@ -43,26 +43,65 @@ t_pcb* get_next_process_with_fifo(t_list* readyList) {
 
 t_pcb* get_next_process_with_hrrn(t_list* readyList) {
 	wait_short_term();
-	// TODO: Calcular formula para cada uno
 	t_pcb* nextProcess = list_get(readyList, 0);
+	double responseRatio = (nextProcess->timeArrivalReady + nextProcess->nextBurstEstimate) / nextProcess->nextBurstEstimate;
+
+	for(int i = 0; i < list_size(readyList); i++) {
+		t_pcb* process = list_get(readyList, i);
+		double processResponseRatio = (process->timeArrivalReady + process->nextBurstEstimate) / process->nextBurstEstimate;
+		if(processResponseRatio > responseRatio) {
+			nextProcess = process;
+		}
+		write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_INFO,
+			string_from_format("[utils/cpu-communication-utils - get_next_process_with_hrrn] PID: %d - timeArrivalReady: %d - nextBurstEstimate: %f - processResponseRatio: %f", process->executionContext->pid, process->timeArrivalReady, process->nextBurstEstimate, processResponseRatio)
+		);
+	}
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_INFO,
+		string_from_format("------------------------------------------------------------------")
+	);
 	signal_short_term();
 
 	return nextProcess;
 }
 
-void add_ready_time_to_processes(int time) {
+void recalculate_hrrn_values_to_processes(int startTime, int endTime) {
 	wait_short_term();
 	t_list* processes = get_short_term_list();
 	for(int i = 0; i < list_size(processes); i++) {
 		t_pcb* process = list_get(processes, i);
-		t_pcb* runningProcess = get_pcb_in_running();
-		if(process->executionContext->pid != runningProcess->executionContext->pid){
-			process->timeArrivalReady = time - process->timeArrivalReady;
+		if(process->state == READY){
+			add_aging_to_process(process, startTime, endTime);
 		} else {
-			runningProcess->timeArrivalReady = 0;
+			reset_aging(process);
+			// TODO: Chequear si solo se tiene que hacer aca o si se tiene que hacer tambien cuando pasa de blocked a ready
+			if(process->state == RUNNING)
+				recalculate_next_burst_estimate(process, endTime - startTime);
 		}
 	}
 	signal_short_term();
+}
+
+void add_aging_to_process(t_pcb* process, int startTime, int endTime) {
+	if(process->firstTimeInReady){
+		process->timeArrivalReady = endTime - process->timeArrivalReady;
+	} else {
+		process->timeArrivalReady = process->timeArrivalReady + endTime - startTime;
+	}
+	process->firstTimeInReady = false;
+}
+
+void reset_aging(t_pcb* process) {
+	process->timeArrivalReady = 0;
+	process->firstTimeInReady = false;
+}
+
+void recalculate_next_burst_estimate(t_pcb* process, int lastBurst) {
+	double alphaValue = get_kernel_config()->HRRN_ALFA;
+	process->nextBurstEstimate = (alphaValue * process->nextBurstEstimate) + ((1 - alphaValue) * lastBurst);
 }
 
 t_pcb* get_pcb_in_running(){

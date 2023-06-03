@@ -17,8 +17,8 @@ void init_kernel_config(char *moduleName) {
 	kernelConfig->IP_CPU = config_get_string_value(config, "IP_CPU");
 	kernelConfig->PORT_CPU = config_get_string_value(config, "PUERTO_CPU");
 	kernelConfig->PLANNING_ALGORITHM = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
-	kernelConfig->INITIAL_ESTIMATE = config_get_int_value(config, "ESTIMACION_INICIAL");
-	kernelConfig->HRRN_ALFA = config_get_int_value(config, "HRRN_ALFA");
+	kernelConfig->INITIAL_ESTIMATE = config_get_double_value(config, "ESTIMACION_INICIAL");
+	kernelConfig->HRRN_ALFA = config_get_double_value(config, "HRRN_ALFA");
 	kernelConfig->RESOURCES = config_get_array_value(config, "RECURSOS");
 	kernelConfig->RESOURCES_INSTANCES = config_get_array_value(config, "INSTANCIAS_RECURSOS");
 	kernelConfig->MAX_MULTIPROGRAMMING_LEVEL = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
@@ -56,7 +56,6 @@ void log_config(t_kernel_config *config) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INSTANCES %d: %s", i, config->RESOURCES_INSTANCES[i]));
 	}
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("RESOURCES_INSTANCES: %s", string_itoa(config->HRRN_ALFA)));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("MAX_MULTIPROGRAMMING_LEVEL: %s", string_itoa(config->MAX_MULTIPROGRAMMING_LEVEL)));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }

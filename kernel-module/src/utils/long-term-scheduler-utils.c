@@ -26,6 +26,6 @@ void execute_long_term_scheduler(){
 
 int should_stop_scheduling(int newProcessesListSize, int shortTermListSize,int  shortTermProcessesAvailables){
 
-	return ( shortTermListSize == shortTermProcessesAvailables )
+	return ( shortTermProcessesAvailables == 0 )
 		|| ( newProcessesListSize == 0 );
 }
