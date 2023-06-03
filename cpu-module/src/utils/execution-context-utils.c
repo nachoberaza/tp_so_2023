@@ -42,6 +42,36 @@ void execute_execution_context(t_execution_context* context) {
 			case IO:
 				result = execute_io(context);
 				break;
+			case MOV_IN:
+				result = execute_mov_in(context);
+				break;
+			case MOV_OUT:
+				result = execute_mov_out(context);
+				break;
+			case F_OPEN:
+				result = execute_f_open(context);
+				break;
+			case F_CLOSE:
+				result = execute_f_close(context);
+				break;
+			case F_SEEK:
+				result = execute_f_seek(context);
+				break;
+			case F_READ:
+				result = execute_f_read(context);
+				break;
+			case F_WRITE:
+				result = execute_f_write(context);
+				break;
+			case F_TRUNCATE:
+				result = execute_f_truncate(context);
+				break;
+			case CREATE_SEGMENT:
+				result = execute_create_segment(context);
+				break;
+			case DELETE_SEGMENT:
+				result = execute_delete_segment(context);
+				break;
 			default:
 				write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/execution-context-utils - execute_execution_context] Comando no pertenece al CPU");
 				return;
