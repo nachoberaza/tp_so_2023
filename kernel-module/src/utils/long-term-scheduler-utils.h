@@ -5,5 +5,5 @@
 	#include "pcb-utils.h"
 
 	void execute_long_term_scheduler();
-	int should_stop_scheduling(int iteration_number,int newProcessesListSize, int shortTermListSize,int  multiprogrammingActualLevel);
+	int should_stop_scheduling( int newProcessesListSize, int shortTermListSize, int shortTermProcessesAvailables );
 #endif
