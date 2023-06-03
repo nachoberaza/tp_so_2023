@@ -1,8 +1,8 @@
 #include "kernel-module.h"
 
 int main(void) {
-	t_kernel_config *kernelEnv = create_kernel_config(MODULE_NAME);
-
+	init_kernel_config(MODULE_NAME);
+	t_kernel_config* kernelEnv = get_kernel_config();
 	init_logger(MODULE_NAME, kernelEnv->LOG_LEVEL);
 
 	log_config(kernelEnv);
@@ -20,5 +20,6 @@ int main(void) {
 	handle_processes();
 
 	pthread_join(get_listener_thread(), NULL);
+
 	return EXIT_SUCCESS;
 }

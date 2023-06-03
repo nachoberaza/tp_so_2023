@@ -7,6 +7,7 @@
 	#include <shared/sockets/server-socket.h>
 	#include "config-utils.h"
 	#include "pcb-utils.h"
+	#include "long-term-scheduler-utils.h"
 
 	typedef struct {
 		int cpu;
@@ -21,6 +22,5 @@
 	int get_memory_connection();
 	int handle_console_handshake(int clientSocketId);
 	void listen_consoles(int serverSocket);
-	void execute_long_term_scheduler();
 
 #endif

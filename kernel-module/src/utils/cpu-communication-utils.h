@@ -6,6 +6,7 @@
 	#include <pthread.h>
 	#include <commons/log.h>
 	#include <commons/string.h>
+	#include <time.h>
 	#include <shared/logs/log.h>
 	#include <shared/sockets/server-socket.h>
 	#include <shared/sockets/client-socket.h>
@@ -18,6 +19,7 @@
 	#include "resource-utils.h"
 	#include "../structs/pcb.h"
 	#include "../structs/resource.h"
+	#include "../structs/config.h"
 	#include "semaphore-utils.h"
 	#include "short-term-scheduler-utils.h"
 	// For sleep

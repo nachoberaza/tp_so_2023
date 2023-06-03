@@ -18,7 +18,7 @@ void handle_processes() {
 
 void execute_process(){
 	t_pcb* pcb = calculate_next_process();
-
+	int startTime, finishTime;
 	write_to_log(
 			LOG_TARGET_INTERNAL,
 			LOG_LEVEL_DEBUG,
@@ -28,13 +28,16 @@ void execute_process(){
 	log_context(get_logger(), LOG_LEVEL_TRACE, pcb->executionContext);
 
 	send_context_to_cpu(pcb->executionContext);
-
+	startTime = (int)time(NULL);
 	t_execution_context* responseContext = listen_cpu_response();
-
+	finishTime = (int)time(NULL);
 	destroy_execution_context(get_logger(), pcb->executionContext);
 	pcb->executionContext = responseContext;
-
+	if(get_planning_algorithm() == HRRN) {
+		recalculate_hrrn_values_to_processes(startTime, finishTime);
+	}
 	handle_cpu_response(pcb);
+
 }
 
 
@@ -62,7 +65,7 @@ t_execution_context* listen_cpu_response() {
 void handle_cpu_response(t_pcb* pcb){
 
 	switch(pcb->executionContext->reason->executionContextState){
-		case REASON_YIELD:
+		case REASON_YIELD:;
 			write_to_log(
 					LOG_TARGET_INTERNAL,
 					LOG_LEVEL_DEBUG,
@@ -83,11 +86,12 @@ void handle_cpu_response(t_pcb* pcb){
 				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, "Success")
 			);
 
-
 			wait_short_term();
 			remove_pid_from_short_term_list(pcb);
 			signal_short_term();
 			free_pcb(pcb);
+
+			execute_long_term_scheduler();
 
 			break;
 		case REASON_ERROR:
@@ -103,6 +107,12 @@ void handle_cpu_response(t_pcb* pcb){
 				LOG_LEVEL_INFO,
 				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, list_get(pcb->executionContext->reason->parameters,0))
 			);
+
+			wait_short_term();
+			remove_pid_from_short_term_list(pcb);
+			signal_short_term();
+			free_pcb(pcb);
+			execute_long_term_scheduler();
 
 			exit(EXIT_FAILURE);
 			break;

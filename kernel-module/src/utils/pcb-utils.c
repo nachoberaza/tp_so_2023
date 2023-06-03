@@ -2,11 +2,11 @@
 
 int currentPid = 0;
 t_list * newPcbList;
-t_list * readyPcbList;
+t_list * shortTermPcbList;
 
 void start_pcb_list() {
 	newPcbList = list_create();
-	readyPcbList = list_create();
+	shortTermPcbList = list_create();
 }
 
 t_list* get_new_pcb_list(){
@@ -14,13 +14,15 @@ t_list* get_new_pcb_list(){
 }
 
 t_list* get_short_term_list(){
-	return readyPcbList;
+	return shortTermPcbList;
 }
 
 t_pcb* new_pcb(int clientSocketId){
 	t_pcb *pcb = malloc(sizeof(t_pcb));
 
 	pcb->clientSocketId = clientSocketId;
+	pcb->nextBurstEstimate = get_kernel_config()->INITIAL_ESTIMATE;
+	pcb->timeArrivalReady = (int)time(NULL);
 	pcb->segmentTable = list_create();
 	pcb->openFilesTable = list_create();
 
@@ -33,6 +35,7 @@ t_pcb* new_pcb(int clientSocketId){
 	pcb->executionContext->reason = malloc(sizeof(t_execution_context_reason));
 	pcb->executionContext->reason->parameters = list_create();
 	pcb->state = NEW;
+	pcb->firstTimeInReady = true;
 
 	return pcb;
 }

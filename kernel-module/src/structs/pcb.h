@@ -30,10 +30,11 @@
 	typedef struct {
 		int clientSocketId;
 		t_list* segmentTable; //lista con elementos t_segment_row
-		float nextBurstEstimate;
+		double nextBurstEstimate;
 		int timeArrivalReady;
 		t_list* openFilesTable;//lista con elementos t_open_file_row
 		state_process state;
+		bool firstTimeInReady;
 		t_execution_context* executionContext;
 	} t_pcb;
 
