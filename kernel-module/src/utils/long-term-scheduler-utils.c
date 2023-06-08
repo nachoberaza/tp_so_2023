@@ -34,3 +34,33 @@ int should_stop_scheduling(int newProcessesListSize, int shortTermListSize,int  
 	return ( shortTermProcessesAvailables == 0 )
 		|| ( newProcessesListSize == 0 );
 }
+
+void move_to_exit(t_pcb* pcb){
+	operation_result result = OPERATION_RESULT_OK;
+	char* reason = "Success";
+
+	if (!list_is_empty(pcb->executionContext->reason->parameters)){
+		void* err = list_get(pcb->executionContext->reason->parameters,0);
+		reason = error_as_string((error)err);
+		result = OPERATION_RESULT_ERROR;
+	}
+
+	write_to_log(
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid,reason)
+	);
+
+	//TODO: liberar la memoria del proceso
+
+	wait_short_term();
+	remove_pid_from_short_term_list(pcb);
+	signal_short_term();
+
+	send(pcb->clientSocketId, &result, sizeof(operation_result), 0);
+
+	free_pcb(pcb);
+
+
+	execute_long_term_scheduler();
+}

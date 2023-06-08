@@ -3,11 +3,26 @@
 
 	#define COMMAND_ENUM_SIZE 16
 	#define EXECUTION_CONTEXT_STATE_ENUM_SIZE 14
+	#define ERROR_ENUM_SIZE 2
 	#include <commons/collections/list.h>
 
 	typedef enum {
-		SET,YIELD,EXIT,WAIT,SIGNAL,IO,MOV_IN,MOV_OUT,F_OPEN,F_CLOSE,F_SEEK,F_READ,F_WRITE,F_TRUNCATE,CREATE_SEGMENT,DELETE_SEGMENT
+		SEG_FAULT,
+		OUT_OF_MEMORY
+	} error;
+
+	typedef enum {
+		SET,YIELD,EXIT,
+		WAIT,SIGNAL,IO,
+		MOV_IN,MOV_OUT,
+		F_OPEN,F_CLOSE,F_SEEK,F_READ,F_WRITE,F_TRUNCATE,
+		CREATE_SEGMENT,DELETE_SEGMENT
 	} command;
+
+	static char *errorNames[ERROR_ENUM_SIZE] = {
+		[SEG_FAULT] = "SEG_FAULT",
+		[OUT_OF_MEMORY] = "OUT_OF_MEMORY",
+	};
 
 	static char *commandNames[COMMAND_ENUM_SIZE] = {
 		[SET] = "SET",

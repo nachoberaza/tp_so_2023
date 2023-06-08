@@ -276,3 +276,23 @@ void fill_buffer_with_cpu_register(t_cpu_register* cpuRegisters, t_package* pkg)
 	fill_package_buffer(pkg, cpuRegisters->RDX, sizeof(char) * 16);
 }
 
+
+error error_from_string(t_log_grouping* logger, char * error) {
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("[shared/execution-context - error_from_string] Error a buscar : %s",error));
+
+	for (int i = 0; i < ERROR_ENUM_SIZE; i++) {
+		if (string_equals_ignore_case(error, errorNames[i])){
+			write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - error_from_string] Error Name encontrado");
+			return i;
+		}
+	}
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_WARNING, string_from_format("[shared/execution-context - error_from_string] El Error no se corresponde a un valor existente"));
+
+	return -1;
+}
+
+
+char * error_as_string(error error) {
+	return errorNames[error];
+}
+

@@ -80,24 +80,7 @@ void handle_cpu_response(t_pcb* pcb){
 					string_from_format("[utils/cpu-communication-utils - handle_cpu_response] Cambio de status en el PID: %d - Finish", pcb->executionContext->pid)
 			);
 
-
-
-			write_to_log(
-				LOG_TARGET_MAIN,
-				LOG_LEVEL_INFO,
-				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, "Success")
-			);
-
-			wait_short_term();
-			remove_pid_from_short_term_list(pcb);
-			signal_short_term();
-
-			int motivo = 1;
-			send(pcb->clientSocketId, motivo, sizeof(int), 0);
-
-			free_pcb(pcb);
-
-			execute_long_term_scheduler();
+			move_to_exit(pcb);
 
 			break;}
 		case REASON_ERROR:{
@@ -107,23 +90,7 @@ void handle_cpu_response(t_pcb* pcb){
 					string_from_format("[utils/cpu-communication-utils - handle_cpu_response] Error en el PID: %d", pcb->executionContext->pid)
 			);
 
-			//TODO: crear enum de errores
-			write_to_log(
-				LOG_TARGET_MAIN,
-				LOG_LEVEL_INFO,
-				string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid, list_get(pcb->executionContext->reason->parameters,0))
-			);
-
-			wait_short_term();
-			remove_pid_from_short_term_list(pcb);
-			signal_short_term();
-
-			int motivo = 0;
-			send(pcb->clientSocketId, &motivo, sizeof(int), 0);
-
-			free_pcb(pcb);
-
-			execute_long_term_scheduler();
+			move_to_exit(pcb);
 
 			break;
 		}
@@ -137,6 +104,38 @@ void handle_cpu_response(t_pcb* pcb){
 		}
 		case REASON_IO:{
 			execute_kernel_io(pcb);
+			break;
+		}
+		case REASON_F_OPEN:{
+			//TODO
+			break;
+		}
+		case REASON_F_CLOSE:{
+			//TODO
+			break;
+		}
+		case REASON_F_SEEK:{
+			//TODO
+		break;
+		}
+		case REASON_F_READ:{
+			//TODO
+			break;
+		}
+		case REASON_F_WRITE:{
+			//TODO
+			break;
+		}
+		case REASON_F_TRUNCATE:{
+			//TODO
+			break;
+		}
+		case REASON_CREATE_SEGMENT:{
+			//TODO
+			break;
+		}
+		case REASON_DELETE_SEGMENT:{
+			//TODO
 			break;
 		}
 	}
