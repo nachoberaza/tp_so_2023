@@ -15,9 +15,14 @@ void execute_long_term_scheduler(){
 
 		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
 
+		//TODO: pedir a memoria tabla de segmentos
+
 		pcb->state = READY;
 
+
+		wait_short_term();
 		list_add(get_short_term_list(), pcb);
+		signal_short_term();
 
 		list_remove(get_new_pcb_list(), 0);
 	}

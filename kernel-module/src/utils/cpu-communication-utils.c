@@ -73,12 +73,14 @@ void handle_cpu_response(t_pcb* pcb){
 			);
 			move_pcb_to_short_term_end(pcb);
 			break;
-		case REASON_FINISH:
+		case REASON_FINISH:{
 			write_to_log(
 					LOG_TARGET_INTERNAL,
 					LOG_LEVEL_DEBUG,
 					string_from_format("[utils/cpu-communication-utils - handle_cpu_response] Cambio de status en el PID: %d - Finish", pcb->executionContext->pid)
 			);
+
+
 
 			write_to_log(
 				LOG_TARGET_MAIN,
@@ -89,12 +91,16 @@ void handle_cpu_response(t_pcb* pcb){
 			wait_short_term();
 			remove_pid_from_short_term_list(pcb);
 			signal_short_term();
+
+			int motivo = 1;
+			send(pcb->clientSocketId, motivo, sizeof(int), 0);
+
 			free_pcb(pcb);
 
 			execute_long_term_scheduler();
 
-			break;
-		case REASON_ERROR:
+			break;}
+		case REASON_ERROR:{
 			write_to_log(
 					LOG_TARGET_INTERNAL,
 					LOG_LEVEL_DEBUG,
@@ -111,11 +117,16 @@ void handle_cpu_response(t_pcb* pcb){
 			wait_short_term();
 			remove_pid_from_short_term_list(pcb);
 			signal_short_term();
+
+			int motivo = 0;
+			send(pcb->clientSocketId, &motivo, sizeof(int), 0);
+
 			free_pcb(pcb);
+
 			execute_long_term_scheduler();
 
-			exit(EXIT_FAILURE);
 			break;
+		}
 		case REASON_WAIT:{
 			execute_kernel_wait(pcb);
 			break;

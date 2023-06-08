@@ -28,11 +28,19 @@ void handle_kernel_handshake() {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[utils/socket-utils - handle_kernel_handshake] Conectado con kernel");
 }
 
-//TODO: Agregar logica de response
 void handle_kernel_response() {
 	int response;
 
 	recv(kernelConnection, &response, sizeof(int), MSG_WAITALL);
+
+	if(response){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/socket-utils - handle_kernel_response] Finalizo Exitosamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/socket-utils - handle_kernel_response] Finalizo con Error");
+
+
 }
 
 
