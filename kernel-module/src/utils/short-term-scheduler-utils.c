@@ -51,6 +51,7 @@ t_pcb* get_next_process_with_hrrn(t_list* readyList) {
 		double processResponseRatio = (process->timeArrivalReady + process->nextBurstEstimate) / process->nextBurstEstimate;
 		if(processResponseRatio > responseRatio) {
 			nextProcess = process;
+			responseRatio = processResponseRatio;
 		}
 		write_to_log(
 			LOG_TARGET_INTERNAL,
