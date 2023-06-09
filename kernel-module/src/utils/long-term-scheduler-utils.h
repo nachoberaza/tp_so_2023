@@ -3,6 +3,7 @@
 
 	#include "config-utils.h"
 	#include "pcb-utils.h"
+	#include "short-term-scheduler-utils.h"
 
 	void execute_long_term_scheduler();
 	int should_stop_scheduling( int newProcessesListSize, int shortTermListSize, int shortTermProcessesAvailables );
