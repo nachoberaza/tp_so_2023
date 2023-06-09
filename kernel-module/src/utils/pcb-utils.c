@@ -20,21 +20,13 @@ t_list* get_short_term_list(){
 t_pcb* new_pcb(int clientSocketId){
 	t_pcb *pcb = malloc(sizeof(t_pcb));
 
+	pcb->state = STATE_NEW;
 	pcb->clientSocketId = clientSocketId;
 	pcb->nextBurstEstimate = get_kernel_config()->INITIAL_ESTIMATE;
 	pcb->timeArrivalReady = (int)time(NULL);
 	pcb->segmentTable = list_create();
 	pcb->openFilesTable = list_create();
-
-	//TODO: Modular a executionContext
-	pcb->executionContext = malloc(sizeof(t_execution_context));
-	pcb->executionContext->pid = get_current_pid();
-	pcb->executionContext->cpuRegisters = malloc(sizeof(t_cpu_register));
-	pcb->executionContext->instructions = list_create();
-	pcb->executionContext->programCounter = 0;
-	pcb->executionContext->reason = malloc(sizeof(t_execution_context_reason));
-	pcb->executionContext->reason->parameters = list_create();
-	pcb->state = NEW;
+	pcb->executionContext = init_execution_context(get_current_pid());
 	pcb->firstTimeInReady = true;
 
 	return pcb;
@@ -173,7 +165,7 @@ void log_pcb(t_pcb* pcb) {
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Open files table:");
 	list_iterate(pcb->openFilesTable, (void*) write_open_file_row_to_internal_logs);
 
-	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("[utils/pcb-utils - log_pcb] State: %s \n", stateNames[pcb->state]));
+	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("[utils/pcb-utils - log_pcb] State: %s \n", state_as_string(pcb->state)));
 }
 
 
@@ -193,46 +185,92 @@ void log_pcb_state(t_pcb* pcb){
 	write_to_log(
 			LOG_TARGET_INTERNAL,
 			LOG_LEVEL_DEBUG,
-			string_from_format("[utils/pcb-utils - log_pcb_state] PID: %d, estado: %s", pcb->executionContext->pid, stateNames[pcb->state])
+			string_from_format("[utils/pcb-utils - log_pcb_state] PID: %d, estado: %s", pcb->executionContext->pid, state_as_string(pcb->state))
 	);
 }
 
 int pcb_is_ready(t_pcb* pcb){
-	return (pcb->state == READY);
+	return (pcb->state == STATE_READY);
 }
 
 int pcb_is_running(t_pcb* pcb){
-	return (pcb->state == RUNNING);
+	return (pcb->state == STATE_RUNNING);
 }
 
 int pcb_is_not_blocked(t_pcb* pcb){
-	return (pcb->state != BLOCK);
+	return (pcb->state != STATE_BLOCK);
 }
 
 void move_to_ready(t_pcb* pcb){
+
 	write_to_log(
-						LOG_TARGET_INTERNAL,
-						LOG_LEVEL_TRACE,
-						string_from_format("[utils/pcb-utils - move_to_ready] Moviendo PID: %d", pcb->executionContext->pid)
-				);
-	pcb->state = READY;
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format(
+				"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+				pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
+	);
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_TRACE,
+		string_from_format("[utils/pcb-utils - move_to_ready] Moviendo PID: %d", pcb->executionContext->pid)
+	);
+
+	pcb->state = STATE_READY;
 }
 
 void move_to_running(t_pcb* pcb){
+
 	write_to_log(
-						LOG_TARGET_INTERNAL,
-						LOG_LEVEL_TRACE,
-						string_from_format("[utils/pcb-utils - move_to_running] Moviendo PID: %d", pcb->executionContext->pid)
-				);
-	pcb->state = RUNNING;
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format(
+					"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+					pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_RUNNING))
+	);
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_TRACE,
+		string_from_format("[utils/pcb-utils - move_to_running] Moviendo PID: %d", pcb->executionContext->pid)
+	);
+
+	pcb->state = STATE_RUNNING;
 }
 
 void move_to_blocked(t_pcb* pcb){
+
+	write_to_log(
+				LOG_TARGET_MAIN,
+				LOG_LEVEL_INFO,
+				string_from_format(
+						"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+						pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_BLOCK))
+	);
+
 	write_to_log(
 						LOG_TARGET_INTERNAL,
 						LOG_LEVEL_TRACE,
 						string_from_format("[utils/pcb-utils - move_to_blocked] Moviendo PID: %d", pcb->executionContext->pid)
 				);
-	pcb->state = BLOCK;
+
+	pcb->state = STATE_BLOCK;
+}
+
+char * state_as_string(state_process state) {
+	return stateNames[state];
+}
+
+char* get_string_array_pid(t_list* list){
+	char* pids= string_new();
+	int sizeList= list_size(list);
+
+	for(int i=0; i < sizeList;i++){
+		t_pcb* pcb = list_get(list,i);
+		string_append_with_format(&pids, ((i == sizeList-1) ? "%s":"%s,") , string_itoa(pcb->executionContext->pid));
+	}
+
+	return pids;
 }
 
