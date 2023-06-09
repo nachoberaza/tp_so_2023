@@ -9,6 +9,11 @@ int main(void) {
 	log_config(fileSystemEnv);
 
 	int serverSocketId = start_server(fileSystemEnv->IP, fileSystemEnv->PORT, get_logger(), MODULE_NAME);
+	
+	start_memory_connection(fileSystemEnv);
+	
+	//int memoryConnection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
+
 
 	return EXIT_SUCCESS;
 }
