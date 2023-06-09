@@ -9,6 +9,7 @@
 	#include "../sockets/client-socket.h"
 
 
+	t_execution_context* init_execution_context(int pid);
 	void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_context* context);
 	void write_instructions_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, t_list* instructions);
 	void write_parameter_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, char* parameter);
@@ -16,6 +17,7 @@
 	void destroy_instruction(t_instruction* instruction);
 	void destroy_instructions(t_log_grouping* logger,t_list* instructions) ;
 	void destroy_execution_context(t_log_grouping* logger, t_execution_context* executionContext);
+	void destroy_execution_context_reason(t_log_grouping* logger, t_execution_context_reason* reason);
 	command command_from_string(t_log_grouping* logger, char * command);
 	char * command_as_string(command command);
 	char * execution_context_state_as_string(execution_context_state executionContextState);
@@ -28,5 +30,7 @@
 	void fill_buffer_with_instructions(t_log_grouping* logger,t_list* instructions, t_package* pkg);
 	void fill_buffer_with_cpu_register(t_cpu_register* cpuRegisters, t_package* pkg);
 	void fill_buffer_with_execution_context_reason(t_log_grouping* logger,t_execution_context_reason* reason, t_package* pkg);
+	error error_from_string(t_log_grouping* logger, char * error);
+	char * error_as_string(error reason);
 
 #endif
