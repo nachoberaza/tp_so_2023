@@ -20,7 +20,7 @@ t_list* get_short_term_list(){
 t_pcb* new_pcb(int clientSocketId){
 	t_pcb *pcb = malloc(sizeof(t_pcb));
 
-	pcb->state = NEW;
+	pcb->state = STATE_NEW;
 	pcb->clientSocketId = clientSocketId;
 	pcb->nextBurstEstimate = get_kernel_config()->INITIAL_ESTIMATE;
 	pcb->timeArrivalReady = (int)time(NULL);
@@ -190,15 +190,15 @@ void log_pcb_state(t_pcb* pcb){
 }
 
 int pcb_is_ready(t_pcb* pcb){
-	return (pcb->state == READY);
+	return (pcb->state == STATE_READY);
 }
 
 int pcb_is_running(t_pcb* pcb){
-	return (pcb->state == RUNNING);
+	return (pcb->state == STATE_RUNNING);
 }
 
 int pcb_is_not_blocked(t_pcb* pcb){
-	return (pcb->state != BLOCK);
+	return (pcb->state != STATE_BLOCK);
 }
 
 void move_to_ready(t_pcb* pcb){
@@ -208,7 +208,7 @@ void move_to_ready(t_pcb* pcb){
 		LOG_LEVEL_INFO,
 		string_from_format(
 				"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-				pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(READY))
+				pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 	);
 
 	write_to_log(
@@ -217,7 +217,7 @@ void move_to_ready(t_pcb* pcb){
 		string_from_format("[utils/pcb-utils - move_to_ready] Moviendo PID: %d", pcb->executionContext->pid)
 	);
 
-	pcb->state = READY;
+	pcb->state = STATE_READY;
 }
 
 void move_to_running(t_pcb* pcb){
@@ -227,7 +227,7 @@ void move_to_running(t_pcb* pcb){
 			LOG_LEVEL_INFO,
 			string_from_format(
 					"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-					pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(RUNNING))
+					pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_RUNNING))
 	);
 
 	write_to_log(
@@ -236,7 +236,7 @@ void move_to_running(t_pcb* pcb){
 		string_from_format("[utils/pcb-utils - move_to_running] Moviendo PID: %d", pcb->executionContext->pid)
 	);
 
-	pcb->state = RUNNING;
+	pcb->state = STATE_RUNNING;
 }
 
 void move_to_blocked(t_pcb* pcb){
@@ -246,7 +246,7 @@ void move_to_blocked(t_pcb* pcb){
 				LOG_LEVEL_INFO,
 				string_from_format(
 						"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-						pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(BLOCK))
+						pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_BLOCK))
 	);
 
 	write_to_log(
@@ -255,7 +255,7 @@ void move_to_blocked(t_pcb* pcb){
 						string_from_format("[utils/pcb-utils - move_to_blocked] Moviendo PID: %d", pcb->executionContext->pid)
 				);
 
-	pcb->state = BLOCK;
+	pcb->state = STATE_BLOCK;
 }
 
 char * state_as_string(state_process state) {

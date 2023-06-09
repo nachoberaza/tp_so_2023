@@ -73,12 +73,12 @@ void recalculate_hrrn_values_to_processes(int startTime, int endTime) {
 	t_list* processes = get_short_term_list();
 	for(int i = 0; i < list_size(processes); i++) {
 		t_pcb* process = list_get(processes, i);
-		if(process->state == READY){
+		if(process->state == STATE_READY){
 			add_aging_to_process(process, startTime, endTime);
 		} else {
 			reset_aging(process);
 			// TODO: Chequear si solo se tiene que hacer aca o si se tiene que hacer tambien cuando pasa de blocked a ready
-			if(process->state == RUNNING)
+			if(process->state == STATE_RUNNING)
 				recalculate_next_burst_estimate(process, endTime - startTime);
 		}
 	}

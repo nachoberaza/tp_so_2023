@@ -22,10 +22,10 @@ void execute_long_term_scheduler(){
 			LOG_LEVEL_INFO,
 			string_from_format(
 			"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(READY))
+			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 		);
 
-		pcb->state = READY;
+		pcb->state = STATE_READY;
 
 		wait_short_term();
 		list_add(get_short_term_list(), pcb);
@@ -36,6 +36,7 @@ void execute_long_term_scheduler(){
 			LOG_LEVEL_INFO,
 			string_from_format("Cola Ready %s: [%s]",planningAlgorithmNames[get_planning_algorithm()], get_string_array_pid(get_short_term_list()))
 		);
+
 		signal_short_term();
 
 
@@ -66,7 +67,7 @@ void move_to_exit(t_pcb* pcb){
 		LOG_LEVEL_INFO,
 		string_from_format(
 		"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(EXITT))
+		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_EXIT))
 	);
 
 	write_to_log(

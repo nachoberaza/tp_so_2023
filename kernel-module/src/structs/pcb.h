@@ -6,15 +6,15 @@
 	#include <shared/structs/execution-context.h>
 
 	typedef enum {
-		NEW, READY, RUNNING,BLOCK,EXITT
+		STATE_NEW, STATE_READY, STATE_RUNNING,STATE_BLOCK,STATE_EXIT
 	} state_process;
 
 	static char * stateNames[STATE_PROCESS_ENUM_SIZE] = {
-		[NEW] = "NEW",
-		[READY] = "READY",
-		[RUNNING] = "RUNNING",
-		[BLOCK] = "BLOCK",
-		[EXITT] = "EXIT", //le puse EXITT porque sino trolea con el EXIT de los comandos
+		[STATE_NEW] = "NEW",
+		[STATE_READY] = "READY",
+		[STATE_RUNNING] = "RUNNING",
+		[STATE_BLOCK] = "BLOCK",
+		[STATE_EXIT] = "EXIT",
 	};
 
 	typedef struct {
