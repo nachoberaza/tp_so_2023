@@ -8,6 +8,8 @@
 
 void start_memory_connection(t_file_system_config* fileSystemEnv);
 t_file_system_config* get_memory_connection();
-
+void await_kernel(int serverSocketId);
+void handle_handshake(int clientSocketId);
+void listen_kernel_connection(int clientSocketId);
 
 #endif

@@ -12,8 +12,7 @@ int main(void) {
 	
 	start_memory_connection(fileSystemEnv);
 	
-	//int memoryConnection = connect_to_server(FILE_SYSTEM_ENV->IP_MEMORY, FILE_SYSTEM_ENV->PORT_MEMORY);
-
+	await_kernel(serverSocketId);
 
 	return EXIT_SUCCESS;
 }
