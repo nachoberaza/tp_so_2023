@@ -20,7 +20,8 @@
 		t_log_level LOG_LEVEL;
 	} t_file_system_config;
 
-	t_file_system_config* create_file_system_config(char *moduleName);
+	void init_file_system_config(char *moduleName);
+	t_file_system_config* get_file_system_config();
 	void log_config(t_file_system_config *config);
 
 #endif
