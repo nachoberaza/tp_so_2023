@@ -1,10 +1,12 @@
 #include "config-utils.h"
 
-t_file_system_config* create_file_system_config(char *moduleName) {
+t_file_system_config  *fileSystemConfig;
+
+void init_file_system_config(char *moduleName) {
 	char *fileName = string_from_format("%s.config", moduleName);
 
 	t_config *config = config_create(fileName);
-	t_file_system_config *fileSystemConfig = malloc(sizeof(t_file_system_config));
+	fileSystemConfig = malloc(sizeof(t_file_system_config));
 
 	fileSystemConfig->IP = config_get_string_value(config, "IP");
 	fileSystemConfig->IP_MEMORY = config_get_string_value(config, "IP_MEMORIA");
@@ -17,8 +19,12 @@ t_file_system_config* create_file_system_config(char *moduleName) {
 	fileSystemConfig->BLOCK_ACCESS_DELAY = config_get_int_value(config, "RETARDO_ACCESO_BLOQUE");
 	fileSystemConfig->LOG_LEVEL = log_level_from_string(config_get_string_value(config, "LOG_LEVEL"));
 
+}
+
+t_file_system_config* get_file_system_config() {
 	return fileSystemConfig;
 }
+
 
 void log_config(t_file_system_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "FILE SYSTEM CONFIG VALUES: ");
