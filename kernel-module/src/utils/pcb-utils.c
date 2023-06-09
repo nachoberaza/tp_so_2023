@@ -262,4 +262,15 @@ char * state_as_string(state_process state) {
 	return stateNames[state];
 }
 
+char* get_string_array_pid(t_list* list){
+	char* pids= string_new();
+	int sizeList= list_size(list);
+
+	for(int i=0; i < sizeList;i++){
+		t_pcb* pcb = list_get(list,i);
+		string_append_with_format(&pids, ((i == sizeList-1) ? "%s":"%s,") , string_itoa(pcb->executionContext->pid));
+	}
+
+	return pids;
+}
 

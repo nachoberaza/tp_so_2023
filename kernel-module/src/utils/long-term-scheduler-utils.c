@@ -17,8 +17,6 @@ void execute_long_term_scheduler(){
 
 		//TODO: pedir a memoria tabla de segmentos
 
-
-
 		write_to_log(
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
@@ -31,7 +29,16 @@ void execute_long_term_scheduler(){
 
 		wait_short_term();
 		list_add(get_short_term_list(), pcb);
+
+		//REVISAR SI VA ACA ESTE LOG
+		write_to_log(
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format("Cola Ready %s: [%s]",planningAlgorithmNames[get_planning_algorithm()], get_string_array_pid(get_short_term_list()))
+		);
 		signal_short_term();
+
+
 
 		list_remove(get_new_pcb_list(), 0);
 	}
