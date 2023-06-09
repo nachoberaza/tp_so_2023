@@ -1,12 +1,12 @@
 #ifndef STRUCTS_PCB_H_
 #define STRUCTS_PCB_H_
 
-	#define STATE_PROCESS_ENUM_SIZE 4
+	#define STATE_PROCESS_ENUM_SIZE 5
 	#include <shared/sockets/client-socket.h>
 	#include <shared/structs/execution-context.h>
 
 	typedef enum {
-		NEW, READY, RUNNING,BLOCK
+		NEW, READY, RUNNING,BLOCK,EXITT
 	} state_process;
 
 	static char * stateNames[STATE_PROCESS_ENUM_SIZE] = {
@@ -14,6 +14,7 @@
 		[READY] = "READY",
 		[RUNNING] = "RUNNING",
 		[BLOCK] = "BLOCK",
+		[EXITT] = "EXIT", //le puse EXITT porque sino trolea con el EXIT de los comandos
 	};
 
 	typedef struct {

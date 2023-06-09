@@ -1,5 +1,17 @@
 #include "execution-context.h"
 
+t_execution_context* init_execution_context(int pid){
+	t_execution_context* executionContext = malloc(sizeof(t_execution_context));
+	executionContext->pid = pid;
+	executionContext->cpuRegisters = malloc(sizeof(t_cpu_register));
+	executionContext->instructions = list_create();
+	executionContext->programCounter = 0;
+	executionContext->reason = malloc(sizeof(t_execution_context_reason));
+	executionContext->reason->parameters = list_create();
+
+	return executionContext;
+}
+
 void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_context* context) {
 
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Logeando contexto:\n");

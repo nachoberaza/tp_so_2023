@@ -9,6 +9,7 @@
 	#include "../sockets/client-socket.h"
 
 
+	t_execution_context* init_execution_context(int pid);
 	void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_context* context);
 	void write_instructions_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, t_list* instructions);
 	void write_parameter_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, char* parameter);

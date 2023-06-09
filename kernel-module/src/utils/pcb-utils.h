@@ -39,5 +39,7 @@
 	void move_to_ready(t_pcb* pcb);
 	void move_to_blocked(t_pcb* pcb);
 	void move_to_running(t_pcb* pcb);
+	char * state_as_string(state_process state);
+
 
 #endif

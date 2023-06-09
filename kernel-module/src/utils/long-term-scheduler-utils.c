@@ -17,8 +17,17 @@ void execute_long_term_scheduler(){
 
 		//TODO: pedir a memoria tabla de segmentos
 
-		pcb->state = READY;
 
+
+		write_to_log(
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format(
+			"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(READY))
+		);
+
+		pcb->state = READY;
 
 		wait_short_term();
 		list_add(get_short_term_list(), pcb);
@@ -44,6 +53,14 @@ void move_to_exit(t_pcb* pcb){
 		reason = error_as_string((error)err);
 		result = OPERATION_RESULT_ERROR;
 	}
+
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format(
+		"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(EXITT))
+	);
 
 	write_to_log(
 			LOG_TARGET_MAIN,
