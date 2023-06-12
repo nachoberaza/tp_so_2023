@@ -16,6 +16,13 @@ void start_connections(t_kernel_config* env) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/socket-utils - start_connections] No se pudo establecer conexion con el modulo de memoria");
 		exit(EXIT_FAILURE);
 	}
+
+	operation_result fileSystemHandShake = init_handshake(kernelConnections->fileSystem,(module_handshakes) KERNEL);
+
+	if (fileSystemHandShake == OPERATION_RESULT_ERROR){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/socket-utils - start_connections] No se pudo establecer conexion con el modulo de filesystem");
+		exit(EXIT_FAILURE);
+	}
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("[utils/socket-utils - start_connections] CPU Socket: %d", kernelConnections->cpu));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - start_connections] Kernel conectado a CPU, FileSystem y Memoria");
 }
