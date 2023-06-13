@@ -10,13 +10,12 @@ void execute_long_term_scheduler(){
 		shortTermListSize = list_size(get_short_term_list());
 		shortTermProcessesAvailables = get_kernel_config()->MAX_MULTIPROGRAMMING_LEVEL - shortTermListSize;
 
-		if (should_stop_scheduling(newProcessesListSize, shortTermListSize, shortTermProcessesAvailables))
+		if (should_stop_scheduling(newProcessesListSize, shortTermProcessesAvailables))
 			break;
 
 		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
 
-		//TODO: pedir a memoria tabla de segmentos
-
+		pcb->segmentTable = create_segment_table();
 		write_to_log(
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
@@ -24,7 +23,7 @@ void execute_long_term_scheduler(){
 			"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
 			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 		);
-
+		log_pcb();
 		pcb->state = STATE_READY;
 
 		wait_short_term();
@@ -46,10 +45,8 @@ void execute_long_term_scheduler(){
 
 }
 
-int should_stop_scheduling(int newProcessesListSize, int shortTermListSize,int  shortTermProcessesAvailables){
-
-	return ( shortTermProcessesAvailables == 0 )
-		|| ( newProcessesListSize == 0 );
+int should_stop_scheduling(int newProcessesListSize, int shortTermProcessesAvailables){
+	return (shortTermProcessesAvailables == 0 ) || ( newProcessesListSize == 0 );
 }
 
 void move_to_exit(t_pcb* pcb){
@@ -67,7 +64,7 @@ void move_to_exit(t_pcb* pcb){
 		LOG_LEVEL_INFO,
 		string_from_format(
 		"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_EXIT))
+		pcb->executionContext->pid, state_as_string(pcb->state), state_as_string(STATE_EXIT))
 	);
 
 	write_to_log(
