@@ -1,15 +1,15 @@
 #include "memory-communication-utils.h"
 
-t_list* create_segment_table(){
+t_list* init_process_segment_table(){
 	t_package* package = create_package();
 	package->operationCode = CREATE_SEGMENT_TABLE;
 	send_package(package, get_memory_connection());
 	receive_operation_code(get_memory_connection());
-	t_list* segmentTable = receive_segment_table();
+	t_list* segmentTable = receive_process_segment_table();
 	return segmentTable;
 }
 
-t_list* receive_segment_table() {
+t_list* receive_process_segment_table() {
 	int bufferSize, offset = 0;
 	void *buffer;
 	t_list* segmentTable = list_create();

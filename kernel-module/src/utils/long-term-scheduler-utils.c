@@ -15,7 +15,7 @@ void execute_long_term_scheduler(){
 
 		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
 
-		pcb->segmentTable = create_segment_table();
+		pcb->segmentTable = init_process_segment_table();
 		write_to_log(
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
@@ -23,7 +23,7 @@ void execute_long_term_scheduler(){
 			"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
 			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 		);
-		log_pcb();
+		log_pcb(pcb);
 		pcb->state = STATE_READY;
 
 		wait_short_term();

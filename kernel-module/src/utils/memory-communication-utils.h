@@ -20,7 +20,7 @@
 	#include "resource-utils.h"
 	#include "semaphore-utils.h"
 
-	t_list* create_segment_table();
-	t_list* receive_segment_table();
+	t_list* init_process_segment_table();
+	t_list* receive_process_segment_table();
 
 #endif
