@@ -37,12 +37,9 @@ void execute_process(){
 		recalculate_hrrn_values_to_processes(startTime, finishTime);
 	}
 	handle_cpu_response(pcb);
-
 }
 
 
-
-//TODO: Cambiarlo a solo buffer
 void send_context_to_cpu(t_execution_context *commands) {
 	t_package* package = create_package();
 
@@ -107,27 +104,27 @@ void handle_cpu_response(t_pcb* pcb){
 			break;
 		}
 		case REASON_F_OPEN:{
-			//TODO
+			execute_kernel_f_open(pcb);
 			break;
 		}
 		case REASON_F_CLOSE:{
-			//TODO
+			execute_kernel_f_close(pcb);
 			break;
 		}
 		case REASON_F_SEEK:{
-			//TODO
+			execute_kernel_f_seek(pcb);
 		break;
 		}
 		case REASON_F_READ:{
-			//TODO
+			execute_kernel_f_read(pcb);
 			break;
 		}
 		case REASON_F_WRITE:{
-			//TODO
+			execute_kernel_f_write(pcb);
 			break;
 		}
 		case REASON_F_TRUNCATE:{
-			//TODO
+			execute_kernel_f_truncate(pcb);
 			break;
 		}
 		case REASON_CREATE_SEGMENT:{
@@ -139,6 +136,190 @@ void handle_cpu_response(t_pcb* pcb){
 			break;
 		}
 	}
+}
+
+void execute_kernel_f_open(t_pcb* pcb){
+	//TODO: Hacer fopen
+	send_current_instruction_to_fs(pcb);
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+}
+
+void send_current_instruction_to_fs(t_pcb* pcb){
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+}
+
+void execute_kernel_f_close(t_pcb* pcb){
+	//TODO: Hacer fopen
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+}
+
+void execute_kernel_f_seek(t_pcb* pcb){
+	//TODO: Hacer fopen
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+}
+
+void execute_kernel_f_read(t_pcb* pcb){
+	//TODO: Hacer fopen
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+}
+
+void execute_kernel_f_write(t_pcb* pcb){
+	//TODO: Hacer fopen
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+}
+
+void execute_kernel_f_truncate(t_pcb* pcb){
+	//TODO: Hacer fopen
+	t_package* package = create_package();
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
+	send_package(package, get_file_system_connection());
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
 }
 
 void execute_kernel_wait(t_pcb* pcb){

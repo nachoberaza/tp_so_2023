@@ -174,22 +174,28 @@ t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level log
 	);
 
 	for (int i = 0; i < instructionsCount; i++){
-		t_instruction* instruction = malloc(sizeof(t_instruction));
-		instruction->parameters = list_create();
-
-		instruction->command = extract_command_from_buffer(buffer, offset);
-
-		int parameterCount = extract_int_from_buffer(buffer, offset);
-
-		for (int j = 0; j < parameterCount; j++){
-			char* value = extract_string_from_buffer(buffer, offset);
-			list_add(instruction->parameters, value);
-		}
-
+		t_instruction* instruction = extract_instruction_from_buffer(logger, logLevel, buffer, offset);
 		list_add(instructions, instruction);
 	}
 
 	return instructions;
+}
+
+t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset){
+
+	t_instruction* instruction = malloc(sizeof(t_instruction));
+	instruction->parameters = list_create();
+
+	instruction->command = extract_command_from_buffer(buffer, offset);
+
+	int parameterCount = extract_int_from_buffer(buffer, offset);
+
+	for (int j = 0; j < parameterCount; j++){
+		char* value = extract_string_from_buffer(buffer, offset);
+		list_add(instruction->parameters, value);
+	}
+
+	return instruction;
 }
 
 t_cpu_register* extract_cpu_register_from_buffer(void* buffer, int* offset){

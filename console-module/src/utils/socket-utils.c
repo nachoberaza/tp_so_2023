@@ -39,8 +39,6 @@ void handle_kernel_response() {
 	}
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/socket-utils - handle_kernel_response] Finalizo con Error");
-
-
 }
 
 
