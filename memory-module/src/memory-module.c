@@ -1,16 +1,16 @@
 #include "memory-module.h"
 
 int main(void) {
-	t_memory_config *MEMORY_ENV = create_memory_config(MODULE_NAME);
+	create_memory_config(MODULE_NAME);
 
-	init_logger(MODULE_NAME, MEMORY_ENV->LOG_LEVEL);
+	t_memory_config *memoryEnv = get_memory_config();
 
-	allocate_modules_threads();
+	init_logger(MODULE_NAME, memoryEnv->LOG_LEVEL);
 
-	log_config(MEMORY_ENV);
+	log_config(memoryEnv);
 
-	int serverSocketId = start_server(MEMORY_ENV->IP, MEMORY_ENV->PORT, get_logger(), MODULE_NAME);
-
+	int serverSocketId = start_server(memoryEnv->IP, memoryEnv->PORT, get_logger(), MODULE_NAME);
+	create_memory_structures();
 	await_modules(serverSocketId);
 
 	t_modules_thread_id *modulesThreadId = get_modules_thread_id();

@@ -7,6 +7,7 @@
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
 	#include "config-utils.h"
+	#include "memory-communication-utils.h"
 	#include "pcb-utils.h"
 	#include "long-term-scheduler-utils.h"
 

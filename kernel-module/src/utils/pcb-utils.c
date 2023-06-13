@@ -42,8 +42,7 @@ void build_pcb(t_list *lines, int clientSocketId) {
 	openFileRow->pointer = "asd2";
 	add_file(pcb, openFileRow);
 
-	t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
-	add_segment(pcb, segmentRow);
+	pcb->segmentTable = create_segment_table();
 
 	pcb->executionContext->reason->executionContextState = REASON_YIELD;
 
