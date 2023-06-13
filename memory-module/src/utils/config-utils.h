@@ -11,7 +11,7 @@ typedef struct {
 	char *PORT;
 	char *IP;
 	int MEMORY_SIZE;
-	int SHARED_MEMORY_SEGMENT;
+	int SEGMENT_ZERO_SIZE;
 	int SEGMENT_COUNT;
 	int MEMORY_DELAY;
 	int COMPACTION_DELAY;
@@ -19,7 +19,8 @@ typedef struct {
 	t_log_level LOG_LEVEL;
 } t_memory_config;
 
-t_memory_config* create_memory_config(char *moduleName);
+void create_memory_config(char *moduleName);
+t_memory_config* get_memory_config();
 void log_config(t_memory_config *config);
 
 #endif

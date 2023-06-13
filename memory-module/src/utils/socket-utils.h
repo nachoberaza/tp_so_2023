@@ -4,15 +4,17 @@
 	#include <pthread.h>
     #include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
+	#include <shared/structs/memory.h>
 	#include "config-utils.h"
 	#include "logger-utils.h"
+	#include "memory-utils.h"
+	#include "kernel-communication-utils.h"
 
 	//Only for sleep, must be removed eventually
 	#include <unistd.h>
 
 	#include "../structs/modules.h"
 
-	void allocate_modules_threads();
 	t_modules_thread_id *get_modules_thread_id();
 
 	void handle_handshake(int clientSocketId);

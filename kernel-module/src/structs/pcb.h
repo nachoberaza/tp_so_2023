@@ -18,12 +18,6 @@
 	};
 
 	typedef struct {
-		int id;
-		int baseDirection;
-		int segmentSize;
-	} t_segment_row;
-
-	typedef struct {
 		char* file;
 		char* pointer;
 	} t_open_file_row;

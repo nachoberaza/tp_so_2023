@@ -9,7 +9,9 @@
 	#include <shared/logs/log.h>
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/structs/execution-context.h>
+	#include <shared/structs/memory.h>
 	#include "../structs/pcb.h"
+	#include "memory-communication-utils.h"
 	#include "logger-utils.h"
 	#include "config-utils.h"
 	

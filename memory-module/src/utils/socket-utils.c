@@ -2,15 +2,13 @@
 
 t_modules_thread_id *modulesThreadId;
 
-void allocate_modules_threads(){
-	modulesThreadId=malloc(sizeof(t_modules_thread_id));
-}
-
 t_modules_thread_id *get_modules_thread_id() {
 	return modulesThreadId;
 }
 
 void await_modules(int serverSocketId) {
+	modulesThreadId = malloc(sizeof(t_modules_thread_id));
+
 	int clientSocketId;
 	for	(int i = 0; i < MODULE_ENUM_SIZE; i++){
 		clientSocketId = await_client(get_logger(), serverSocketId);
@@ -72,9 +70,20 @@ void handle_filesystem_connection(int clientSocketId) {
 }
 
 void listen_kernel_connection(int clientSocketId) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Escuchando al modulo kernel");
 	while(1){
-		sleep(30);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Escuchando al modulo kernel");
+		t_memory_command operationCode = receive_operation_code(clientSocketId);
+		switch(operationCode){
+			case CREATE_SEGMENT_TABLE:
+				t_list* segmentTable = create_segment_table();
+				t_package* package = create_package();
+				package->operationCode = SEGMENT_TABLE_CREATED;
+				fill_package_with_segment_table(package, segmentTable);
+				send_package(package, clientSocketId);
+				break;
+			default:
+				break;
+		}
 	}
 }
 
