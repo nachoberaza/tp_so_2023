@@ -46,5 +46,8 @@
 	void execute_kernel_f_truncate(t_pcb* pcb);
 	void send_current_instruction_to_fs(t_pcb* pcb);
 	void* sleepThread(void* args);
+	void send_current_instruction_to_memory(t_pcb* pcb);
+	void execute_kernel_create_segment(t_pcb* pcb);
+	void execute_kernel_delete_segment(t_pcb* pcb);
 
 #endif

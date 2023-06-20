@@ -9,10 +9,8 @@
 	#include "logger-utils.h"
 	#include "memory-utils.h"
 	#include "kernel-communication-utils.h"
-
-	//Only for sleep, must be removed eventually
+	#include "cpu-communication-utils.h"
 	#include <unistd.h>
-
 	#include "../structs/modules.h"
 
 	t_modules_thread_id *get_modules_thread_id();
@@ -21,8 +19,6 @@
 	void accept_module(int clientSocketId, int module);
 	void await_modules(int serverSocketId);
 
-	void listen_kernel_connection(int clientSocketId);
-	void listen_cpu_connection(int clientSocketId);
 	void listen_filesystem_connection(int clientSocketId);
 
 	void handle_kernel_connection(int clientSocketId);

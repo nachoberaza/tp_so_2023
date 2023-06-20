@@ -16,7 +16,7 @@ void start_memory_connection(t_file_system_config* fileSystemEnv) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - start_memory_connection] FileSystem conectado a Memoria");
 }
 
-t_file_system_config* get_memory_connection() {
+int get_memory_connection() {
 	return memoryConnection;
 }
 

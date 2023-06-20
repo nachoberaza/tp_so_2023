@@ -20,7 +20,8 @@
 	#include "resource-utils.h"
 	#include "semaphore-utils.h"
 
-	t_list* init_process_segment_table();
+	t_list* init_process_segment_table(int pid);
 	t_list* receive_process_segment_table();
+	void delete_process_segment_table(int pid);
 
 #endif

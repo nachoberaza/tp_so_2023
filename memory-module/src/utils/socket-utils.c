@@ -69,31 +69,6 @@ void handle_filesystem_connection(int clientSocketId) {
 	}
 }
 
-void listen_kernel_connection(int clientSocketId) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Escuchando al modulo kernel");
-	while(1){
-		t_memory_command operationCode = receive_operation_code(clientSocketId);
-		switch(operationCode){
-			case CREATE_SEGMENT_TABLE:
-				t_list* segmentTable = create_segment_table();
-				t_package* package = create_package();
-				package->operationCode = SEGMENT_TABLE_CREATED;
-				fill_package_with_segment_table(package, segmentTable);
-				send_package(package, clientSocketId);
-				break;
-			default:
-				break;
-		}
-	}
-}
-
-void listen_cpu_connection(int clientSocketId) {
-	while(1){
-		sleep(30);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_cpu_connection] Escuchando al modulo cpu");
-	}
-}
-
 void listen_filesystem_connection(int clientSocketId) {
 	while(1){
 		sleep(30);

@@ -15,7 +15,10 @@ void execute_long_term_scheduler(){
 
 		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
 
-		pcb->segmentTable = init_process_segment_table();
+		pcb->segmentTable = init_process_segment_table(pcb->executionContext->pid);
+
+		log_pcb(pcb);
+
 		write_to_log(
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
@@ -23,7 +26,7 @@ void execute_long_term_scheduler(){
 			"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
 			pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 		);
-		log_pcb(pcb);
+
 		pcb->state = STATE_READY;
 
 		wait_short_term();
@@ -37,8 +40,6 @@ void execute_long_term_scheduler(){
 		);
 
 		signal_short_term();
-
-
 
 		list_remove(get_new_pcb_list(), 0);
 	}
@@ -73,7 +74,8 @@ void move_to_exit(t_pcb* pcb){
 			string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid,reason)
 	);
 
-	//TODO: liberar la memoria del proceso
+
+	delete_process_segment_table(pcb->executionContext->pid);
 
 	wait_short_term();
 	remove_pid_from_short_term_list(pcb);

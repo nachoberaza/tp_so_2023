@@ -3,6 +3,9 @@
 
 	typedef enum {
 		MESSAGE, PACKAGE,
+		CREATE_SEGMENT_TABLE,
+		DELETE_SEGMENT_TABLE,
+		COMPRESS_SEGMENT_TABLE
 	} operation_code;
 
 	typedef struct {
