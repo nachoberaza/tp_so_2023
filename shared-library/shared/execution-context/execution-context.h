@@ -27,6 +27,7 @@
 	t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel, int clientSocket);
 	t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset);
 	t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset);
+	void extract_instruction_parameters_from_buffer(t_list* parameters, void * buffer, int* offset);
 	t_cpu_register* extract_cpu_register_from_buffer(void* buffer, int* offset);
 	t_execution_context_reason* extract_execution_context_reason_from_buffer(void * buffer, int* offset);
 	execution_context_state extract_execution_context_state_from_buffer(void * buffer, int* offset);

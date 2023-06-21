@@ -10,6 +10,7 @@
 	#include <shared/logs/log.h>
 	#include <shared/sockets/server-socket.h>
 	#include <shared/sockets/client-socket.h>
+	#include <shared/structs/execution-context.h>
 	#include <shared/serialization/serialization.h>
 	#include <shared/execution-context/execution-context.h>
 	#include "config-utils.h"
@@ -23,6 +24,7 @@
 	#include "../structs/config.h"
 	#include "semaphore-utils.h"
 	#include "short-term-scheduler-utils.h"
+	#include "memory-communication-utils.h"
 	// For sleep
 	#include <unistd.h>
 

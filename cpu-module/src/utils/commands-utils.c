@@ -421,12 +421,19 @@ int execute_f_truncate(t_execution_context* context){
 int execute_create_segment(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_create_segment] Ejecutando CREATE_SEGMENT");
 	context->reason->executionContextState = REASON_CREATE_SEGMENT;
+
+	t_instruction* currentInstruction = list_get(context->instructions, context->programCounter);
+	pass_instructions_parameters_to_reason_parameters(currentInstruction, context->reason->parameters);
+
 	return 0;
 }
 
 int execute_delete_segment(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_delete_segment] Ejecutando DELETE_SEGMENT");
 	context->reason->executionContextState = REASON_DELETE_SEGMENT;
+
+	t_instruction* currentInstruction = list_get(context->instructions, context->programCounter);
+	pass_instructions_parameters_to_reason_parameters(currentInstruction, context->reason->parameters);
 	return 0;
 }
 void pass_instructions_parameters_to_reason_parameters(t_instruction* currentInstruction, t_list* reasonParameters){

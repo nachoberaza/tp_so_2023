@@ -48,5 +48,26 @@ void delete_process_segment_table(int pid){
 			LOG_LEVEL_TRACE,
 			"Elimine/Libere tabla de segmentos"
 	);
+}
 
+void execute_kernel_create_segment(t_pcb* pcb){
+	char* segmentId = list_get(pcb->executionContext->reason->parameters, 0);
+	char* segmentSize = list_get(pcb->executionContext->reason->parameters, 1);
+	int parametersCount = 2;
+	t_package* package = create_package();
+	package->operationCode = CREATE_SEGMENT_KERNEL;
+	fill_package_buffer(package, &parametersCount, sizeof(int));
+	fill_package_buffer(package, segmentId, strlen(segmentId) + 1);
+	fill_package_buffer(package, segmentSize, strlen(segmentSize) + 1);
+	send_package(package, get_memory_connection());
+}
+
+void execute_kernel_delete_segment(t_pcb* pcb){
+	char* segmentId = list_get(pcb->executionContext->reason->parameters, 0);
+	int parametersCount = 1;
+	t_package* package = create_package();
+	package->operationCode = DELETE_SEGMENT_KERNEL;
+	fill_package_buffer(package, &parametersCount, sizeof(int));
+	fill_package_buffer(package, segmentId, strlen(segmentId) + 1);
+	send_package(package, get_memory_connection());
 }

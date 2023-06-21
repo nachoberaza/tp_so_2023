@@ -60,7 +60,11 @@ t_execution_context* listen_cpu_response() {
 }
 
 void handle_cpu_response(t_pcb* pcb){
-
+	write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_INFO,
+			string_from_format("[utils/cpu-communication-utils - handle_cpu_response] Reason: %d", pcb->executionContext->reason->executionContextState)
+	);
 	switch(pcb->executionContext->reason->executionContextState){
 		case REASON_YIELD:;
 			write_to_log(
@@ -103,6 +107,14 @@ void handle_cpu_response(t_pcb* pcb){
 			execute_kernel_io(pcb);
 			break;
 		}
+		case REASON_CREATE_SEGMENT:{
+			execute_kernel_create_segment(pcb);
+			break;
+		}
+		case REASON_DELETE_SEGMENT:{
+			execute_kernel_delete_segment(pcb);
+			break;
+		}
 		case REASON_F_OPEN:{
 			execute_kernel_f_open(pcb);
 			break;
@@ -125,14 +137,6 @@ void handle_cpu_response(t_pcb* pcb){
 		}
 		case REASON_F_TRUNCATE:{
 			execute_kernel_f_truncate(pcb);
-			break;
-		}
-		case REASON_CREATE_SEGMENT:{
-			execute_kernel_create_segment(pcb);
-			break;
-		}
-		case REASON_DELETE_SEGMENT:{
-			execute_kernel_delete_segment(pcb);
 			break;
 		}
 	}

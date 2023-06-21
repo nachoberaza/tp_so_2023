@@ -227,14 +227,18 @@ t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_lev
 
 	instruction->command = extract_command_from_buffer(buffer, offset);
 
+	extract_instruction_parameters_from_buffer(instruction->parameters, buffer, offset);
+
+	return instruction;
+}
+
+void extract_instruction_parameters_from_buffer(t_list* parameters, void * buffer, int* offset) {
 	int parameterCount = extract_int_from_buffer(buffer, offset);
 
 	for (int j = 0; j < parameterCount; j++){
 		char* value = extract_string_from_buffer(buffer, offset);
-		list_add(instruction->parameters, value);
+		list_add(parameters, value);
 	}
-
-	return instruction;
 }
 
 t_cpu_register* extract_cpu_register_from_buffer(void* buffer, int* offset){
