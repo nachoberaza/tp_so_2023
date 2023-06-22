@@ -38,6 +38,9 @@
 	int get_amount_of_bytes_per_register(char* reg, t_execution_context* context);
 	int set_register_value(char* reg, char* value, t_execution_context* context);
 	char* get_register_value(char* reg, t_execution_context* context);
+	void send_mov_in_to_memory(t_execution_context* context, char* reg, int physicalAddress);
+	void handle_mov_in_memory_response(t_execution_context* context);
+	void send_mov_out_to_memory(t_execution_context* context, int physicalAddress);
 	//Move to shared
 	int get_physical_address (t_execution_context* context, char* logicalAddress);
 
