@@ -8,8 +8,7 @@ int main(void) {
 
 	log_config(get_cpu_env());
 
-	int memoryConnection = connect_to_server(get_cpu_env()->IP_MEMORY, get_cpu_env()->PORT_MEMORY);
-	handle_memory_handshake(memoryConnection, CPU);
+	start_memory_connection();
 
 	int serverSocketId = start_server(get_cpu_env()->IP, get_cpu_env()->PORT, get_logger(), MODULE_NAME);
 

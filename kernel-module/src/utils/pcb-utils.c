@@ -24,7 +24,6 @@ t_pcb* new_pcb(int clientSocketId){
 	pcb->clientSocketId = clientSocketId;
 	pcb->nextBurstEstimate = get_kernel_config()->INITIAL_ESTIMATE;
 	pcb->timeArrivalReady = (int)time(NULL);
-	pcb->segmentTable = list_create();
 	pcb->openFilesTable = list_create();
 	pcb->executionContext = init_execution_context(get_current_pid());
 	pcb->firstTimeInReady = true;
@@ -105,7 +104,7 @@ void add_instruction(t_pcb* pcb, t_instruction* instruction){
 }
 
 void add_segment(t_pcb* pcb, t_segment_row* segment){
-	list_add(pcb->segmentTable, segment);
+	list_add(pcb->executionContext->segmentTable, segment);
 }
 
 void add_file(t_pcb* pcb, t_open_file_row* openFile){
@@ -121,15 +120,9 @@ void free_pcb(t_pcb* pcb){
 
 	destroy_execution_context(get_logger(), pcb->executionContext);
 	list_destroy_and_destroy_elements(pcb->openFilesTable, (void*) destroy_open_files_row);
-	list_destroy_and_destroy_elements(pcb->segmentTable, (void*) destroy_segment_row);
 	free(pcb);
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/pcb-utils - free_pcb] PCB Liberado");
-}
-
-
-void destroy_segment_row(t_segment_row* segmentRow) {
-	free(segmentRow);
 }
 
 void destroy_open_files_row(t_open_file_row* openFileRow) {
@@ -156,9 +149,6 @@ void log_pcb(t_pcb* pcb) {
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("NextBurstEstimate: %lf", pcb->nextBurstEstimate));
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, string_from_format("TimeArrivalReady: %d \n", pcb->timeArrivalReady));
 
-	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Segment table:");
-	list_iterate(pcb->segmentTable, (void*) write_segment_row_to_internal_logs);
-
 	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Open files table:");
 	list_iterate(pcb->openFilesTable, (void*) write_open_file_row_to_internal_logs);
 
@@ -171,12 +161,6 @@ void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %s \n", openFileRow->pointer));
 }
 
-
-void write_segment_row_to_internal_logs(t_segment_row* segmentRow) {
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Id: %d", segmentRow->id));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("BaseDirection: %d", segmentRow->baseDirection));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("SegmentSize: %d \n", segmentRow->segmentSize));
-}
 
 void log_pcb_state(t_pcb* pcb){
 	write_to_log(

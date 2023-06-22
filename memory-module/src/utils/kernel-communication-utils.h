@@ -17,7 +17,6 @@
 	#include "logger-utils.h"
 	#include "memory-utils.h"
 
-	void fill_package_with_segment_table(t_package* pkg, t_list* segmentTable);
 	void listen_kernel_connection(int clientSocketId);
 	void execute_memory_delete_segment(t_instruction* instruction, int clientSocketId);
 	void execute_memory_create_segment(t_instruction* instruction, int clientSocketId);

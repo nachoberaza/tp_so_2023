@@ -16,26 +16,10 @@ t_list* init_process_segment_table(int pid){
 t_list* receive_process_segment_table() {
 	int bufferSize, offset = 0;
 	void *buffer;
-	t_list* segmentTable = list_create();
 
 	buffer = receive_buffer(&bufferSize, get_memory_connection());
 
-	int segmentTableCount = extract_int_from_buffer(buffer, &offset);
-
-	write_to_log(
-		LOG_TARGET_INTERNAL,
-		LOG_LEVEL_TRACE,
-		string_from_format("Recibí tabla con %d elementos", segmentTableCount)
-	);
-
-	for (int i = 0; i < segmentTableCount; i++){
-		t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
-
-		segmentRow->id = extract_int_from_buffer(buffer, &offset);
-		segmentRow->baseDirection = extract_int_from_buffer(buffer, &offset);
-		segmentRow->segmentSize = extract_int_from_buffer(buffer, &offset);
-		list_add(segmentTable, segmentRow);
-	}
+	t_list* segmentTable  = extract_segment_table_from_buffer(buffer, &offset);
 
 	free(buffer);
 

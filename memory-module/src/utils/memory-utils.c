@@ -7,6 +7,10 @@ void create_memory_structures() {
 	memory = malloc(get_memory_config()->MEMORY_SIZE);
 }
 
+void* get_memory() {
+	return memory;
+}
+
 t_list* create_segment_table() {
 	t_list* segmentTable = list_create();
 

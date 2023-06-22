@@ -10,82 +10,203 @@ int execute_set(t_execution_context* context){
 	char* reg = list_get(currentInstruction->parameters,0);
 	char* value = list_get(currentInstruction->parameters,1);
 
+	return set_register_value(reg, value, context);
+}
+
+int set_register_value(char* reg, char* value, t_execution_context* context){
 	if(strcmp(reg,"AX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register AX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register AX");
 		strncpy(context->cpuRegisters->AX, value, sizeof(char)*4);
 		return 1;
 	}
 
 	if(strcmp(reg,"BX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register BX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register BX");
 		strncpy(context->cpuRegisters->BX, value, sizeof(char)*4);
 		return 1;
 	}
 
 	if(strcmp(reg,"CX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register CX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register CX");
 		strncpy(context->cpuRegisters->CX, value, sizeof(char)*4);
 		return 1;
 	}
 
 	if(strcmp(reg,"DX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register DX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register DX");
 		strncpy(context->cpuRegisters->DX, value, sizeof(char)*4);
 		return 1;
 	}
 
 	if(strcmp(reg,"EAX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register EAX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register EAX");
 		strncpy(context->cpuRegisters->EAX, value, sizeof(char)*8);
 		return 1;
 
 	}
 
 	if(strcmp(reg,"EBX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register EBX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register EBX");
 		strncpy(context->cpuRegisters->EBX, value, sizeof(char)*8);
 		return 1;
 	}
 
 	if(strcmp(reg,"ECX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register ECX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register ECX");
 		strncpy(context->cpuRegisters->ECX, value, sizeof(char)*8);
 		return 1;
 	}
 
 	if(strcmp(reg,"EDX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register EDX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register EDX");
 		strncpy(context->cpuRegisters->EDX, value, sizeof(char)*8);
 		return 1;
 	}
 
 	if(strcmp(reg,"RAX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register RAX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register RAX");
 		strncpy(context->cpuRegisters->RAX, value, sizeof(char)*16);
 		return 1;
 	}
 
 	if(strcmp(reg,"RBX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register RBX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register RBX");
 		strncpy(context->cpuRegisters->RBX, value, sizeof(char)*16);
 		return 1;
 	}
 
 	if(strcmp(reg,"RCX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register RCX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register RCX");
 		strncpy(context->cpuRegisters->RCX, value, sizeof(char)*16);
 		return 1;
 	}
 
 	if(strcmp(reg,"RDX") == 0){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - execute_set] Asignando Register RDX");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register RDX");
 		strncpy(context->cpuRegisters->RDX, value, sizeof(char)*16);
 		return 1;
 	}
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/commands-utils - execute_set] Registro no valido");
+	return 0;
+}
+
+int get_amount_of_bytes_per_register(char* reg, t_execution_context* context){
+	if(strcmp(reg,"AX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"BX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"CX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"DX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"EAX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"EBX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"ECX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"EDX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"RAX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RBX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RCX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RDX") == 0){
+		return 16;
+	}
 
 	return 0;
+}
+
+char* get_register_value(char* reg, t_execution_context* context){
+	//Esto deberia devolver 4/8/16 bytes tal cual estén;
+
+	if(strcmp(reg,"AX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register AX");
+		return context->cpuRegisters->AX;
+	}
+
+	if(strcmp(reg,"BX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register BX");
+		return context->cpuRegisters->BX;
+	}
+
+	if(strcmp(reg,"CX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register CX");
+		return context->cpuRegisters->CX;
+	}
+
+	if(strcmp(reg,"DX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register DX");
+		return context->cpuRegisters->DX;
+	}
+
+	if(strcmp(reg,"EAX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register EAX");
+		return context->cpuRegisters->EAX;
+
+	}
+
+	if(strcmp(reg,"EBX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register EBX");
+		return context->cpuRegisters->EBX;
+	}
+
+	if(strcmp(reg,"ECX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register ECX");
+		return context->cpuRegisters->ECX;
+	}
+
+	if(strcmp(reg,"EDX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register EDX");
+		return context->cpuRegisters->EDX;
+	}
+
+	if(strcmp(reg,"RAX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register RAX");
+		return context->cpuRegisters->RAX;
+	}
+
+	if(strcmp(reg,"RBX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register RBX");
+		return context->cpuRegisters->RBX;
+	}
+
+	if(strcmp(reg,"RCX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register RCX");
+		return context->cpuRegisters->RCX;
+	}
+
+	if(strcmp(reg,"RDX") == 0){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - get_register_value] Obteniendo Register RDX");
+		return context->cpuRegisters->RDX;
+	}
+
+	return "";
 }
 
 int execute_yield(t_execution_context* context){
@@ -134,13 +255,85 @@ int execute_io(t_execution_context* context){
 	return 0;
 }
 
+int get_physical_address(t_execution_context* context, char* logicalAddress){
+	int segment = floor(atoi(logicalAddress) / get_cpu_env()->SEGMENT_MAX_SIZE);
+	double offset = atoi(logicalAddress) % get_cpu_env()->SEGMENT_MAX_SIZE;
+
+	t_segment_row* segmentRow = list_get(context->segmentTable, segment);
+	//check if offset + size de la escritura > size
+
+	return segmentRow->baseDirection + offset;
+}
+
 int execute_mov_in(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_mov_in] Ejecutando MOV_IN");
+
+	t_instruction* instruction = list_get(context->instructions, context->programCounter);
+
+	char* reg = list_get(instruction->parameters, 0);
+	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 1));
+
+	t_package* package = create_package();
+
+	int size = get_amount_of_bytes_per_register(reg, context);
+
+	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
+
+	memoryInstruction->parameters = list_create();
+	memoryInstruction->command = MOV_IN;
+	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
+	list_add(memoryInstruction->parameters, string_itoa(size));
+	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, memoryInstruction);
+
+
+	fill_buffer_with_instruction(memoryInstruction, package);
+	send_package(package, get_memory_connection());
+
+	receive_operation_code(get_memory_connection());
+
+	int bufferSize, offset = 0;
+	void *buffer;
+
+	buffer = receive_buffer(&bufferSize, get_memory_connection());
+	char* value = extract_string_from_buffer(buffer, &offset);
+
+	set_register_value(reg, value, context);
+
+	//return error o algo si sale mal
 	return 1;
 }
 
 int execute_mov_out(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_mov_out] Ejecutando MOV_OUT");
+
+	t_package* package = create_package();
+
+	t_instruction* instruction = list_get(context->instructions, context->programCounter);
+
+	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 0));
+	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, instruction);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("[utils/commands-utils - execute_mov_out] address: %d ", physicalAddress));
+
+
+	char* reg = list_get(instruction->parameters, 1);
+
+	char* value = get_register_value(reg, context);
+
+	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
+	memoryInstruction->parameters = list_create();
+
+	memoryInstruction->command = MOV_OUT;
+	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
+	list_add(memoryInstruction->parameters, value);
+
+	fill_buffer_with_instruction(memoryInstruction, package);
+	send_package(package, get_memory_connection());
+
+	operation_result response;
+	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	//return error o algo si sale mal
 	return 1;
 }
 
@@ -193,10 +386,10 @@ int execute_delete_segment(t_execution_context* context){
 }
 void pass_instructions_parameters_to_reason_parameters(t_instruction* currentInstruction, t_list* reasonParameters){
 	int size = list_size(currentInstruction->parameters);
+	list_clean(reasonParameters);
 
 	for(int i=0;i<size;i++){
 		char* value = list_get(currentInstruction->parameters,i);
-		list_clean(reasonParameters);
 		list_add(reasonParameters, value);
 	}
 }

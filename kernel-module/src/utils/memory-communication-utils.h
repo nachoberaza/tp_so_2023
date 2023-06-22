@@ -9,6 +9,7 @@
 	#include <shared/logs/log.h>
 	#include <shared/sockets/server-socket.h>
 	#include <shared/sockets/client-socket.h>
+	#include <shared/execution-context/execution-context.h>
 	#include <shared/serialization/serialization.h>
 	#include <commons/collections/list.h>
 	#include "config-utils.h"

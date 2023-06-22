@@ -1,19 +1,5 @@
 #include "kernel-communication-utils.h"
 
-void fill_package_with_segment_table(t_package* pkg, t_list* segmentTable){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[utils/kernel-communication-utils - fill_package_with_segment_table] Filling package");
-
-	int segmentTableCount = list_size(segmentTable);
-	fill_package_buffer(pkg, &segmentTableCount, sizeof(int));
-
-	for (int i = 0; i < segmentTableCount; i++){
-		t_segment_row* segment = list_get(segmentTable, i);
-		fill_package_buffer(pkg, &segment->id, sizeof(int));
-		fill_package_buffer(pkg, &segment->baseDirection, sizeof(int));
-		fill_package_buffer(pkg, &segment->segmentSize, sizeof(int));
-	}
-}
-
 void listen_kernel_connection(int clientSocketId) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Escuchando al modulo kernel");
 	while(1){

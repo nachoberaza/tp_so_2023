@@ -3,6 +3,8 @@
 
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <string.h>
+	#include <commons/string.h>
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
     #include "config-utils.h"

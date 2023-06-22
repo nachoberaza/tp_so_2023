@@ -15,7 +15,7 @@ void execute_long_term_scheduler(){
 
 		t_pcb *pcb = list_get(get_new_pcb_list(), 0);
 
-		pcb->segmentTable = init_process_segment_table(pcb->executionContext->pid);
+		pcb->executionContext->segmentTable = init_process_segment_table(pcb->executionContext->pid);
 
 		log_pcb(pcb);
 
