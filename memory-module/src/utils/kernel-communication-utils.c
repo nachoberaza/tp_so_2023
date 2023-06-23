@@ -101,14 +101,14 @@ void execute_memory_create_segment_table(int clientSocketId){
 
 void execute_memory_create_segment(t_instruction* instruction, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_create_segment] Ejecutando create segment");
-	operation_result result;
+	operation_result result = OPERATION_RESULT_OK;
 
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }
 
 void execute_memory_delete_segment(t_instruction* instruction, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_delete_segment] Ejecutando delete segment");
-	operation_result result;
+	operation_result result = OPERATION_RESULT_OK;
 
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }

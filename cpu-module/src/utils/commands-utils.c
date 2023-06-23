@@ -287,14 +287,20 @@ int get_physical_address(t_execution_context* context, char* logicalAddress){
 	double offset = atoi(logicalAddress) % get_cpu_env()->SEGMENT_MAX_SIZE;
 
 	t_instruction* instruction = list_get(context->instructions, context->programCounter);
-	char* reg = list_get(instruction->parameters, 0);
+	char* reg = list_get(instruction->parameters, 1);
 
 	int size = get_amount_of_bytes_per_register(reg, context);
 
+	if(list_size(context->segmentTable) <= segment){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/commands-utils - get_physical_address] No existe el segmento");
+
+	}
+
 	t_segment_row* segmentRow = list_get(context->segmentTable, segment);
 
+
 	//Seg_fault
-	if (segmentRow->baseDirection + offset + size > segmentRow->baseDirection + segmentRow->segmentSize){
+	if ((segmentRow->baseDirection + offset + size) > (segmentRow->baseDirection + segmentRow->segmentSize)){
 		return -1;
 	}
 
@@ -306,10 +312,12 @@ int execute_mov_in(t_execution_context* context){
 
 	t_instruction* instruction = list_get(context->instructions, context->programCounter);
 	char* reg = list_get(instruction->parameters, 0);
+
 	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 1));
 	if (physicalAddress == -1){
-		list_add(context->reason->parameters, SEG_FAULT);
-		context->reason = REASON_ERROR;
+		list_clean(context->reason->parameters);
+		list_add(context->reason->parameters, error_as_string(SEG_FAULT));
+		context->reason->executionContextState = REASON_ERROR;
 		return 0;
 	}
 
@@ -339,9 +347,11 @@ int execute_mov_out(t_execution_context* context){
 	t_instruction* instruction = list_get(context->instructions, context->programCounter);
 
 	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 0));
+
 	if (physicalAddress == -1){
-		list_add(context->reason->parameters, SEG_FAULT);
-		context->reason = REASON_ERROR;
+		list_clean(context->reason->parameters);
+		list_add(context->reason->parameters, error_as_string(SEG_FAULT));
+		context->reason->executionContextState = REASON_ERROR;
 		return 0;
 	}
 
@@ -350,7 +360,6 @@ int execute_mov_out(t_execution_context* context){
 	operation_result response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
 
-	//return error o algo si sale mal
 	return 1;
 }
 

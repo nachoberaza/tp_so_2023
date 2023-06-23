@@ -54,9 +54,8 @@ void move_to_exit(t_pcb* pcb){
 	operation_result result = OPERATION_RESULT_OK;
 	char* reason = "Success";
 
-	if (!list_is_empty(pcb->executionContext->reason->parameters)){
-		void* err = list_get(pcb->executionContext->reason->parameters,0);
-		reason = error_as_string((error)err);
+	if (pcb->executionContext->reason->executionContextState == REASON_ERROR && !list_is_empty(pcb->executionContext->reason->parameters)){
+		reason = list_get(pcb->executionContext->reason->parameters,0);
 		result = OPERATION_RESULT_ERROR;
 	}
 
