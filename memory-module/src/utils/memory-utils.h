@@ -12,5 +12,6 @@
 
 	void create_memory_structures();
 	t_list* create_segment_table();
+	void* get_memory();
 
 #endif

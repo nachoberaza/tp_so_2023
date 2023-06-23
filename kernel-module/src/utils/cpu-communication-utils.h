@@ -11,6 +11,7 @@
 	#include <shared/sockets/server-socket.h>
 	#include <shared/sockets/client-socket.h>
 	#include <shared/serialization/serialization.h>
+	#include <shared/execution-context/execution-context.h>
 	#include "config-utils.h"
 	#include "socket-utils.h"
 	#include "logger-utils.h"

@@ -24,7 +24,6 @@
 
 	typedef struct {
 		int clientSocketId;
-		t_list* segmentTable; //lista con elementos t_segment_row
 		double nextBurstEstimate;
 		int timeArrivalReady;
 		t_list* openFilesTable;//lista con elementos t_open_file_row

@@ -8,6 +8,7 @@ t_execution_context* init_execution_context(int pid){
 	executionContext->programCounter = 0;
 	executionContext->reason = malloc(sizeof(t_execution_context_reason));
 	executionContext->reason->parameters = list_create();
+	executionContext->segmentTable = list_create();
 
 	return executionContext;
 }
@@ -30,16 +31,28 @@ void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_conte
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Instrucciones del contexto:");
 	write_instructions_to_internal_logs(logger, logLevel, context->instructions);
 
+	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Segment table:");
+	list_iterate(context->segmentTable, (void*) write_segment_row_to_internal_logs);
+}
+
+void write_segment_row_to_internal_logs(t_segment_row* segmentRow) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Id: %d", segmentRow->id));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("BaseDirection: %d", segmentRow->baseDirection));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("SegmentSize: %d \n", segmentRow->segmentSize));
 }
 
 void write_instructions_to_internal_logs(t_log_grouping* logger, t_log_level logLevel, t_list* instructions) {
 	for (int i=0; i < list_size(instructions); i++){
 		t_instruction * instruction = list_get(instructions, i);
-		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, command_as_string(instruction->command));
+		write_instruction_to_internal_log(logger, logLevel, instruction);
+	}
+}
 
-		for (int i=0; i < list_size(instruction->parameters); i++){
-			write_parameter_to_internal_logs(logger, logLevel, list_get(instruction->parameters, i));
-		}
+void write_instruction_to_internal_log(t_log_grouping* logger, t_log_level logLevel, t_instruction* instruction) {
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, command_as_string(instruction->command));
+
+	for (int i=0; i < list_size(instruction->parameters); i++){
+		write_parameter_to_internal_logs(logger, logLevel, list_get(instruction->parameters, i));
 	}
 }
 
@@ -81,10 +94,15 @@ void destroy_execution_context(t_log_grouping* logger, t_execution_context* exec
 	free(executionContext->cpuRegisters);
 	write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[shared/execution-context - destroy_execution_context] CPU Registers liberados");
 
+	list_destroy_and_destroy_elements(executionContext->segmentTable, (void*) destroy_segment_row);
 	destroy_instructions(logger ,executionContext->instructions);
 	destroy_execution_context_reason(logger ,executionContext->reason);
 
 	free(executionContext);
+}
+
+void destroy_segment_row(t_segment_row* segmentRow) {
+	free(segmentRow);
 }
 
 command command_from_string(t_log_grouping* logger, char * command) {
@@ -124,10 +142,33 @@ t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel
 	context->reason = extract_execution_context_reason_from_buffer(buffer, &offset);
 	context->instructions = extract_instructions_from_buffer(logger, logLevel, buffer, &offset);
 	context->cpuRegisters = extract_cpu_register_from_buffer(buffer, &offset);
+	context->segmentTable = extract_segment_table_from_buffer(buffer, &offset);
 
 	free(buffer);
 
 	return context;
+}
+
+t_list* extract_segment_table_from_buffer(void* buffer, int *offset){
+	t_list* segmentTable = list_create();
+	int segmentTableCount = extract_int_from_buffer(buffer, offset);
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_TRACE,
+		string_from_format("Recibí tabla con %d elementos", segmentTableCount)
+	);
+
+	for (int i = 0; i < segmentTableCount; i++){
+		t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
+
+		segmentRow->id = extract_int_from_buffer(buffer, offset);
+		segmentRow->baseDirection = extract_int_from_buffer(buffer, offset);
+		segmentRow->segmentSize = extract_int_from_buffer(buffer, offset);
+		list_add(segmentTable, segmentRow);
+	}
+
+	return segmentTable;
 }
 
 t_execution_context_reason* extract_execution_context_reason_from_buffer(void * buffer, int* offset){
@@ -147,7 +188,6 @@ t_execution_context_reason* extract_execution_context_reason_from_buffer(void * 
 
 	return reason;
 }
-
 
 execution_context_state extract_execution_context_state_from_buffer(void* buffer, int* offset){
 	int valueSize = 0;
@@ -182,7 +222,6 @@ t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level log
 }
 
 t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset){
-
 	t_instruction* instruction = malloc(sizeof(t_instruction));
 	instruction->parameters = list_create();
 
@@ -219,6 +258,18 @@ t_cpu_register* extract_cpu_register_from_buffer(void* buffer, int* offset){
 	return cpuRegister;
 }
 
+void fill_package_with_segment_table(t_package* pkg, t_list* segmentTable){
+	int segmentTableCount = list_size(segmentTable);
+	fill_package_buffer(pkg, &segmentTableCount, sizeof(int));
+
+	for (int i = 0; i < segmentTableCount; i++){
+		t_segment_row* segment = list_get(segmentTable, i);
+		fill_package_buffer(pkg, &segment->id, sizeof(int));
+		fill_package_buffer(pkg, &segment->baseDirection, sizeof(int));
+		fill_package_buffer(pkg, &segment->segmentSize, sizeof(int));
+	}
+}
+
 void fill_package_with_context(t_log_grouping* logger,t_execution_context* context, t_package* pkg){
 	//Asigno valores porque si llega "0" no se si esta bien o si llegó cualquier falopa
 
@@ -229,6 +280,7 @@ void fill_package_with_context(t_log_grouping* logger,t_execution_context* conte
 	fill_buffer_with_execution_context_reason(logger,context->reason,pkg);
 	fill_buffer_with_instructions(logger,context->instructions,pkg);
 	fill_buffer_with_cpu_register(context->cpuRegisters, pkg);
+	fill_package_with_segment_table(pkg, context->segmentTable);
 }
 
 void fill_buffer_with_execution_context_reason(t_log_grouping* logger,t_execution_context_reason* reason, t_package* pkg){
@@ -258,22 +310,22 @@ void fill_buffer_with_instructions(t_log_grouping* logger,t_list* instructions, 
 		string_from_format("[shared/execution-context - fill_buffer_with_instructions] Cantidad de instrucciones: %d", instructionsCount)
 	);
 
-	//Por cada elemento de la lista envio el elemento, no mando al buffer &struct
-	//porque trae problemas, ej en este caso el struct lo que tiene es un puntero
-	//a una lista, entonces mando cada parte del elemento por separado y del otro lado
-	//asumo que se sabe que cada elemento se corresponde a una parte de la struct
 	for (int i = 0; i < instructionsCount; i++){
 		t_instruction* instruction = list_get(instructions, i);
-		fill_package_buffer(pkg, &(instruction->command), sizeof(command));
+		fill_buffer_with_instruction(instruction, pkg);
+	}
+}
 
-		int parameterCount = list_size(instruction->parameters);
+void fill_buffer_with_instruction(t_instruction* instruction, t_package* pkg){
+	fill_package_buffer(pkg, &(instruction->command), sizeof(command));
 
-		fill_package_buffer(pkg, &parameterCount, sizeof(int));
-		for (int j = 0; j < parameterCount; j++){
-			char* parameter = list_get(instruction->parameters, j);
+	int parameterCount = list_size(instruction->parameters);
 
-			fill_package_buffer(pkg, parameter, strlen(parameter) + 1);
-		}
+	fill_package_buffer(pkg, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(pkg, parameter, strlen(parameter) + 1);
 	}
 }
 

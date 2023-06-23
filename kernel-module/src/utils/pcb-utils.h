@@ -26,10 +26,8 @@
 	void add_file(t_pcb* pcb, t_open_file_row* openFile);
 	void free_pcb(t_pcb* pcb);
 	void destroy_open_files_row(t_open_file_row* openFileRow);
-	void destroy_segment_row(t_segment_row* segmentRow);
 	int get_current_pid();
 	void log_pcb(t_pcb* pcb);
-	void write_segment_row_to_internal_logs(t_segment_row* segmentRow);
 	void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow);
 	void log_pcb(t_pcb* pcb);
 	t_list* get_new_pcb_list();

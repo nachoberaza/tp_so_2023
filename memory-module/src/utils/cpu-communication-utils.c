@@ -4,32 +4,29 @@ void listen_cpu_connection(int clientSocketId) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_cpu_connection] Escuchando al modulo cpu");
 	while (1) {
 		//Modular a gusto
-		receive_operation_code(clientSocketId);
+		int opCode = receive_operation_code(clientSocketId);
+
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("[utils/socket-utils - listen_cpu_connection] Recibi operation code %d", opCode));
 
 		int bufferSize, offset = 0;
 		void *buffer;
 
-		t_instruction* instruction = malloc(sizeof(t_instruction));
+		t_instruction* instruction;
 
 		buffer = receive_buffer(&bufferSize, clientSocketId);
 
 		instruction = extract_instruction_from_buffer(get_logger(), LOG_LEVEL_TRACE, buffer, &offset);
 
-		write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, command_as_string(instruction->command));
-
-		for (int i=0; i < list_size(instruction->parameters); i++){
-			write_parameter_to_internal_logs(get_logger(), LOG_LEVEL_INFO, list_get(instruction->parameters, i));
-		}
-
+		write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, instruction);
 		free(buffer);
 
 
 		switch (instruction->command){
 			case MOV_IN:
-				execute_memory_mov_in(instruction,clientSocketId);
+				execute_memory_mov_in(instruction, clientSocketId);
 				break;
 			case MOV_OUT:
-				execute_memory_mov_out(instruction,clientSocketId);
+				execute_memory_mov_out(instruction, clientSocketId);
 				break;
 			default:
 				write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_cpu_connection] Comando no pertenece a Memory");
@@ -41,15 +38,30 @@ void listen_cpu_connection(int clientSocketId) {
 }
 
 void execute_memory_mov_in(t_instruction* instruction, int clientSocketId){
-	operation_result result;
-	send(clientSocketId, &result, sizeof(operation_result), NULL);
+	int address = atoi(list_get(instruction->parameters, 0));
+	int size = atoi(list_get(instruction->parameters, 1));
+
+	char* value = malloc(size);
+
+	memcpy(value, get_memory() + address, size);
+
+
+	t_package* package = create_package();
+
+	fill_buffer(package->buffer, value, size);
+	send_package(package, clientSocketId);
 }
 
 void execute_memory_mov_out(t_instruction* instruction, int clientSocketId){
+	int address = atoi(list_get(instruction->parameters, 0));
+	char* value = list_get(instruction->parameters, 1);
+
+	void* destination = get_memory() + address;
+
+	memcpy(destination, value, strlen(value));
+
 	operation_result result;
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }
-
-
 
 

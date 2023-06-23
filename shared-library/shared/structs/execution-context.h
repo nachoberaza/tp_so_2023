@@ -5,6 +5,7 @@
 	#define EXECUTION_CONTEXT_STATE_ENUM_SIZE 14
 	#define ERROR_ENUM_SIZE 2
 	#include <commons/collections/list.h>
+	#include "memory.h"
 
 	typedef enum {
 		SEG_FAULT,
@@ -108,6 +109,6 @@
 		int programCounter;
 		t_cpu_register* cpuRegisters;
 		t_execution_context_reason* reason;
+		t_list* segmentTable; //lista con elementos t_segment_row
 	} t_execution_context;
-//El exec context tmb tiene q tener la tabla de segmento, pero no sabemos como hacerla x ahora
 #endif
