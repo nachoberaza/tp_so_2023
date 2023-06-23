@@ -308,7 +308,7 @@ int execute_mov_in(t_execution_context* context){
 	char* reg = list_get(instruction->parameters, 0);
 	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 1));
 	if (physicalAddress == -1){
-		//COmo pija le ponemos seg_fault?
+		list_add(context->reason->parameters, SEG_FAULT);
 		context->reason = REASON_ERROR;
 		return 0;
 	}
@@ -340,7 +340,7 @@ int execute_mov_out(t_execution_context* context){
 
 	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 0));
 	if (physicalAddress == -1){
-		//COmo pija le ponemos seg_fault?
+		list_add(context->reason->parameters, SEG_FAULT);
 		context->reason = REASON_ERROR;
 		return 0;
 	}
