@@ -92,58 +92,6 @@ int set_register_value(char* reg, char* value, t_execution_context* context){
 	return 0;
 }
 
-int get_amount_of_bytes_per_register(char* reg, t_execution_context* context){
-	if(strcmp(reg,"AX") == 0){
-		return 4;
-	}
-
-	if(strcmp(reg,"BX") == 0){
-		return 4;
-	}
-
-	if(strcmp(reg,"CX") == 0){
-		return 4;
-	}
-
-	if(strcmp(reg,"DX") == 0){
-		return 4;
-	}
-
-	if(strcmp(reg,"EAX") == 0){
-		return 8;
-	}
-
-	if(strcmp(reg,"EBX") == 0){
-		return 8;
-	}
-
-	if(strcmp(reg,"ECX") == 0){
-		return 8;
-	}
-
-	if(strcmp(reg,"EDX") == 0){
-		return 8;
-	}
-
-	if(strcmp(reg,"RAX") == 0){
-		return 16;
-	}
-
-	if(strcmp(reg,"RBX") == 0){
-		return 16;
-	}
-
-	if(strcmp(reg,"RCX") == 0){
-		return 16;
-	}
-
-	if(strcmp(reg,"RDX") == 0){
-		return 16;
-	}
-
-	return 0;
-}
-
 char* get_register_value(char* reg, t_execution_context* context){
 	//Esto deberia devolver 4/8/16 bytes tal cual estén;
 	int length = get_amount_of_bytes_per_register(reg, context) + 1;
@@ -262,58 +210,13 @@ int execute_io(t_execution_context* context){
 	return 0;
 }
 
-void send_mov_in_to_memory(t_execution_context* context, char* reg, int physicalAddress){
-	t_instruction* instruction = list_get(context->instructions, context->programCounter);
-
-	t_package* package = create_package();
-
-	int size = get_amount_of_bytes_per_register(reg, context);
-
-	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
-
-	memoryInstruction->parameters = list_create();
-	memoryInstruction->command = MOV_IN;
-	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
-	list_add(memoryInstruction->parameters, string_itoa(size));
-	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, memoryInstruction);
-
-	fill_buffer_with_instruction(memoryInstruction, package);
-	send_package(package, get_memory_connection());
-
-}
-
-int get_physical_address(t_execution_context* context, char* logicalAddress){
-	int segment = floor(atoi(logicalAddress) / get_cpu_env()->SEGMENT_MAX_SIZE);
-	double offset = atoi(logicalAddress) % get_cpu_env()->SEGMENT_MAX_SIZE;
-
-	t_instruction* instruction = list_get(context->instructions, context->programCounter);
-	char* reg = list_get(instruction->parameters, 1);
-
-	int size = get_amount_of_bytes_per_register(reg, context);
-
-	if(list_size(context->segmentTable) <= segment){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/commands-utils - get_physical_address] No existe el segmento");
-
-	}
-
-	t_segment_row* segmentRow = list_get(context->segmentTable, segment);
-
-
-	//Seg_fault
-	if ((segmentRow->baseDirection + offset + size) > (segmentRow->baseDirection + segmentRow->segmentSize)){
-		return -1;
-	}
-
-	return segmentRow->baseDirection + offset;
-}
-
 int execute_mov_in(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_mov_in] Ejecutando MOV_IN");
 
 	t_instruction* instruction = list_get(context->instructions, context->programCounter);
 	char* reg = list_get(instruction->parameters, 0);
 
-	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 1));
+	int physicalAddress = get_physical_address(get_logger(), context, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
 	if (physicalAddress == -1){
 		list_clean(context->reason->parameters);
 		list_add(context->reason->parameters, error_as_string(SEG_FAULT));
@@ -328,25 +231,12 @@ int execute_mov_in(t_execution_context* context){
 	return 1;
 }
 
-void handle_mov_in_memory_response(t_execution_context* context){
-	t_instruction* instruction = list_get(context->instructions, context->programCounter);
-	char* reg = list_get(instruction->parameters, 0);
-	int bufferSize, offset = 0;
-	void *buffer;
-
-	receive_operation_code(get_memory_connection());
-	buffer = receive_buffer(&bufferSize, get_memory_connection());
-	char* value = extract_string_from_buffer(buffer, &offset);
-
-	set_register_value(reg, value, context);
-}
-
 int execute_mov_out(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_mov_out] Ejecutando MOV_OUT");
 
 	t_instruction* instruction = list_get(context->instructions, context->programCounter);
 
-	int physicalAddress = get_physical_address(context, list_get(instruction->parameters, 0));
+	int physicalAddress = get_physical_address(get_logger(), context, list_get(instruction->parameters, 0), get_cpu_env()->SEGMENT_MAX_SIZE);
 
 	if (physicalAddress == -1){
 		list_clean(context->reason->parameters);
@@ -357,29 +247,11 @@ int execute_mov_out(t_execution_context* context){
 
 	send_mov_out_to_memory(context, physicalAddress);
 
+	// TODO: Hace falta hacer algo con response ademas de un operation result?
 	operation_result response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	return 1;
-}
-
-void send_mov_out_to_memory(t_execution_context* context, int physicalAddress){
-	t_instruction* instruction = list_get(context->instructions, context->programCounter);
-	t_package* package = create_package();
-
-	char* reg = list_get(instruction->parameters, 1);
-
-	char* value = get_register_value(reg, context);
-
-	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
-	memoryInstruction->parameters = list_create();
-
-	memoryInstruction->command = MOV_OUT;
-	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
-	list_add(memoryInstruction->parameters, value);
-
-	fill_buffer_with_instruction(memoryInstruction, package);
-	send_package(package, get_memory_connection());
 }
 
 int execute_f_open(t_execution_context* context){
@@ -436,6 +308,7 @@ int execute_delete_segment(t_execution_context* context){
 	pass_instructions_parameters_to_reason_parameters(currentInstruction, context->reason->parameters);
 	return 0;
 }
+
 void pass_instructions_parameters_to_reason_parameters(t_instruction* currentInstruction, t_list* reasonParameters){
 	int size = list_size(currentInstruction->parameters);
 	list_clean(reasonParameters);

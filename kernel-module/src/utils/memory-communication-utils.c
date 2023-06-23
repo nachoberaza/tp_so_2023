@@ -51,23 +51,51 @@ void delete_process_segment_table(int pid){
 }
 
 void execute_kernel_create_segment(t_pcb* pcb){
-	char* segmentId = list_get(pcb->executionContext->reason->parameters, 0);
-	char* segmentSize = list_get(pcb->executionContext->reason->parameters, 1);
-	int parametersCount = 2;
-	t_package* package = create_package();
-	package->operationCode = CREATE_SEGMENT_KERNEL;
-	fill_package_buffer(package, &parametersCount, sizeof(int));
-	fill_package_buffer(package, segmentId, strlen(segmentId) + 1);
-	fill_package_buffer(package, segmentSize, strlen(segmentSize) + 1);
-	send_package(package, get_memory_connection());
+	//TODO: Hacer create_segment
+	send_current_instruction_to_memory(pcb);
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
 }
 
 void execute_kernel_delete_segment(t_pcb* pcb){
-	char* segmentId = list_get(pcb->executionContext->reason->parameters, 0);
-	int parametersCount = 1;
+	//TODO: Hacer delete_segment
+	send_current_instruction_to_memory(pcb);
+
+	//TODO: Esta logica varia
+	operation_result response;
+	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	if(response == OPERATION_RESULT_OK){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_delete_segment] Ejecutado correctamente");
+		return;
+	}
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_delete_segment] Ocurrió un error en Memory");
+}
+
+void send_current_instruction_to_memory(t_pcb* pcb){
 	t_package* package = create_package();
-	package->operationCode = DELETE_SEGMENT_KERNEL;
-	fill_package_buffer(package, &parametersCount, sizeof(int));
-	fill_package_buffer(package, segmentId, strlen(segmentId) + 1);
+	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	fill_package_buffer(package, &(instruction->command), sizeof(command));
+
+	int parameterCount = list_size(instruction->parameters);
+
+	fill_package_buffer(package, &parameterCount, sizeof(int));
+	for (int j = 0; j < parameterCount; j++){
+		char* parameter = list_get(instruction->parameters, j);
+
+		fill_package_buffer(package, parameter, strlen(parameter) + 1);
+	}
+
 	send_package(package, get_memory_connection());
 }

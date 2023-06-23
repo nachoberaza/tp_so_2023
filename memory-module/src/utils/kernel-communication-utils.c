@@ -75,7 +75,7 @@ void execute_memory_delete_segment_table(int clientSocketId){
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Eliminación de Proceso PID: %d",pid));
 
-	operation_result result;
+	operation_result result = OPERATION_RESULT_OK;
 
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 
@@ -101,15 +101,23 @@ void execute_memory_create_segment_table(int clientSocketId){
 
 void execute_memory_create_segment(t_instruction* instruction, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_create_segment] Ejecutando create segment");
-	operation_result result = OPERATION_RESULT_OK;
+
+	t_segment_row* newSegment = malloc(sizeof(t_segment_row));
+	newSegment->id = atoi(list_get(instruction->parameters, 0));
+	newSegment->segmentSize = atoi(list_get(instruction->parameters, 1));
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Segmento a crear - id: %d - size: %d", newSegment->id, newSegment->segmentSize));
+	operation_result result = add_to_memory(newSegment);
 
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }
 
 void execute_memory_delete_segment(t_instruction* instruction, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_delete_segment] Ejecutando delete segment");
-	operation_result result = OPERATION_RESULT_OK;
 
+
+	int segmentId = atoi(list_get(instruction->parameters, 0));
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SegmentId to delete: %d", segmentId));
+	operation_result result = delete_segment_if_exists(segmentId);
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }
 

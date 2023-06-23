@@ -27,6 +27,7 @@
 	t_list* init_process_segment_table(int pid);
 	t_list* receive_process_segment_table();
 	void delete_process_segment_table(int pid);
+	void send_current_instruction_to_memory(t_pcb* pcb);
 	void execute_kernel_create_segment(t_pcb* pcb);
 	void execute_kernel_delete_segment(t_pcb* pcb);
 

@@ -24,6 +24,7 @@
 	command command_from_string(t_log_grouping* logger, char * command);
 	char * command_as_string(command command);
 	char * execution_context_state_as_string(execution_context_state executionContextState);
+	int get_amount_of_bytes_per_register(char* reg, t_execution_context* context);
 	t_execution_context* decode_context(t_log_grouping* logger, t_log_level logLevel, int clientSocket);
 	t_list* extract_instructions_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset);
 	t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_level logLevel, void * buffer, int* offset);
