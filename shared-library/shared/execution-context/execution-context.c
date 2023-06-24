@@ -31,7 +31,7 @@ void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_conte
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Instrucciones del contexto:");
 	write_instructions_to_internal_logs(logger, logLevel, context->instructions);
 
-	write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/pcb-utils - log_pcb] Segment table:");
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Segment table:");
 	list_iterate(context->segmentTable, (void*) write_segment_row_to_internal_logs);
 }
 
@@ -126,6 +126,58 @@ char * command_as_string(command command) {
 
 char * execution_context_state_as_string(execution_context_state executionContextState) {
 	return executionContextStateNames[executionContextState];
+}
+
+int get_amount_of_bytes_per_register(char* reg, t_execution_context* context){
+	if(strcmp(reg,"AX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"BX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"CX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"DX") == 0){
+		return 4;
+	}
+
+	if(strcmp(reg,"EAX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"EBX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"ECX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"EDX") == 0){
+		return 8;
+	}
+
+	if(strcmp(reg,"RAX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RBX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RCX") == 0){
+		return 16;
+	}
+
+	if(strcmp(reg,"RDX") == 0){
+		return 16;
+	}
+
+	return 0;
 }
 
 
@@ -227,14 +279,18 @@ t_instruction* extract_instruction_from_buffer(t_log_grouping* logger, t_log_lev
 
 	instruction->command = extract_command_from_buffer(buffer, offset);
 
+	extract_instruction_parameters_from_buffer(instruction->parameters, buffer, offset);
+
+	return instruction;
+}
+
+void extract_instruction_parameters_from_buffer(t_list* parameters, void * buffer, int* offset) {
 	int parameterCount = extract_int_from_buffer(buffer, offset);
 
 	for (int j = 0; j < parameterCount; j++){
 		char* value = extract_string_from_buffer(buffer, offset);
-		list_add(instruction->parameters, value);
+		list_add(parameters, value);
 	}
-
-	return instruction;
 }
 
 t_cpu_register* extract_cpu_register_from_buffer(void* buffer, int* offset){

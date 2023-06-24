@@ -23,6 +23,16 @@ t_memory_config* get_memory_config() {
 	return memoryConfig;
 }
 
+t_assignment_algorithm get_assignment_algorithm() {
+	if(strcmp(memoryConfig->ASSIGNMENT_ALGORITHM, "FIRST") == 0){
+		return FIRST;
+	} else if(strcmp(memoryConfig->ASSIGNMENT_ALGORITHM, "BEST") == 0) {
+		return BEST;
+	}
+
+	return WORST;
+}
+
 void log_config(t_memory_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "MEMORY CONFIG VALUES: ");
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));

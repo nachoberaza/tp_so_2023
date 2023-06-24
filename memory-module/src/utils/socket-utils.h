@@ -5,6 +5,7 @@
     #include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
 	#include <shared/structs/memory.h>
+	#include <shared/structs/execution-context.h>
 	#include "config-utils.h"
 	#include "logger-utils.h"
 	#include "memory-utils.h"
