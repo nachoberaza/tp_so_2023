@@ -10,7 +10,7 @@ int get_physical_address(t_log_grouping* logger, t_execution_context* context, c
 	int size = get_amount_of_bytes_per_register(reg, context);
 
 	if(list_size(context->segmentTable) <= segment){
-		write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[shared/execution-context - destroy_execution_context] CPU Registers liberados");
+		write_log_grouping(logger,LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[shared/memory - get_physical_address] No existe el segmento");
 	}
 
 	t_segment_row* segmentRow = list_get(context->segmentTable, segment);
@@ -22,4 +22,31 @@ int get_physical_address(t_log_grouping* logger, t_execution_context* context, c
 	}
 
 	return segmentRow->baseDirection + offset;
+}
+
+
+void fill_buffer_with_memory_data(t_memory_data* memoryData, t_package* pkg){
+	fill_package_buffer(pkg, &(memoryData->pid), sizeof(int));
+	fill_buffer_with_instruction(memoryData->instruction,pkg);
+}
+
+t_memory_data* decode_memory_data(t_log_grouping* logger, int clientSocket){
+	int bufferSize, offset = 0;
+	void *buffer;
+	t_memory_data* data = malloc(sizeof(t_memory_data));
+
+	buffer = receive_buffer(&bufferSize, clientSocket);
+
+	data->pid = extract_int_from_buffer(buffer, &offset);
+	data->instruction = extract_instruction_from_buffer(logger,LOG_LEVEL_INFO,buffer,&offset);
+
+	free(buffer);
+
+	return data;
+}
+
+void log_memory_data(t_memory_data* data,t_log_grouping* logger,t_log_level logLevel){
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, logLevel, "[shared/memory - log_memory_data]  Memory Data");
+	write_log_grouping(logger,LOG_TARGET_INTERNAL, logLevel, string_from_format("Pid: %d", data->pid));
+	write_instruction_to_internal_log(logger, logLevel,data->instruction);
 }

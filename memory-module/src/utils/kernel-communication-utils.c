@@ -26,31 +26,18 @@ void listen_kernel_connection(int clientSocketId) {
 }
 
 void execute_memory_kernel_instruction(int clientSocketId){
-	int bufferSize, offset = 0;
-	void *buffer;
-
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Ejecutando PACKAGE");
 
-	t_instruction* instruction = malloc(sizeof(t_instruction));
+	t_memory_data* data = decode_memory_data(get_logger(), clientSocketId);
 
-	buffer = receive_buffer(&bufferSize, clientSocketId);
+	log_memory_data(data,get_logger(), LOG_LEVEL_INFO);
 
-	instruction = extract_instruction_from_buffer(get_logger(), LOG_LEVEL_TRACE, buffer, &offset);
-
-	write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, command_as_string(instruction->command));
-
-	for (int i=0; i < list_size(instruction->parameters); i++){
-		write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, list_get(instruction->parameters, i));
-	}
-
-	free(buffer);
-
-	switch (instruction->command){
+	switch (data->instruction->command){
 		case CREATE_SEGMENT:
-			execute_memory_create_segment(instruction,clientSocketId);
+			execute_memory_create_segment(data,clientSocketId);
 			break;
 		case DELETE_SEGMENT:
-			execute_memory_delete_segment(instruction,clientSocketId);
+			execute_memory_delete_segment(data,clientSocketId);
 			break;
 		default:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Comando no pertenece a Memory");
@@ -99,25 +86,48 @@ void execute_memory_create_segment_table(int clientSocketId){
 	send_package(package, clientSocketId);
 }
 
-void execute_memory_create_segment(t_instruction* instruction, int clientSocketId){
+void execute_memory_create_segment(t_memory_data* data, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_create_segment] Ejecutando create segment");
 
 	t_segment_row* newSegment = malloc(sizeof(t_segment_row));
-	newSegment->id = atoi(list_get(instruction->parameters, 0));
-	newSegment->segmentSize = atoi(list_get(instruction->parameters, 1));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("Segmento a crear - id: %d - size: %d", newSegment->id, newSegment->segmentSize));
-	operation_result result = add_to_memory(newSegment);
+	newSegment->id = atoi(list_get(data->instruction->parameters, 0));
+	newSegment->segmentSize = atoi(list_get(data->instruction->parameters, 1));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Segmento a crear - id: %d - size: %d", newSegment->id, newSegment->segmentSize));
 
-	send(clientSocketId, &result, sizeof(operation_result), NULL);
+
+	//Por ahora lo manejmos como como int
+	//Success: direccion base
+	//Error: out of memory -1
+	//Compactar : -2
+	int baseDirection = add_to_memory(newSegment);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("BaseDirection del nuevo segmento : %d", baseDirection));
+
+	if(baseDirection != -1 || baseDirection != -2){
+		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
+					string_from_format("PID: %d - Crear Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,newSegment->id,baseDirection,newSegment->segmentSize));
+	}
+
+	send(clientSocketId, &baseDirection, sizeof(int), NULL);
 }
 
-void execute_memory_delete_segment(t_instruction* instruction, int clientSocketId){
+void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_delete_segment] Ejecutando delete segment");
 
-
-	int segmentId = atoi(list_get(instruction->parameters, 0));
+	int segmentId = atoi(list_get(data->instruction->parameters, 0));
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SegmentId to delete: %d", segmentId));
-	operation_result result = delete_segment_if_exists(segmentId);
-	send(clientSocketId, &result, sizeof(operation_result), NULL);
+	t_segment_row* segment = get_segment(segmentId);
+	if(segment == NULL){
+		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, string_from_format("No existe el segmento: %d", segmentId));
+	}
+
+	t_list * segmentTable = delete_segment(segmentId);
+
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
+					string_from_format("PID: %d - Eliminar Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,segmentId,segment->baseDirection,segment->segmentSize));
+
+	t_package* package = create_package();
+	fill_package_with_segment_table(package, segmentTable);
+	send_package(package, clientSocketId);
 }
 

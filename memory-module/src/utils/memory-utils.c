@@ -27,6 +27,12 @@ t_list* create_segment_table() {
 	return segmentTable;
 }
 
+t_list* delete_segment(int segmentId){
+	list_remove(segmentTableGlobal, segmentId);
+	return segmentTableGlobal;
+}
+
+
 operation_result delete_segment_if_exists(int segmentId){
 	for(int i = 0; i < list_size(segmentTableGlobal); i++){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
@@ -39,7 +45,18 @@ operation_result delete_segment_if_exists(int segmentId){
 	return OPERATION_RESULT_OK;
 }
 
-operation_result add_to_memory(t_segment_row* segment) {
+t_segment_row* get_segment(int segmentId){
+	for(int i = 0; i < list_size(segmentTableGlobal); i++){
+		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
+		if(actualSegment->id == segmentId){
+			return actualSegment;
+		}
+	}
+
+	return NULL;
+}
+
+int add_to_memory(t_segment_row* segment) {
 	t_assignment_algorithm assignmentAlgorithm = get_assignment_algorithm();
 
 	if(assignmentAlgorithm == FIRST){
@@ -51,17 +68,17 @@ operation_result add_to_memory(t_segment_row* segment) {
 	}
 }
 
-operation_result add_segment_best_algorithm(t_segment_row* segment) {
+int add_segment_best_algorithm(t_segment_row* segment) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_best_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+	return 0;
 }
 
-operation_result add_segment_first_algorithm(t_segment_row* segment) {
+int add_segment_first_algorithm(t_segment_row* segment) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_first_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+	return 0;
 }
 
-operation_result add_segment_worst_algorithm(t_segment_row* segment) {
+int add_segment_worst_algorithm(t_segment_row* segment) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_worst_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+	return 0;
 }

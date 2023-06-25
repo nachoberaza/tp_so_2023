@@ -12,6 +12,7 @@
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/serialization/serialization.h>
 	#include <shared/execution-context/execution-context.h>
+	#include <shared/memory/memory.h>
 	#include <shared/structs/execution-context.h>
 	#include <commons/collections/list.h>
 	#include "config-utils.h"
@@ -24,11 +25,13 @@
 	#include "semaphore-utils.h"
 	#include "../structs/pcb.h"
 
+
 	t_list* init_process_segment_table(int pid);
 	t_list* receive_process_segment_table();
 	void delete_process_segment_table(int pid);
-	void send_current_instruction_to_memory(t_pcb* pcb);
+	void send_memory_data_to_memory(t_pcb* pcb);
 	void execute_kernel_create_segment(t_pcb* pcb);
 	void execute_kernel_delete_segment(t_pcb* pcb);
-
+	t_memory_data* create_memory_data(t_pcb* pcb);
+	void request_compaction_to_memory_and_retry(t_pcb* pcb);
 #endif

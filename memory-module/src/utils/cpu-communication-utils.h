@@ -15,7 +15,7 @@
 	#include "memory-utils.h"
 
 	void listen_cpu_connection(int clientSocketId);
-	void execute_memory_mov_in(t_instruction* instruction, int clientSocketId);
-	void execute_memory_mov_out(t_instruction* instruction, int clientSocketId);
+	void execute_memory_mov_out(t_memory_data* data, int clientSocketId,char* origin);
+	void execute_memory_mov_in(t_memory_data* data, int clientSocketId, char* origin);
 
 #endif

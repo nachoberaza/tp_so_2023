@@ -14,12 +14,14 @@
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/structs/execution-context.h>
 	#include <shared/serialization/serialization.h>
+	#include <shared/memory/memory.h>
 	#include "config-utils.h"
 	#include "logger-utils.h"
+	#include "commands-utils.h"
 	#include "socket-utils.h"
 
 	void send_mov_in_to_memory(t_execution_context* context, char* reg, int physicalAddress);
-	void send_mov_out_to_memory(t_execution_context* context, int physicalAddress);
+	void send_mov_out_to_memory(t_execution_context* context, char* reg, int physicalAddress);
 	void handle_mov_in_memory_response(t_execution_context* context);
 
 #endif
