@@ -1,10 +1,7 @@
 #include "memory-communication-utils.h"
 
-void send_mov_in_to_memory(t_execution_context* context, char* reg, int physicalAddress){
+void send_mov_in_to_memory(t_execution_context* context, int size, int physicalAddress){
 	t_package* package = create_package();
-
-	int size = get_amount_of_bytes_per_register(reg, context);
-
 	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
 
 	memoryInstruction->command = MOV_IN;
