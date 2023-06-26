@@ -51,51 +51,83 @@ void delete_process_segment_table(int pid){
 }
 
 void execute_kernel_create_segment(t_pcb* pcb){
-	//TODO: Hacer create_segment
-	send_current_instruction_to_memory(pcb);
+	//TODO: Hacer create_segment en memory
+	send_memory_data_to_memory(pcb);
 
-	//TODO: Esta logica varia
-	operation_result response;
+	//TODO: crear nodo de respuesta para no manejarlo con int
+	int response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
 
-	if(response == OPERATION_RESULT_OK){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
-		return;
-	}
+	switch (response){
+		case -1:
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
+			break;
+		case -2:
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Memoria solicita compactacion");
+			request_compaction_to_memory_and_retry(pcb);
+			break;
+		default:
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
+			t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+			t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
+			segmentRow->id = list_get(instruction->parameters, 0);
+			segmentRow->segmentSize = list_get(instruction->parameters, 1);
+			segmentRow->baseDirection = response;
+			list_add(pcb->executionContext->segmentTable, segmentRow);
+		break;
+	}
 }
 
 void execute_kernel_delete_segment(t_pcb* pcb){
-	//TODO: Hacer delete_segment
-	send_current_instruction_to_memory(pcb);
+	//TODO: Hacer delete_segment en memory
+	send_memory_data_to_memory(pcb);
 
-	//TODO: Esta logica varia
-	operation_result response;
-	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+	t_list* segmentTable = receive_process_segment_table();
 
-	if(response == OPERATION_RESULT_OK){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_delete_segment] Ejecutado correctamente");
-		return;
-	}
-
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_delete_segment] Ocurrió un error en Memory");
+	pcb->executionContext->segmentTable = segmentTable;
 }
 
-void send_current_instruction_to_memory(t_pcb* pcb){
+void send_memory_data_to_memory(t_pcb* pcb){
 	t_package* package = create_package();
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
-	fill_package_buffer(package, &(instruction->command), sizeof(command));
+	memoryData->pid = pcb->executionContext->pid;
+	memoryData->instruction = instruction;
 
-	int parameterCount = list_size(instruction->parameters);
+	log_memory_data(memoryData,get_logger(),LOG_LEVEL_INFO);
 
-	fill_package_buffer(package, &parameterCount, sizeof(int));
-	for (int j = 0; j < parameterCount; j++){
-		char* parameter = list_get(instruction->parameters, j);
-
-		fill_package_buffer(package, parameter, strlen(parameter) + 1);
-	}
+	fill_buffer_with_memory_data(memoryData,package);
 
 	send_package(package, get_memory_connection());
 }
+
+void request_compaction_to_memory_and_retry(t_pcb* pcb){
+	t_package* package = create_package();
+	package->operationCode = COMPRESS_SEGMENT_TABLE;
+
+	fill_package_buffer(package, &(pcb->executionContext->pid), sizeof(int));
+
+	//TODO: para probar
+	send_package(package, get_memory_connection());
+	delete_package(package);
+
+	t_list* segmentTable= receive_process_segment_table();
+	pcb->executionContext->segmentTable = segmentTable;
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_TRACE,
+		"Se realizo la compactacion con exito y se solicita crear el segemento"
+	);
+
+	//Volvemos a intentar crear el segmento -> Modular
+	execute_kernel_create_segment(pcb);
+}
+
+
+
+

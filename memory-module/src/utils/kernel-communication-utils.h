@@ -12,14 +12,16 @@
 	#include <shared/structs/execution-context.h>
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
+	#include <shared/memory/memory.h>
 	#include <shared/execution-context/execution-context.h>
 	#include "config-utils.h"
 	#include "logger-utils.h"
 	#include "memory-utils.h"
 
+
 	void listen_kernel_connection(int clientSocketId);
-	void execute_memory_delete_segment(t_instruction* instruction, int clientSocketId);
-	void execute_memory_create_segment(t_instruction* instruction, int clientSocketId);
+	void execute_memory_delete_segment(t_memory_data* data, int clientSocketId);
+	void execute_memory_create_segment(t_memory_data* data, int clientSocketId);
 	void execute_memory_compress_segment_table(int clientSocketId);
 	void execute_memory_delete_segment_table(int clientSocketId);
 	void execute_memory_create_segment_table(int clientSocketId);

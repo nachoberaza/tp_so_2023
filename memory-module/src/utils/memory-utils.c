@@ -9,10 +9,28 @@ void create_memory_structures() {
 	memory = malloc(get_memory_config()->MEMORY_SIZE);
 	freeSpacesList = list_create();
 	segmentTableGlobal = list_create();
+
+	t_segment_row* segmentZero = malloc(sizeof(t_segment_row));
+	segmentZero->id = -1;
+	segmentZero->baseDirection = 0;
+	segmentZero->segmentSize = get_memory_config()->SEGMENT_ZERO_SIZE;
+	list_add(segmentTableGlobal, segmentZero);
+
+	t_segment_row* emptySpace = malloc(sizeof(t_segment_row));
+	//id no importa para espacios vacios
+	emptySpace->id = -1;
+	emptySpace->baseDirection = get_memory_config()->SEGMENT_ZERO_SIZE;
+	emptySpace->segmentSize = get_memory_config()->MEMORY_SIZE - get_memory_config()->SEGMENT_ZERO_SIZE;
+	list_add(freeSpacesList, emptySpace);
+
 }
 
 void* get_memory() {
 	return memory;
+}
+
+void* get_free_spaces_list() {
+	return freeSpacesList;
 }
 
 t_list* create_segment_table() {
@@ -27,6 +45,12 @@ t_list* create_segment_table() {
 	return segmentTable;
 }
 
+t_list* delete_segment(int segmentId){
+	list_remove(segmentTableGlobal, segmentId);
+	return segmentTableGlobal;
+}
+
+
 operation_result delete_segment_if_exists(int segmentId){
 	for(int i = 0; i < list_size(segmentTableGlobal); i++){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
@@ -39,29 +63,71 @@ operation_result delete_segment_if_exists(int segmentId){
 	return OPERATION_RESULT_OK;
 }
 
-operation_result add_to_memory(t_segment_row* segment) {
+t_segment_row* get_segment(int segmentId){
+	for(int i = 0; i < list_size(segmentTableGlobal); i++){
+		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
+		if(actualSegment->id == segmentId){
+			return actualSegment;
+		}
+	}
+
+	return NULL;
+}
+
+int add_to_memory(t_segment_row* segment) {
 	t_assignment_algorithm assignmentAlgorithm = get_assignment_algorithm();
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_to_memory] assignment alg: %d", assignmentAlgorithm));
+	int res = 0;
 
 	if(assignmentAlgorithm == FIRST){
-		return add_segment_first_algorithm(segment);
+		res = add_segment_first_algorithm(segment);
 	} else if(assignmentAlgorithm == BEST) {
-		return add_segment_best_algorithm(segment);
+		res = add_segment_best_algorithm(segment);
 	} else {
-		return add_segment_worst_algorithm(segment);
+		res = add_segment_worst_algorithm(segment);
 	}
+	log_segment_table(segmentTableGlobal, get_logger(), LOG_LEVEL_INFO);
+	log_segment_table(freeSpacesList, get_logger(), LOG_LEVEL_INFO);
+
+	return res;
 }
 
-operation_result add_segment_best_algorithm(t_segment_row* segment) {
+int add_segment_best_algorithm(t_segment_row* segment) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_best_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+	return 0;
 }
 
-operation_result add_segment_first_algorithm(t_segment_row* segment) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_first_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i){
+	segment->baseDirection = row->baseDirection;
+	list_add(segmentTableGlobal, segment);
+	if (row->segmentSize == segment->segmentSize)
+	{
+		list_remove(freeSpacesList, i);
+		return;
+	}
+	row->baseDirection += segment->segmentSize;
+	row->segmentSize -= segment->segmentSize;
 }
 
-operation_result add_segment_worst_algorithm(t_segment_row* segment) {
+int add_segment_first_algorithm(t_segment_row* segment) {
+	int size = list_size(freeSpacesList);
+	int totalAvailableSize = 0;
+	for (int i=0; i<size; i++)
+	{
+		t_segment_row* row = list_get(freeSpacesList, i);
+		if (row->segmentSize >= segment->segmentSize){
+			add_segment_in_empty_space(row, segment, i);
+			return segment->baseDirection;
+		}
+		totalAvailableSize += row->segmentSize;
+	}
+
+	if (totalAvailableSize > segment->segmentSize)
+		return -1;
+	return -2;
+}
+
+int add_segment_worst_algorithm(t_segment_row* segment) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_worst_algorithm] Not implemented yet"));
-	return OPERATION_RESULT_OK;
+	return 0;
 }
