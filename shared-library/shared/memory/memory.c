@@ -45,3 +45,13 @@ void log_memory_data(t_memory_data* data,t_log_grouping* logger,t_log_level logL
 	write_log_grouping(logger,LOG_TARGET_INTERNAL, logLevel, string_from_format("Pid: %d", data->pid));
 	write_instruction_to_internal_log(logger, logLevel,data->instruction);
 }
+
+void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level logLevel){
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/memory - log_segment_table]  Logging segment table:");
+	int size = list_size(segmentTable);
+
+	for(int i=0; i<size; i++){
+		t_segment_row* row = list_get(segmentTable, i);
+		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("[shared/memory - log_segment_table] Row %d, id: %d, baseDir: %d, size: %d", i, row->id, row->baseDirection, row->segmentSize));
+	}
+}

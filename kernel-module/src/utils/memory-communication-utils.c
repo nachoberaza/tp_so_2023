@@ -68,6 +68,14 @@ void execute_kernel_create_segment(t_pcb* pcb){
 			break;
 		default:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
+
+			t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+			t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
+			segmentRow->id = list_get(instruction->parameters, 0);
+			segmentRow->segmentSize = list_get(instruction->parameters, 1);
+			segmentRow->baseDirection = response;
+			list_add(pcb->executionContext->segmentTable, segmentRow);
 		break;
 	}
 }
@@ -76,7 +84,7 @@ void execute_kernel_delete_segment(t_pcb* pcb){
 	//TODO: Hacer delete_segment en memory
 	send_memory_data_to_memory(pcb);
 
-	t_list* segmentTable= receive_process_segment_table();
+	t_list* segmentTable = receive_process_segment_table();
 
 	pcb->executionContext->segmentTable = segmentTable;
 }

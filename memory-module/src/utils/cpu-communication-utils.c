@@ -40,6 +40,9 @@ void execute_memory_mov_in(t_memory_data* data, int clientSocketId, char* origin
 
 	memcpy(value, get_memory() + address, size);
 
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
+			string_from_format("MOV_IN Value: %s",value));
+
 	t_package* package = create_package();
 
 	fill_buffer(package->buffer, value, size);

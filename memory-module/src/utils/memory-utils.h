@@ -23,5 +23,7 @@
 	int add_segment_best_algorithm(t_segment_row* segment);
 	int add_segment_first_algorithm(t_segment_row* segment);
 	int add_segment_worst_algorithm(t_segment_row* segment);
+	void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i);
+	void* get_free_spaces_list();
 
 #endif

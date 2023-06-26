@@ -16,6 +16,8 @@ int execute_set(t_execution_context* context){
 int set_register_value(char* reg, char* value, t_execution_context* context){
 	int size = get_amount_of_bytes_per_register(reg, context);
 	value[size] = '\0';
+	size++;
+
 	if(strcmp(reg,"AX") == 0){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/commands-utils - set_register_value] Asignando Register AX");
 		strncpy(context->cpuRegisters->AX, value, size);
@@ -240,6 +242,8 @@ int execute_mov_out(t_execution_context* context){
 	int regSize = get_amount_of_bytes_per_register(reg, context);
 
 	int physicalAddress = get_physical_address(get_logger(), context, regSize, list_get(instruction->parameters, 0), get_cpu_env()->SEGMENT_MAX_SIZE);
+
+	log_segment_table(context->segmentTable, get_logger(), LOG_LEVEL_DEBUG);
 
 	if (physicalAddress == -1){
 		list_clean(context->reason->parameters);

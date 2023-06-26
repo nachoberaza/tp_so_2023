@@ -7,6 +7,7 @@
 	#include <commons/string.h>
 	#include <shared/sockets/client-socket.h>
 	#include <shared/sockets/server-socket.h>
+	#include <shared/memory/memory.h>
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/serialization/serialization.h>
 	#include <shared/structs/socket.h>

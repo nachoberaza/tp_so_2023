@@ -103,7 +103,7 @@ void execute_memory_create_segment(t_memory_data* data, int clientSocketId){
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("BaseDirection del nuevo segmento : %d", baseDirection));
 
-	if(baseDirection != -1 || baseDirection != -2){
+	if(baseDirection != -1 && baseDirection != -2){
 		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
 					string_from_format("PID: %d - Crear Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,newSegment->id,baseDirection,newSegment->segmentSize));
 	}
@@ -122,6 +122,10 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 	}
 
 	t_list * segmentTable = delete_segment(segmentId);
+
+	segment->id = -1;
+	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar
+	list_add(get_free_spaces_list(), segment);
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
 					string_from_format("PID: %d - Eliminar Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,segmentId,segment->baseDirection,segment->segmentSize));
