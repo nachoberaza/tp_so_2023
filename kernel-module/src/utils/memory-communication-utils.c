@@ -9,13 +9,14 @@ t_list* init_process_segment_table(int pid){
 	send_package(package, get_memory_connection());
 	delete_package(package);
 
-	receive_operation_code(get_memory_connection());
 	return receive_process_segment_table();
 }
 
 t_list* receive_process_segment_table() {
 	int bufferSize, offset = 0;
 	void *buffer;
+
+	receive_operation_code(get_memory_connection());
 
 	buffer = receive_buffer(&bufferSize, get_memory_connection());
 
@@ -88,9 +89,8 @@ void execute_kernel_delete_segment(t_pcb* pcb){
 
 	t_list* segmentTable = receive_process_segment_table();
 
-	log_segment_table(segmentTable,get_logger(),LOG_LEVEL_INFO);
-
-	//pcb->executionContext->segmentTable = segmentTable;
+	//Esto deberia iterar la tabla y asignarla donde corresponde, pero no tenemos el PID acá
+	pcb->executionContext->segmentTable = segmentTable;
 }
 
 void send_memory_data_to_memory(t_pcb* pcb){

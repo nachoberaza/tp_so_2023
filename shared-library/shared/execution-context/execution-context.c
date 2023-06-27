@@ -207,7 +207,7 @@ t_list* extract_segment_table_from_buffer(void* buffer, int *offset){
 
 	write_to_log(
 		LOG_TARGET_INTERNAL,
-		LOG_LEVEL_TRACE,
+		LOG_LEVEL_DEBUG,
 		string_from_format("Recibí tabla con %d elementos", segmentTableCount)
 	);
 
@@ -218,6 +218,10 @@ t_list* extract_segment_table_from_buffer(void* buffer, int *offset){
 		segmentRow->baseDirection = extract_int_from_buffer(buffer, offset);
 		segmentRow->segmentSize = extract_int_from_buffer(buffer, offset);
 		list_add(segmentTable, segmentRow);
+
+		//Borrar esto, toy probando something
+		if (i > 50)
+			return segmentTable;
 	}
 
 	return segmentTable;

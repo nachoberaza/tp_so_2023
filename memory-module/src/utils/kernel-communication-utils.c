@@ -20,6 +20,7 @@ void listen_kernel_connection(int clientSocketId) {
 				break;
 			default:
 				write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Ejecutando DEFAULT");
+				sleep(5);
 				break;
 		}
 	}
@@ -76,6 +77,7 @@ void execute_memory_create_segment_table(int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Ejecutando CREATE_SEGMENT_TABLE");
 
 	buffer = receive_buffer(&bufferSize, clientSocketId);
+
 	int pid = extract_int_from_buffer(buffer, &offset);
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Creación de Proceso PID: %d",pid));
@@ -122,7 +124,7 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 	}
 
 	//validar
-	operation_result result = delete_segment_if_exists(segmentId);
+	delete_segment_if_exists(segmentId);
 
 	segment->id = -1;
 	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar
