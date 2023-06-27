@@ -3,13 +3,12 @@
 
 	#define COMMAND_ENUM_SIZE 16
 	#define EXECUTION_CONTEXT_STATE_ENUM_SIZE 14
-	#define ERROR_ENUM_SIZE 2
+	#define ERROR_ENUM_SIZE 1
 	#include <commons/collections/list.h>
 	#include "memory.h"
 
 	typedef enum {
 		SEG_FAULT,
-		OUT_OF_MEMORY
 	} error;
 
 	typedef enum {
@@ -22,7 +21,6 @@
 
 	static char *errorNames[ERROR_ENUM_SIZE] = {
 		[SEG_FAULT] = "SEG_FAULT",
-		[OUT_OF_MEMORY] = "OUT_OF_MEMORY",
 	};
 
 	static char *commandNames[COMMAND_ENUM_SIZE] = {

@@ -22,6 +22,6 @@
 	t_memory_data* decode_memory_data(t_log_grouping* logger,int clientSocketId);
 	void fill_buffer_with_memory_data(t_memory_data* memoryData, t_package* pkg);
 	void log_memory_data(t_memory_data* data,t_log_grouping* logger,t_log_level logLevel);
-	void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level logLevel);
+	void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level logLevel, bool isFreeSpaces);
 
 #endif

@@ -8,4 +8,9 @@
 		int segmentSize;
 	} t_segment_row;
 
+	typedef enum {
+		OUT_OF_MEMORY = -1,
+		NEED_COMPACTION = -2
+	} t_memory_add_response;
+
 #endif
