@@ -10,7 +10,6 @@ int get_physical_address(t_log_grouping* logger, t_execution_context* context, i
 
 	t_segment_row* segmentRow = list_get(context->segmentTable, segment);
 
-
 	//Seg_fault
 	if ((segmentRow->baseDirection + offset + size) > (segmentRow->baseDirection + segmentRow->segmentSize)){
 		return -1;
@@ -52,6 +51,6 @@ void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level
 
 	for(int i=0; i<size; i++){
 		t_segment_row* row = list_get(segmentTable, i);
-		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("[shared/memory - log_segment_table] Row %d, id: %d, baseDir: %d, size: %d", i, row->id, row->baseDirection, row->segmentSize));
+		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, string_from_format("[shared/memory - log_segment_table] Row %d, Pid: %d, id: %d, baseDir: %d, size: %d", i, row->pid, row->id, row->baseDirection, row->segmentSize));
 	}
 }

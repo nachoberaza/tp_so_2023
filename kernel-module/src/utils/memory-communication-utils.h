@@ -34,4 +34,6 @@
 	void execute_kernel_delete_segment(t_pcb* pcb);
 	t_memory_data* create_memory_data(t_pcb* pcb);
 	void request_compaction_to_memory_and_retry(t_pcb* pcb);
+	void update_segment_table_in_all_proccesses(t_list* newSegmentTable);
+	t_pcb* search_pcb_by_pid(int pid);
 #endif

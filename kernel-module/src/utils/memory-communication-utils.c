@@ -39,7 +39,6 @@ void delete_process_segment_table(int pid){
 		string_from_format("Pid de la tabla a liberar :  %d", pid)
 	);
 
-	//TODO: para probar
 	send_package(package, get_memory_connection());
 	delete_package(package);
 
@@ -52,7 +51,7 @@ void delete_process_segment_table(int pid){
 }
 
 void execute_kernel_create_segment(t_pcb* pcb){
-	//TODO: Hacer create_segment en memory
+
 	send_memory_data_to_memory(pcb);
 
 	//TODO: crear nodo de respuesta para no manejarlo con int
@@ -61,18 +60,19 @@ void execute_kernel_create_segment(t_pcb* pcb){
 
 	switch (response){
 		case -1:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
 			break;
 		case -2:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Memoria solicita compactacion");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Memoria solicita compactacion");
 			request_compaction_to_memory_and_retry(pcb);
 			break;
 		default:
-			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
+			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Ejecutado correctamente");
 
 			t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 			t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
+			segmentRow->pid=pcb->executionContext->pid;
 			segmentRow->id = atoi(list_get(instruction->parameters, 0));
 			segmentRow->segmentSize = atoi(list_get(instruction->parameters, 1));
 			segmentRow->baseDirection = response;
@@ -84,13 +84,56 @@ void execute_kernel_create_segment(t_pcb* pcb){
 }
 
 void execute_kernel_delete_segment(t_pcb* pcb){
-	//TODO: Hacer delete_segment en memory
 	send_memory_data_to_memory(pcb);
 
 	t_list* segmentTable = receive_process_segment_table();
 
-	//Esto deberia iterar la tabla y asignarla donde corresponde, pero no tenemos el PID acá
-	pcb->executionContext->segmentTable = segmentTable;
+	update_segment_table_in_all_proccesses(segmentTable);
+}
+
+void update_segment_table_in_all_proccesses(t_list* newSegmentTable){
+	int size = list_size(newSegmentTable);
+	int sizePcbList = list_size(get_short_term_list());
+	t_segment_row* segmentZero = list_get(newSegmentTable,0);
+
+
+
+	for(int i=0; i< sizePcbList; i++){
+		t_pcb* pcb = list_get(get_short_term_list(),i);
+
+		list_clean(pcb->executionContext->segmentTable);
+		list_add(pcb->executionContext->segmentTable, segmentZero);
+	}
+
+	for(int i=0; i< size; i++){
+		t_segment_row* segment = list_get(newSegmentTable,i);
+		t_pcb* pcb = search_pcb_by_pid(segment->pid);
+		if(pcb != NULL){
+			list_add(pcb->executionContext->segmentTable,segment);
+		}
+	}
+
+	for(int i=0; i< sizePcbList; i++){
+		t_pcb* pcb = list_get(get_short_term_list(),i);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+				string_from_format("[utils/memory-communication-utils - update_segment_table_in_all_proccesses] Segment Table Pid : %d",pcb->executionContext->pid));
+		log_segment_table(pcb->executionContext->segmentTable,get_logger(),LOG_LEVEL_TRACE);
+	}
+}
+
+
+
+t_pcb* search_pcb_by_pid(int pid){
+	int size = list_size(get_short_term_list());
+
+	for(int i=0; i< size; i++){
+		t_pcb* pcb = list_get(get_short_term_list(),i);
+		if(pcb->executionContext->pid == pid){
+			return pcb;
+		}
+	}
+
+	return NULL;
 }
 
 void send_memory_data_to_memory(t_pcb* pcb){

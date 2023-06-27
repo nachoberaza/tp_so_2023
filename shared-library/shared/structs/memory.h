@@ -2,6 +2,7 @@
 #define SHARED_STRUCTS_MEMORY_H_
 
 	typedef struct {
+		int pid;
 		int id;
 		int baseDirection;
 		int segmentSize;

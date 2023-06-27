@@ -18,8 +18,8 @@
 	void* get_memory();
 	void* get_free_spaces_list();
 	t_list* get_segment_table_global() ;
-	operation_result delete_segment_if_exists(int segmentId);
-	t_segment_row* get_segment(int segmentId);
+	operation_result delete_segment_if_exists(int segmentId, int pid);
+	t_segment_row* get_segment(int segmentId, int pid);
 	int add_to_memory(t_segment_row* segment) ;
 	int add_segment_best_algorithm(t_segment_row* segment);
 	int add_segment_first_algorithm(t_segment_row* segment);
