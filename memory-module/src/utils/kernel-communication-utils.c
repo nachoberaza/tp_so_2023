@@ -60,14 +60,19 @@ void execute_memory_delete_segment_table(int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Ejecutando DELETE_SEGMENT_TABLE");
 	buffer = receive_buffer(&bufferSize, clientSocketId);
 	int pid = extract_int_from_buffer(buffer, &offset);
+	int size = list_size(get_segment_table_global());
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Eliminación de Proceso PID: %d",pid));
 
+	for(int i=size-1; i>=0;i--){
+		t_segment_row* segment = list_get(get_segment_table_global(), i);
+		if(segment->pid == pid){
+			list_remove(get_segment_table_global(),i);
+		}
+	}
+
 	operation_result result = OPERATION_RESULT_OK;
-
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
-
-	//TODO
 }
 
 void execute_memory_create_segment_table(int clientSocketId){
@@ -92,6 +97,7 @@ void execute_memory_create_segment(t_memory_data* data, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_create_segment] Ejecutando create segment");
 
 	t_segment_row* newSegment = malloc(sizeof(t_segment_row));
+	newSegment->pid=data->pid;
 	newSegment->id = atoi(list_get(data->instruction->parameters, 0));
 	newSegment->segmentSize = atoi(list_get(data->instruction->parameters, 1));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Segmento a crear - id: %d - size: %d", newSegment->id, newSegment->segmentSize));
@@ -118,13 +124,13 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 
 	int segmentId = atoi(list_get(data->instruction->parameters, 0));
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SegmentId to delete: %d", segmentId));
-	t_segment_row* segment = get_segment(segmentId);
+	t_segment_row* segment = get_segment(segmentId,data->pid);
 	if(segment == NULL){
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, string_from_format("No existe el segmento: %d", segmentId));
 	}
 
 	//validar
-	delete_segment_if_exists(segmentId);
+	delete_segment_if_exists(segmentId,data->pid);
 
 	segment->id = -1;
 	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar

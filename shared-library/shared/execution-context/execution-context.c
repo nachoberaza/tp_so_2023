@@ -36,6 +36,7 @@ void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_conte
 }
 
 void write_segment_row_to_internal_logs(t_segment_row* segmentRow) {
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pid: %d", segmentRow->pid));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Id: %d", segmentRow->id));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("BaseDirection: %d", segmentRow->baseDirection));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("SegmentSize: %d \n", segmentRow->segmentSize));
@@ -214,14 +215,12 @@ t_list* extract_segment_table_from_buffer(void* buffer, int *offset){
 	for (int i = 0; i < segmentTableCount; i++){
 		t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
 
+		segmentRow->pid = extract_int_from_buffer(buffer, offset);
 		segmentRow->id = extract_int_from_buffer(buffer, offset);
 		segmentRow->baseDirection = extract_int_from_buffer(buffer, offset);
 		segmentRow->segmentSize = extract_int_from_buffer(buffer, offset);
 		list_add(segmentTable, segmentRow);
 
-		//Borrar esto, toy probando something
-		if (i > 50)
-			return segmentTable;
 	}
 
 	return segmentTable;
@@ -324,6 +323,8 @@ void fill_package_with_segment_table(t_package* pkg, t_list* segmentTable){
 
 	for (int i = 0; i < segmentTableCount; i++){
 		t_segment_row* segment = list_get(segmentTable, i);
+
+		fill_package_buffer(pkg, &segment->pid, sizeof(int));
 		fill_package_buffer(pkg, &segment->id, sizeof(int));
 		fill_package_buffer(pkg, &segment->baseDirection, sizeof(int));
 		fill_package_buffer(pkg, &segment->segmentSize, sizeof(int));

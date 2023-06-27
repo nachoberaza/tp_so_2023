@@ -11,6 +11,7 @@ void create_memory_structures() {
 	segmentTableGlobal = list_create();
 
 	t_segment_row* segmentZero = malloc(sizeof(t_segment_row));
+	segmentZero->pid=-1;
 	segmentZero->id = -1;
 	segmentZero->baseDirection = 0;
 	segmentZero->segmentSize = get_memory_config()->SEGMENT_ZERO_SIZE;
@@ -18,6 +19,7 @@ void create_memory_structures() {
 
 	t_segment_row* emptySpace = malloc(sizeof(t_segment_row));
 	//id no importa para espacios vacios
+	emptySpace->pid=-1;
 	emptySpace->id = -1;
 	emptySpace->baseDirection = get_memory_config()->SEGMENT_ZERO_SIZE;
 	emptySpace->segmentSize = get_memory_config()->MEMORY_SIZE - get_memory_config()->SEGMENT_ZERO_SIZE;
@@ -40,20 +42,16 @@ t_list* get_segment_table_global() {
 t_list* create_segment_table() {
 	t_list* segmentTable = list_create();
 
-	t_segment_row* segmentZero = malloc(sizeof(t_segment_row));
-	segmentZero->id = 0;
-	segmentZero->baseDirection = 0;
-	segmentZero->segmentSize = get_memory_config()->SEGMENT_ZERO_SIZE;
-
+	t_segment_row* segmentZero = list_get(segmentTableGlobal,0);
 	list_add(segmentTable, segmentZero);
+
 	return segmentTable;
 }
 
-//Tiene que recibir el pid
-operation_result delete_segment_if_exists(int segmentId){
+operation_result delete_segment_if_exists(int segmentId, int pid){
 	for(int i = 0; i < list_size(segmentTableGlobal); i++){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
-		if(actualSegment->id == segmentId){
+		if(actualSegment->pid == pid && actualSegment->id == segmentId){
 			list_remove(segmentTableGlobal, i);
 			return OPERATION_RESULT_OK;
 		}
@@ -61,10 +59,10 @@ operation_result delete_segment_if_exists(int segmentId){
 	return OPERATION_RESULT_OK;
 }
 
-t_segment_row* get_segment(int segmentId){
+t_segment_row* get_segment(int segmentId, int pid){
 	for(int i = 0; i < list_size(segmentTableGlobal); i++){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
-		if(actualSegment->id == segmentId){
+		if(actualSegment->pid == pid && actualSegment->id == segmentId){
 			return actualSegment;
 		}
 	}
