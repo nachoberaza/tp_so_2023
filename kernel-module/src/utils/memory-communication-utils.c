@@ -72,10 +72,12 @@ void execute_kernel_create_segment(t_pcb* pcb){
 			t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 			t_segment_row* segmentRow = malloc(sizeof(t_segment_row));
-			segmentRow->id = list_get(instruction->parameters, 0);
-			segmentRow->segmentSize = list_get(instruction->parameters, 1);
+			segmentRow->id = atoi(list_get(instruction->parameters, 0));
+			segmentRow->segmentSize = atoi(list_get(instruction->parameters, 1));
 			segmentRow->baseDirection = response;
 			list_add(pcb->executionContext->segmentTable, segmentRow);
+
+
 		break;
 	}
 }
@@ -86,7 +88,9 @@ void execute_kernel_delete_segment(t_pcb* pcb){
 
 	t_list* segmentTable = receive_process_segment_table();
 
-	pcb->executionContext->segmentTable = segmentTable;
+	log_segment_table(segmentTable,get_logger(),LOG_LEVEL_INFO);
+
+	//pcb->executionContext->segmentTable = segmentTable;
 }
 
 void send_memory_data_to_memory(t_pcb* pcb){

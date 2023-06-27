@@ -33,6 +33,10 @@ void* get_free_spaces_list() {
 	return freeSpacesList;
 }
 
+t_list* get_segment_table_global() {
+	return segmentTableGlobal;
+}
+
 t_list* create_segment_table() {
 	t_list* segmentTable = list_create();
 
@@ -45,12 +49,7 @@ t_list* create_segment_table() {
 	return segmentTable;
 }
 
-t_list* delete_segment(int segmentId){
-	list_remove(segmentTableGlobal, segmentId);
-	return segmentTableGlobal;
-}
-
-
+//Tiene que recibir el pid
 operation_result delete_segment_if_exists(int segmentId){
 	for(int i = 0; i < list_size(segmentTableGlobal); i++){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
@@ -59,7 +58,6 @@ operation_result delete_segment_if_exists(int segmentId){
 			return OPERATION_RESULT_OK;
 		}
 	}
-	//TODO: Cambiar a error cuando se use segmentTableGlobal
 	return OPERATION_RESULT_OK;
 }
 

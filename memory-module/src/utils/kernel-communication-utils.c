@@ -121,17 +121,31 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, string_from_format("No existe el segmento: %d", segmentId));
 	}
 
-	t_list * segmentTable = delete_segment(segmentId);
+	//validar
+	operation_result result = delete_segment_if_exists(segmentId);
 
 	segment->id = -1;
 	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar
-	list_add(get_free_spaces_list(), segment);
+	list_add_sorted(get_free_spaces_list(), segment, (void*)compare_base_segment_row);
+
+	log_segment_table(get_segment_table_global(),get_logger(),LOG_LEVEL_INFO);
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
 					string_from_format("PID: %d - Eliminar Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,segmentId,segment->baseDirection,segment->segmentSize));
 
 	t_package* package = create_package();
-	fill_package_with_segment_table(package, segmentTable);
+	fill_package_with_segment_table(package, get_segment_table_global());
 	send_package(package, clientSocketId);
+}
+
+int compare_base_segment_row(void* a, void* b){
+	t_segment_row* rowA = (t_segment_row*)a;
+	t_segment_row* rowB = (t_segment_row*)b;
+
+	if(rowA->baseDirection <= rowB->baseDirection){
+		return 1;
+	}
+
+	return 0;
 }
 

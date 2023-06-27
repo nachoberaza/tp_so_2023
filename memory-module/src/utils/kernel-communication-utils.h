@@ -26,4 +26,5 @@
 	void execute_memory_delete_segment_table(int clientSocketId);
 	void execute_memory_create_segment_table(int clientSocketId);
 	void execute_memory_kernel_instruction(int clientSocketId);
+	int compare_base_segment_row(void* a, void* b);
 #endif
