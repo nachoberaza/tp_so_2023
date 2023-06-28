@@ -45,8 +45,13 @@ void log_memory_data(t_memory_data* data,t_log_grouping* logger,t_log_level logL
 	write_instruction_to_internal_log(logger, logLevel,data->instruction);
 }
 
-void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level logLevel){
-	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/memory - log_segment_table]  Logging segment table:");
+void log_segment_table(t_list* segmentTable, t_log_grouping* logger, t_log_level logLevel, bool isFreeSpaces){
+	if(isFreeSpaces){
+		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/memory - log_segment_table]  Logging FreeSpaces table:");
+	} else {
+		write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/memory - log_segment_table]  Logging segment table:");
+	}
+
 	int size = list_size(segmentTable);
 
 	for(int i=0; i<size; i++){

@@ -427,3 +427,9 @@ char * error_as_string(error error) {
 	return errorNames[error];
 }
 
+void add_error_in_execution_context_reason(t_execution_context_reason* reason , execution_context_state state , error err){
+	reason->executionContextState = state;
+	list_clean(reason->parameters);
+	list_add(reason->parameters , error_as_string(err));
+}
+

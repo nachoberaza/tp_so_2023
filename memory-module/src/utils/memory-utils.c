@@ -12,7 +12,7 @@ void create_memory_structures() {
 
 	t_segment_row* segmentZero = malloc(sizeof(t_segment_row));
 	segmentZero->pid=-1;
-	segmentZero->id = -1;
+	segmentZero->id = 0;
 	segmentZero->baseDirection = 0;
 	segmentZero->segmentSize = get_memory_config()->SEGMENT_ZERO_SIZE;
 	list_add(segmentTableGlobal, segmentZero);
@@ -20,7 +20,7 @@ void create_memory_structures() {
 	t_segment_row* emptySpace = malloc(sizeof(t_segment_row));
 	//id no importa para espacios vacios
 	emptySpace->pid=-1;
-	emptySpace->id = -1;
+	emptySpace->id = 0;
 	emptySpace->baseDirection = get_memory_config()->SEGMENT_ZERO_SIZE;
 	emptySpace->segmentSize = get_memory_config()->MEMORY_SIZE - get_memory_config()->SEGMENT_ZERO_SIZE;
 	list_add(freeSpacesList, emptySpace);
@@ -82,27 +82,42 @@ int add_to_memory(t_segment_row* segment) {
 	} else {
 		res = add_segment_worst_algorithm(segment);
 	}
-	log_segment_table(segmentTableGlobal, get_logger(), LOG_LEVEL_INFO);
-	log_segment_table(freeSpacesList, get_logger(), LOG_LEVEL_INFO);
+	log_segment_table(segmentTableGlobal, get_logger(), LOG_LEVEL_INFO, false);
+	log_segment_table(freeSpacesList, get_logger(), LOG_LEVEL_INFO, true);
 
 	return res;
 }
 
 int add_segment_best_algorithm(t_segment_row* segment) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_best_algorithm] Not implemented yet"));
-	return 0;
-}
+	int size = list_size(freeSpacesList);
+	int totalAvailableSize = 0;
+	int bestSegmentIndex = -1;
+	int bestSegmentSizeDiff = 0;
 
-void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i){
-	segment->baseDirection = row->baseDirection;
-	list_add(segmentTableGlobal, segment);
-	if (row->segmentSize == segment->segmentSize)
-	{
-		list_remove(freeSpacesList, i);
-		return;
+    for (int i = 0; i < size; i++) {
+        t_segment_row* row = list_get(freeSpacesList, i);
+        int rowSizeDiff = row->segmentSize - segment->segmentSize;
+
+        if (rowSizeDiff >= 0 && (bestSegmentIndex == -1 || rowSizeDiff < bestSegmentSizeDiff)) {
+            bestSegmentIndex = i;
+            bestSegmentSizeDiff = rowSizeDiff;
+            // Si el tamano del segmento es exacto, corta el loop
+            if(rowSizeDiff == 0)
+            	break;
+        }
+
+        totalAvailableSize += row->segmentSize;
+    }
+
+	if(bestSegmentIndex != -1) {
+		t_segment_row* bestSegment = list_get(freeSpacesList, bestSegmentIndex);
+		add_segment_in_empty_space(bestSegment, segment, bestSegmentIndex);
+		return segment->baseDirection;
 	}
-	row->baseDirection += segment->segmentSize;
-	row->segmentSize -= segment->segmentSize;
+
+	if (totalAvailableSize > segment->segmentSize)
+		return NEED_COMPACTION;
+	return OUT_OF_MEMORY;
 }
 
 int add_segment_first_algorithm(t_segment_row* segment) {
@@ -119,11 +134,48 @@ int add_segment_first_algorithm(t_segment_row* segment) {
 	}
 
 	if (totalAvailableSize > segment->segmentSize)
-		return -1;
-	return -2;
+		return NEED_COMPACTION;
+	return OUT_OF_MEMORY;
 }
 
 int add_segment_worst_algorithm(t_segment_row* segment) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[utils/memory-utils - add_segment_worst_algorithm] Not implemented yet"));
-	return 0;
+	int size = list_size(freeSpacesList);
+	int totalAvailableSize = 0;
+	int worstSegmentIndex = -1;
+	int worstSegmentSizeDiff = 0;
+
+    for (int i = 0; i < size; i++) {
+        t_segment_row* row = list_get(freeSpacesList, i);
+        int rowSizeDiff = row->segmentSize - segment->segmentSize;
+
+        if (rowSizeDiff > worstSegmentSizeDiff) {
+            worstSegmentIndex = i;
+            worstSegmentSizeDiff = rowSizeDiff;
+        }
+
+        totalAvailableSize += row->segmentSize;
+    }
+
+	if(worstSegmentIndex != -1) {
+		t_segment_row* worstSegment = list_get(freeSpacesList, worstSegmentIndex);
+		add_segment_in_empty_space(worstSegment, segment, worstSegmentIndex);
+		return segment->baseDirection;
+	}
+
+	if (totalAvailableSize > segment->segmentSize)
+		return NEED_COMPACTION;
+	return OUT_OF_MEMORY;
+}
+
+
+void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i){
+	segment->baseDirection = row->baseDirection;
+	list_add(segmentTableGlobal, segment);
+	if (row->segmentSize == segment->segmentSize)
+	{
+		list_remove(freeSpacesList, i);
+		return;
+	}
+	row->baseDirection += segment->segmentSize;
+	row->segmentSize -= segment->segmentSize;
 }

@@ -221,16 +221,14 @@ int execute_mov_in(t_execution_context* context){
 
 	int physicalAddress = get_physical_address(get_logger(), context,regSize, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
 	if (physicalAddress == -1){
-		list_clean(context->reason->parameters);
-		list_add(context->reason->parameters, error_as_string(SEG_FAULT));
-		context->reason->executionContextState = REASON_ERROR;
+		add_error_in_execution_context_reason(context->reason, REASON_ERROR,ERROR_SEG_FAULT);
 		return 0;
 	}
 
 	send_mov_in_to_memory(context, regSize, physicalAddress);
 
 	handle_mov_in_memory_response(context);
-	//return error o algo si sale mal
+
 	return 1;
 }
 
@@ -243,12 +241,10 @@ int execute_mov_out(t_execution_context* context){
 
 	int physicalAddress = get_physical_address(get_logger(), context, regSize, list_get(instruction->parameters, 0), get_cpu_env()->SEGMENT_MAX_SIZE);
 
-	log_segment_table(context->segmentTable, get_logger(), LOG_LEVEL_DEBUG);
+	log_segment_table(context->segmentTable, get_logger(), LOG_LEVEL_DEBUG, false);
 
 	if (physicalAddress == -1){
-		list_clean(context->reason->parameters);
-		list_add(context->reason->parameters, error_as_string(SEG_FAULT));
-		context->reason->executionContextState = REASON_ERROR;
+		add_error_in_execution_context_reason(context->reason, REASON_ERROR,ERROR_SEG_FAULT);
 		return 0;
 	}
 

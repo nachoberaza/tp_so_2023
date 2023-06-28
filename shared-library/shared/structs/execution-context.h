@@ -8,8 +8,8 @@
 	#include "memory.h"
 
 	typedef enum {
-		SEG_FAULT,
-		OUT_OF_MEMORY
+		ERROR_SEG_FAULT,
+		ERROR_OUT_OF_MEMORY
 	} error;
 
 	typedef enum {
@@ -21,8 +21,8 @@
 	} command;
 
 	static char *errorNames[ERROR_ENUM_SIZE] = {
-		[SEG_FAULT] = "SEG_FAULT",
-		[OUT_OF_MEMORY] = "OUT_OF_MEMORY",
+		[ERROR_SEG_FAULT] = "SEG_FAULT",
+		[ERROR_OUT_OF_MEMORY] = "OUT_OF_MEMORY",
 	};
 
 	static char *commandNames[COMMAND_ENUM_SIZE] = {
@@ -109,6 +109,6 @@
 		int programCounter;
 		t_cpu_register* cpuRegisters;
 		t_execution_context_reason* reason;
-		t_list* segmentTable; //lista con elementos t_segment_row
+		t_list* segmentTable;
 	} t_execution_context;
 #endif

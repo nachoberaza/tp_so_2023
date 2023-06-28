@@ -136,7 +136,7 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar
 	list_add_sorted(get_free_spaces_list(), segment, (void*)compare_base_segment_row);
 
-	log_segment_table(get_segment_table_global(),get_logger(),LOG_LEVEL_INFO);
+	log_segment_table(get_segment_table_global(),get_logger(),LOG_LEVEL_INFO, false);
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
 					string_from_format("PID: %d - Eliminar Segmento: %d - Base: %d - TAMAÑO: %d",data->pid,segmentId,segment->baseDirection,segment->segmentSize));

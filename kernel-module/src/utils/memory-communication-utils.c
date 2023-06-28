@@ -54,15 +54,17 @@ void execute_kernel_create_segment(t_pcb* pcb){
 
 	send_memory_data_to_memory(pcb);
 
-	//TODO: crear nodo de respuesta para no manejarlo con int
 	int response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	switch (response){
-		case -1:
+		case OUT_OF_MEMORY:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
+			
+			add_error_in_execution_context_reason(pcb->executionContext->reason, REASON_ERROR,ERROR_OUT_OF_MEMORY);
+			move_to_exit(pcb);
 			break;
-		case -2:
+		case NEED_COMPACTION:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Memoria solicita compactacion");
 			request_compaction_to_memory_and_retry(pcb);
 			break;
@@ -117,7 +119,7 @@ void update_segment_table_in_all_proccesses(t_list* newSegmentTable){
 		t_pcb* pcb = list_get(get_short_term_list(),i);
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
 				string_from_format("[utils/memory-communication-utils - update_segment_table_in_all_proccesses] Segment Table Pid : %d",pcb->executionContext->pid));
-		log_segment_table(pcb->executionContext->segmentTable,get_logger(),LOG_LEVEL_TRACE);
+		log_segment_table(pcb->executionContext->segmentTable,get_logger(),LOG_LEVEL_TRACE, false);
 	}
 }
 
