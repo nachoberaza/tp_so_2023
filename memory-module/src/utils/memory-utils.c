@@ -98,9 +98,12 @@ int add_segment_best_algorithm(t_segment_row* segment) {
         t_segment_row* row = list_get(freeSpacesList, i);
         int rowSizeDiff = row->segmentSize - segment->segmentSize;
 
-        if (rowSizeDiff > 0 && (bestSegmentIndex == -1 || rowSizeDiff < bestSegmentSizeDiff)) {
+        if (rowSizeDiff >= 0 && (bestSegmentIndex == -1 || rowSizeDiff < bestSegmentSizeDiff)) {
             bestSegmentIndex = i;
             bestSegmentSizeDiff = rowSizeDiff;
+            // Si el tamano del segmento es exacto, corta el loop
+            if(rowSizeDiff == 0)
+            	break;
         }
 
         totalAvailableSize += row->segmentSize;
