@@ -54,13 +54,15 @@ void execute_kernel_create_segment(t_pcb* pcb){
 
 	send_memory_data_to_memory(pcb);
 
-	//TODO: crear nodo de respuesta para no manejarlo con int
 	int response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	switch (response){
 		case OUT_OF_MEMORY:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Ocurrió un error en Memory");
+			
+			add_error_in_execution_context_reason(pcb->executionContext->reason, REASON_ERROR,ERROR_OUT_OF_MEMORY);
+			move_to_exit(pcb);
 			break;
 		case NEED_COMPACTION:
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/memory-communication-utils - execute_kernel_create_segment] Memoria solicita compactacion");
