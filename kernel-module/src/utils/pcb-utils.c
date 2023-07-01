@@ -63,7 +63,7 @@ void build_pcb(t_list *lines, int clientSocketId) {
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/pcb-utils - build_pcb] Se crea el proceso %d en NEW", pcb->executionContext->pid)
+		string_from_format("Se crea el proceso %d en NEW", pcb->executionContext->pid)
 	);
 
 	list_add(newPcbList, pcb);
@@ -187,8 +187,7 @@ void move_to_ready(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format(
-				"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
 				pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 	);
 
@@ -204,11 +203,10 @@ void move_to_ready(t_pcb* pcb){
 void move_to_running(t_pcb* pcb){
 
 	write_to_log(
-			LOG_TARGET_MAIN,
-			LOG_LEVEL_INFO,
-			string_from_format(
-					"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-					pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_RUNNING))
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_RUNNING))
 	);
 
 	write_to_log(
@@ -223,18 +221,17 @@ void move_to_running(t_pcb* pcb){
 void move_to_blocked(t_pcb* pcb){
 
 	write_to_log(
-				LOG_TARGET_MAIN,
-				LOG_LEVEL_INFO,
-				string_from_format(
-						"Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
-						pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_BLOCK))
+		LOG_TARGET_MAIN		,
+		LOG_LEVEL_INFO,
+		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_BLOCK))
 	);
 
 	write_to_log(
-						LOG_TARGET_INTERNAL,
-						LOG_LEVEL_TRACE,
-						string_from_format("[utils/pcb-utils - move_to_blocked] Moviendo PID: %d", pcb->executionContext->pid)
-				);
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_TRACE,
+		string_from_format("[utils/pcb-utils - move_to_blocked] Moviendo PID: %d", pcb->executionContext->pid)
+	);
 
 	pcb->state = STATE_BLOCK;
 }

@@ -51,7 +51,17 @@ void execute_memory_compress_segment_table(int clientSocketId){
 	int bufferSize, offset = 0;
 	void *buffer;
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection - kernel thread] Ejecutando COMPRESS_SEGMENT_TABLE");
-	//TODO
+	buffer = receive_buffer(&bufferSize, clientSocketId);
+
+	int pid = extract_int_from_buffer(buffer, &offset);
+
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, "Solicitud de Compactación");
+
+	compact_memory();
+
+	t_package* package = create_package();
+	fill_package_with_segment_table(package, get_segment_table_global());
+	send_package(package, clientSocketId);
 }
 
 void execute_memory_delete_segment_table(int clientSocketId){
@@ -102,11 +112,6 @@ void execute_memory_create_segment(t_memory_data* data, int clientSocketId){
 	newSegment->segmentSize = atoi(list_get(data->instruction->parameters, 1));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("Segmento a crear - id: %d - size: %d", newSegment->id, newSegment->segmentSize));
 
-
-	//Por ahora lo manejmos como como int
-	//Success: direccion base
-	//Error: out of memory -1
-	//Compactar : -2
 	int baseDirection = add_to_memory(newSegment);
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("BaseDirection del nuevo segmento : %d", baseDirection));
@@ -123,17 +128,16 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_memory_delete_segment] Ejecutando delete segment");
 
 	int segmentId = atoi(list_get(data->instruction->parameters, 0));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SegmentId to delete: %d", segmentId));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("SegmentId to delete: %d", segmentId));
 	t_segment_row* segment = get_segment(segmentId,data->pid);
 	if(segment == NULL){
 		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, string_from_format("No existe el segmento: %d", segmentId));
 	}
 
-	//validar
 	delete_segment_if_exists(segmentId,data->pid);
 
 	segment->id = -1;
-	//Esto deberia estar dentro del delete pero tu vieja va a refactorizar
+
 	list_add_sorted(get_free_spaces_list(), segment, (void*)compare_base_segment_row);
 
 	log_segment_table(get_segment_table_global(),get_logger(),LOG_LEVEL_INFO, false);

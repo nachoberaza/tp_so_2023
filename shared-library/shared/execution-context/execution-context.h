@@ -42,5 +42,6 @@
 	error error_from_string(t_log_grouping* logger, char * error);
 	char * error_as_string(error reason);
 	void add_error_in_execution_context_reason(t_execution_context_reason* reason , execution_context_state state , error err);
+	char* get_string_array_instruction_parameters(t_instruction* instruction);
 
 #endif

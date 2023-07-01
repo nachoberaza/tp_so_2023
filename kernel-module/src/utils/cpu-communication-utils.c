@@ -345,8 +345,7 @@ void execute_kernel_wait(t_pcb* pcb){
 		write_to_log(
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
-			string_from_format("[utils/cpu-communication-utils - execute_kernel_io] PID: %d - Bloqueado por: %s",
-					pcb->executionContext->pid,resourceName)
+			string_from_format("PID: %d - Bloqueado por: %s", pcb->executionContext->pid,resourceName)
 		);
 		move_to_blocked(pcb);
 		list_add(resource->blocked, pcb);
@@ -357,8 +356,7 @@ void execute_kernel_wait(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/cpu-communication-utils - execute_kernel_wait] PID: %d - Wait: %s - Instancias: %d",
-				pcb->executionContext->pid, resourceName, resource->instances)
+		string_from_format("PID: %d - Wait: %s - Instancias: %d", pcb->executionContext->pid, resourceName, resource->instances)
 	);
 }
 
@@ -380,8 +378,7 @@ void execute_kernel_signal(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/cpu-communication-utils - execute_kernel_signal] PID: %d - Signal: %s - Instancias: %d",
-					pcb->executionContext->pid, resourceName, resource->instances)
+		string_from_format("PID: %d - Signal: %s - Instancias: %d", pcb->executionContext->pid, resourceName, resource->instances)
 	);
 }
 
@@ -391,7 +388,7 @@ void execute_kernel_io(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/cpu-communication-utils - execute_kernel_io] PID: %d - Ejecuta IO: %d", pcb->executionContext->pid,time)
+		string_from_format("PID: %d - Ejecuta IO: %d", pcb->executionContext->pid,time)
 	);
 
 	t_io_thread_args* args = malloc(sizeof(t_io_thread_args));

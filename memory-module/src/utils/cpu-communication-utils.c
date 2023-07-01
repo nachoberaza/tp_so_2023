@@ -32,7 +32,7 @@ void execute_memory_mov_in(t_memory_data* data, int clientSocketId, char* origin
 	int size = atoi(list_get(data->instruction->parameters, 1));
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
-			string_from_format("PID: %d - Acción: LEER - Dirección física: %d- Tamaño:%d- Origen: %s",data->pid,address,size,origin));
+			string_from_format("PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s",data->pid,address,size,origin));
 
 	char* value = malloc(size);
 
@@ -52,10 +52,10 @@ void execute_memory_mov_in(t_memory_data* data, int clientSocketId, char* origin
 void execute_memory_mov_out(t_memory_data* data, int clientSocketId,char* origin){
 	int address = atoi(list_get(data->instruction->parameters, 0));
 	char* value = list_get(data->instruction->parameters, 1);
+	int size = atoi(list_get(data->instruction->parameters, 2));
 
-	//No se que iria en TAMAÑO
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
-				string_from_format("PID: %d - Acción: ESCRIBIR - Dirección física: %d- Tamaño: <SIZE> - Origen: %s",data->pid,address,origin));
+				string_from_format("PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s",data->pid,address,size,origin));
 
 	void* destination = get_memory() + address;
 

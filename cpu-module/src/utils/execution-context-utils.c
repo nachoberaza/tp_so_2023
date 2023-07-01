@@ -23,6 +23,13 @@ void execute_execution_context(t_execution_context* context) {
 	while (context->programCounter < size){
 		int result;
 		t_instruction* current = list_get(context->instructions, context->programCounter);
+
+		write_to_log(
+				LOG_TARGET_MAIN,
+				LOG_LEVEL_INFO,
+				string_from_format("PID: %d - Ejecutando: %s - %s", context->pid, command_as_string(current->command),get_string_array_instruction_parameters(current))
+		);
+
 		switch(current->command){
 			case SET:
 				result = execute_set(context);

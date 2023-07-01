@@ -34,14 +34,14 @@ t_assignment_algorithm get_assignment_algorithm() {
 }
 
 void log_config(t_memory_config *config) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "MEMORY CONFIG VALUES: ");
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("MEMORY_SIZE: %s", string_itoa(config->MEMORY_SIZE)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("INITIAL_MEMORY_SEGMENT: %s", string_itoa(config->SEGMENT_ZERO_SIZE)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SEGMENT_COUNT: %s", string_itoa(config->SEGMENT_COUNT)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("MEMORY_DELAY: %s", string_itoa(config->MEMORY_DELAY)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("COMPACTION_DELAY: %s", string_itoa(config->COMPACTION_DELAY)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("ASSIGNMENT_ALGORITHM: %s", config->ASSIGNMENT_ALGORITHM));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "MEMORY CONFIG VALUES: ");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("MEMORY_SIZE: %s", string_itoa(config->MEMORY_SIZE)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INITIAL_MEMORY_SEGMENT: %s", string_itoa(config->SEGMENT_ZERO_SIZE)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("SEGMENT_COUNT: %s", string_itoa(config->SEGMENT_COUNT)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("MEMORY_DELAY: %s", string_itoa(config->MEMORY_DELAY)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("COMPACTION_DELAY: %s", string_itoa(config->COMPACTION_DELAY)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("ASSIGNMENT_ALGORITHM: %s", config->ASSIGNMENT_ALGORITHM));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("KERNEL_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }

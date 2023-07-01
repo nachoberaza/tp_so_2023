@@ -3,7 +3,7 @@
 void decode_message(t_log_grouping* logger, int clientSocketId) {
 	int bufferSize;
 	char *buffer = receive_buffer(&bufferSize, clientSocketId);
-	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("[shared/sockets/server-socket - decode_message] Me llego el mensaje %s", buffer));
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("[shared/sockets/server-socket - decode_message] Me llego el mensaje %s", buffer));
 	free(buffer);
 }
 
@@ -38,7 +38,7 @@ int start_server(char* IP, char* PORT, t_log_grouping* loggers, char *moduleName
 	freeaddrinfo(serverInfo);
 	write_log_grouping(
 		loggers,
-		LOG_TARGET_ALL,
+		LOG_TARGET_INTERNAL,
 		LOG_LEVEL_INFO,
 		string_from_format("[shared/sockets/server-socket - start_server] %s escuchando clientes", moduleName)
 	);
@@ -48,7 +48,7 @@ int start_server(char* IP, char* PORT, t_log_grouping* loggers, char *moduleName
 
 int await_client(t_log_grouping* logger, int serverSocketId) {
 	int clientSocketId = accept(serverSocketId, NULL, NULL);
-	write_log_grouping(logger, LOG_TARGET_ALL, LOG_LEVEL_INFO, "[shared/sockets/server-socket - await_client] Se conecto un cliente");
+	write_log_grouping(logger, LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[shared/sockets/server-socket - await_client] Se conecto un cliente");
 
 	return clientSocketId;
 }

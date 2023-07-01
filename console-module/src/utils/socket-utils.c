@@ -21,7 +21,7 @@ void handle_kernel_handshake() {
 	recv(kernelConnection, &handshakeStatus, sizeof(int), MSG_WAITALL);
 
 	if(handshakeStatus != 0) {
-		write_to_log(LOG_TARGET_ALL, LOG_LEVEL_ERROR, "[utils/socket-utils - handle_kernel_handshake] No se pudo establecer conexion con el modulo de kernel");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/socket-utils - handle_kernel_handshake] No se pudo establecer conexion con el modulo de kernel");
 		exit(EXIT_FAILURE);
 	}
 

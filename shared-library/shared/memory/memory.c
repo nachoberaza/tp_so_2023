@@ -1,7 +1,7 @@
 #include "memory.h"
 
 int get_physical_address(t_log_grouping* logger, t_execution_context* context, int size, char* logicalAddress, int segmentMaxSize) {
-	int segment = floor(atoi(logicalAddress) / segmentMaxSize);
+	int segment = get_segment_id(logicalAddress,segmentMaxSize);
 	double offset = atoi(logicalAddress) % segmentMaxSize;
 
 	if(list_size(context->segmentTable) <= segment){
@@ -12,12 +12,18 @@ int get_physical_address(t_log_grouping* logger, t_execution_context* context, i
 
 	//Seg_fault
 	if ((segmentRow->baseDirection + offset + size) > (segmentRow->baseDirection + segmentRow->segmentSize)){
+		write_log_grouping(logger,LOG_TARGET_MAIN,LOG_LEVEL_INFO,
+				string_from_format("PID: %d - Error SEG_FAULT- Segmento: %d - Offset: %lf - Tamaño: %d",context->pid, segment,offset,segmentRow->segmentSize));
 		return -1;
 	}
 
 	return segmentRow->baseDirection + offset;
 }
 
+int get_segment_id(char* logicalAddress, int segmentMaxSize){
+	int segment = floor(atoi(logicalAddress) / segmentMaxSize);
+	return segment;
+}
 
 void fill_buffer_with_memory_data(t_memory_data* memoryData, t_package* pkg){
 	fill_package_buffer(pkg, &(memoryData->pid), sizeof(int));

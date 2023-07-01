@@ -225,9 +225,17 @@ int execute_mov_in(t_execution_context* context){
 		return 0;
 	}
 
+
 	send_mov_in_to_memory(context, regSize, physicalAddress);
 
-	handle_mov_in_memory_response(context);
+	char * valueSet = handle_mov_in_memory_response(context);
+
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("PID: %d - Acción: LEER - Segmento: %d - Dirección Física: %d - Valor: %s",
+			context->pid, get_segment_id(list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE),physicalAddress,valueSet)
+	);
 
 	return 1;
 }
@@ -248,11 +256,20 @@ int execute_mov_out(t_execution_context* context){
 		return 0;
 	}
 
-	send_mov_out_to_memory(context,reg, physicalAddress);
+	char* value = get_register_value(reg, context);
+
+	send_mov_out_to_memory(context,value,regSize,physicalAddress);
 
 	// TODO: Hace falta hacer algo con response ademas de un operation result?
 	operation_result response;
 	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("PID: %d - Acción: ESCRIBIR - Segmento: %d - Dirección Física: %d - Valor: %s",
+		context->pid, get_segment_id(list_get(instruction->parameters, 0), get_cpu_env()->SEGMENT_MAX_SIZE),physicalAddress,value)
+	);
 
 	return 1;
 }

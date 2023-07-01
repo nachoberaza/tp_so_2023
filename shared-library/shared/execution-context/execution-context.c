@@ -32,7 +32,8 @@ void log_context(t_log_grouping* logger, t_log_level logLevel, t_execution_conte
 	write_instructions_to_internal_logs(logger, logLevel, context->instructions);
 
 	write_log_grouping(logger, LOG_TARGET_INTERNAL, logLevel, "[shared/execution-context - log_context] Segment table:");
-	list_iterate(context->segmentTable, (void*) write_segment_row_to_internal_logs);
+	log_segment_table(context->segmentTable,logger,LOG_TARGET_INTERNAL, logLevel,false);
+	//list_iterate(context->segmentTable, (void*) write_segment_row_to_internal_logs);
 }
 
 void write_segment_row_to_internal_logs(t_segment_row* segmentRow) {
@@ -431,5 +432,17 @@ void add_error_in_execution_context_reason(t_execution_context_reason* reason , 
 	reason->executionContextState = state;
 	list_clean(reason->parameters);
 	list_add(reason->parameters , error_as_string(err));
+}
+
+char* get_string_array_instruction_parameters(t_instruction* instruction){
+	char* parameters = string_new();
+	int sizeList= list_size(instruction->parameters);
+
+	for(int i=0; i < sizeList;i++){
+		char* parameter = list_get(instruction->parameters,i);
+		string_append_with_format(&parameters,"%s ", parameter);
+	}
+
+	return parameters;
 }
 

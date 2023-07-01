@@ -23,12 +23,12 @@ void create_cpu_config(char *moduleName) {
 }
 
 void log_config(t_cpu_config *config) {
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "CPU CONFIG VALUES: ");
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP_MEMORY: %s", config->IP_MEMORY));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PORT_MEMORY: %s", config->PORT_MEMORY));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("INSTRUCTION_DELAY: %s", string_itoa(config->INSTRUCTION_DELAY)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("SEGMENT_MAX_SIZE: %s", string_itoa(config->SEGMENT_MAX_SIZE)));
-	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("CPU_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "CPU CONFIG VALUES: ");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT: %s", config->PORT));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("IP_MEMORY: %s", config->IP_MEMORY));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("PORT_MEMORY: %s", config->PORT_MEMORY));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("INSTRUCTION_DELAY: %s", string_itoa(config->INSTRUCTION_DELAY)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("SEGMENT_MAX_SIZE: %s", string_itoa(config->SEGMENT_MAX_SIZE)));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("CPU_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }

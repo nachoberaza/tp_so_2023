@@ -21,7 +21,7 @@
 	#include "socket-utils.h"
 
 	void send_mov_in_to_memory(t_execution_context* context, int size, int physicalAddress);
-	void send_mov_out_to_memory(t_execution_context* context, char* reg, int physicalAddress);
-	void handle_mov_in_memory_response(t_execution_context* context);
+	void send_mov_out_to_memory(t_execution_context* context, char* value, int size,int physicalAddress);
+	char* handle_mov_in_memory_response(t_execution_context* context);
 
 #endif

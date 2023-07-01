@@ -160,12 +160,26 @@ void request_compaction_to_memory_and_retry(t_pcb* pcb){
 
 	fill_package_buffer(package, &(pcb->executionContext->pid), sizeof(int));
 
-	//TODO: para probar
+
+	//TODO:validar si hay operaciones entre FS y memory
+
+	write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_TRACE,
+			"Compactación: <Se solicitó compactación / Esperando Fin de Operaciones de FS>"
+	);
+
 	send_package(package, get_memory_connection());
 	delete_package(package);
 
 	t_list* segmentTable= receive_process_segment_table();
-	pcb->executionContext->segmentTable = segmentTable;
+	update_segment_table_in_all_proccesses(segmentTable);
+
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		"Se finalizó el proceso de compactación"
+	);
 
 	write_to_log(
 		LOG_TARGET_INTERNAL,
