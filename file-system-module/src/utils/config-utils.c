@@ -26,6 +26,10 @@ t_file_system_config* get_file_system_config() {
 	return fileSystemConfig;
 }
 
+t_super_block_config* get_super_block_config() {
+	return superBlockConfig;
+}
+
 void log_config(t_file_system_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "FILE SYSTEM CONFIG VALUES: ");
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
@@ -40,10 +44,6 @@ void log_config(t_file_system_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("FILE_SYSTEM_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
 }
 
-t_super_block_config* get_super_block_config() {
-	return superBlockConfig;
-}
-
 void load_super_block() {
 	char *filePath = get_file_system_config()->PATH_SUPERBLOQUE;
 	t_config *config = config_create(filePath);
@@ -51,6 +51,7 @@ void load_super_block() {
 
 	superBlockConfig->BLOCK_SIZE = config_get_int_value(config, "BLOCK_SIZE");
 	superBlockConfig->BLOCK_COUNT = config_get_int_value(config, "BLOCK_COUNT");
+	log_super_block(get_super_block_config());
 }
 
 void log_super_block(t_super_block_config *superBlockConfig) {

@@ -95,6 +95,9 @@ void listen_kernel_connection(int clientSocketId) {
 				case F_TRUNCATE:
 					result = execute_fs_f_truncate(instruction);
 					break;
+				case F_SEEK:
+					result = execute_fs_f_seek(instruction);
+					break;
 				default:
 					result = OPERATION_RESULT_ERROR;
 					write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Comando no pertenece al FS");

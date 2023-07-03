@@ -27,6 +27,8 @@ void create_bitmap(char* file, size_t size){
 
 	fclose(filePointer);
 	msync(file, size , MS_SYNC);
+
+	//log_bitmap();
 }
 
 t_bitarray *get_bitmap(){

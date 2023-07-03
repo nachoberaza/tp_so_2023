@@ -6,6 +6,7 @@
 	#include <sys/mman.h>
 	#include <fcntl.h>
 	#include "bitmap-utils.h"
+	#include "fcb-utils.h"
 
 	void create_filesystem_structures();
 	void create_block_file();

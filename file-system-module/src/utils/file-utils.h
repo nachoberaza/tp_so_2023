@@ -11,8 +11,8 @@
 
 	operation_result execute_fs_f_create(t_instruction* instruction);
 	operation_result execute_fs_f_open(t_instruction* instruction);
-	operation_result execute_fs_f_truncate(t_instruction* instruction);
-	operation_result execute_fs_f_write(t_instruction* instruction);
 	operation_result execute_fs_f_read(t_instruction* instruction);
-	char *get_file_path(t_instruction* instruction);
+	operation_result execute_fs_f_write(t_instruction* instruction);
+	operation_result execute_fs_f_truncate(t_instruction* instruction);
+	operation_result execute_fs_f_seek(t_instruction* instruction);
 #endif

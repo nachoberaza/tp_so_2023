@@ -27,9 +27,9 @@
 
 	void init_file_system_config(char *moduleName);
 	t_file_system_config* get_file_system_config();
+	t_super_block_config* get_super_block_config();
 	void log_config(t_file_system_config *config);
 	void load_super_block();
-	t_super_block_config* get_super_block_config();
 	void log_super_block(t_super_block_config *superBlockConfig);
 
 #endif
