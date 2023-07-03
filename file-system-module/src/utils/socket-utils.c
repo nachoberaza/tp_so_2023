@@ -39,93 +39,72 @@ void handle_handshake(int clientSocketId) {
 			send(clientSocketId, &result, sizeof(operation_result), NULL);
 			exit(EXIT_FAILURE);
 	}
+
 	listen_kernel_connection(clientSocketId);
 }
 
+t_instruction* decode_instruction(int clientSocketId){
+
+	int bufferSize, offset = 0;
+	void *buffer;
+	t_instruction* instruction = malloc(sizeof(t_instruction));
+
+	buffer = receive_buffer(&bufferSize, clientSocketId);
+
+	instruction = extract_instruction_from_buffer(get_logger(), LOG_LEVEL_TRACE, buffer, &offset);
+
+	write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, command_as_string(instruction->command));
+
+	for (int i=0; i < list_size(instruction->parameters); i++){
+		write_parameter_to_internal_logs(get_logger(), LOG_LEVEL_INFO, list_get(instruction->parameters, i));
+	}
+
+	free(buffer);
+
+	return instruction;
+}
+
 void listen_kernel_connection(int clientSocketId) {
-	while (1) {
-		//Modular a gusto
-		receive_operation_code(clientSocketId);
+	while(1){
+			operation_code operationCode = receive_operation_code(clientSocketId);
+			write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("kernel thread - Operation code : %d", operationCode));
 
-		int bufferSize, offset = 0;
-		void *buffer;
+			t_instruction* instruction = decode_instruction(clientSocketId);
 
-		t_instruction* instruction = malloc(sizeof(t_instruction));
+			/*
+			*	La respuesta en realidad varia dedpendiendo del método,
+			*	Ahora manda solo un result pero deberiamos tener las N posibles respuesta
+			*	Y recibirlas/decodearlas del lado del kernel
+			*/
 
-		buffer = receive_buffer(&bufferSize, clientSocketId);
+			operation_result result;
 
-		instruction = extract_instruction_from_buffer(get_logger(), LOG_LEVEL_TRACE, buffer, &offset);
-
-		write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, command_as_string(instruction->command));
-
-		for (int i=0; i < list_size(instruction->parameters); i++){
-			write_parameter_to_internal_logs(get_logger(), LOG_LEVEL_INFO, list_get(instruction->parameters, i));
-		}
-
-		free(buffer);
-
-
-		//Hasta aca lo q hacemos es obtener la instruccion q manda kernel
-
-
-		//La respuesta en realidad varia dedpendiendo del método, ahora manda solo un result pero deberiamos tener las N posibles respuesta
-		//Y recibirlas/decodearlas del lado del kernel
-		operation_result result;
-		switch (instruction->command){
-			case F_OPEN:
-				result = execute_fs_f_open(instruction);
-				break;
-			case F_CLOSE:
-				result = execute_fs_f_close(instruction);
-				break;
-			case F_SEEK:
-				result = execute_fs_f_seek(instruction);
-				break;
-			case F_READ:
-				result = execute_fs_f_read(instruction);
-				break;
-			case F_WRITE:
-				result = execute_fs_f_write(instruction);
-				break;
-			case F_TRUNCATE:
-				result = execute_fs_f_truncate(instruction);
-				break;
-			default:
-				write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Comando no pertenece al FS");
-				return;
-			break;
-		}
-		send(clientSocketId, &result, sizeof(operation_result), NULL);
+			switch (instruction->command){
+				case F_CREATE:
+					result = execute_fs_f_create(instruction);
+					break;
+				case F_OPEN:
+					result = execute_fs_f_open(instruction);
+					break;
+				case F_READ:
+					result = execute_fs_f_read(instruction);
+					break;
+				case F_WRITE:
+					result = execute_fs_f_write(instruction);
+					break;
+				case F_TRUNCATE:
+					result = execute_fs_f_truncate(instruction);
+					break;
+				default:
+					result = OPERATION_RESULT_ERROR;
+					write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - listen_kernel_connection] Comando no pertenece al FS");
+					break;
+			}
+			send(clientSocketId, &result, sizeof(operation_result), NULL);
 	}
 }
 
 
-operation_result execute_fs_f_open(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_open] Ejecutando F_OPEN");
-	return OPERATION_RESULT_OK;
-}
 
-operation_result execute_fs_f_close(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_close] Ejecutando F_CLOSE");
-	return OPERATION_RESULT_OK;
-}
 
-operation_result execute_fs_f_seek(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_seek] Ejecutando F_SEEK");
-	return OPERATION_RESULT_OK;
-}
 
-operation_result execute_fs_f_read(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_read] Ejecutando F_READ");
-	return OPERATION_RESULT_OK;
-}
-
-operation_result execute_fs_f_write(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_write] Ejecutando F_WRITE");
-	return OPERATION_RESULT_OK;
-}
-
-operation_result execute_fs_f_truncate(t_instruction* instruction){
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_truncate] Ejecutando F_TRUNCATE");
-	return OPERATION_RESULT_OK;
-}

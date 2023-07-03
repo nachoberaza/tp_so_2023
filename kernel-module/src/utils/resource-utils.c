@@ -44,11 +44,11 @@ void log_resource(t_resource* resource) {
 
 }
 
-t_resource* get_resource(char* resourceName){
-	int size = list_size(resourcesList);
+t_resource* get_resource(t_list * list,char* resourceName){
+	int size = list_size(list);
 
 	for(int i=0; i< size;i++){
-		t_resource* resource = list_get(resourcesList,i);
+		t_resource* resource = list_get(list,i);
 
 		if(!strcmp(resource->name,resourceName)){
 			return resource;
@@ -68,4 +68,16 @@ void check_null_resource(t_resource* resource){
 			//TODO: cambiar a exit y sacarlo de la lista
 			exit(EXIT_FAILURE);
 		}
+}
+
+int get_resource_index(t_list * list,char* resourceName){
+	int size = list_size(list);
+
+	for(int i=0; i< size;i++){
+		t_resource* resource = list_get(list,i);
+		if(!strcmp(resource->name,resourceName)){
+			return i;
+		}
+	}
+	return NULL;
 }

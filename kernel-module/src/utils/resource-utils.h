@@ -15,7 +15,8 @@
 	t_resource* create_resource(char* name, char* instance);
 	void build_resources_list(char** resources, char** instances);
 	void log_resource(t_resource* resource);
-	t_resource* get_resource(char* resourceName);
+	t_resource* get_resource(t_list * list,char* resourceName);
 	void check_null_resource(t_resource* resource);
+	int get_resource_index(t_list * list,char* resourceName);
 
 #endif

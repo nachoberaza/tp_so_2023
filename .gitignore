@@ -62,3 +62,6 @@ dkms.conf
 .autotools
 */.vscode
 */Release/
+
+# Custom files
+executions.mk

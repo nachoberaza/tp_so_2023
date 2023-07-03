@@ -25,6 +25,7 @@
 	#include "semaphore-utils.h"
 	#include "short-term-scheduler-utils.h"
 	#include "memory-communication-utils.h"
+	#include "file-system-communication-utils.h"
 	// For sleep
 	#include <unistd.h>
 
@@ -41,12 +42,6 @@
 	void execute_kernel_wait(t_pcb* pcb);
 	void execute_kernel_signal(t_pcb* pcb);
 	void execute_kernel_io(t_pcb* pcb);
-	void execute_kernel_f_open(t_pcb* pcb);
-	void execute_kernel_f_write(t_pcb* pcb);
-	void execute_kernel_f_seek(t_pcb* pcb);
-	void execute_kernel_f_read(t_pcb* pcb);
-	void execute_kernel_f_close(t_pcb* pcb);
-	void execute_kernel_f_truncate(t_pcb* pcb);
 	void send_current_instruction_to_fs(t_pcb* pcb);
 	void* sleepThread(void* args);
 

@@ -1,6 +1,7 @@
 #include "config-utils.h"
 
 t_file_system_config  *fileSystemConfig;
+t_super_block_config *superBlockConfig;
 
 void init_file_system_config(char *moduleName) {
 	char *fileName = string_from_format("%s.config", moduleName);
@@ -25,7 +26,6 @@ t_file_system_config* get_file_system_config() {
 	return fileSystemConfig;
 }
 
-
 void log_config(t_file_system_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "FILE SYSTEM CONFIG VALUES: ");
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("IP: %s", config->IP));
@@ -38,4 +38,23 @@ void log_config(t_file_system_config *config) {
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("PATH_FCB: %s", config->PATH_FCB));
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("BLOCK_ACCESS_DELAY: %s", string_itoa(config->BLOCK_ACCESS_DELAY)));
 	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("FILE_SYSTEM_LOG_LEVEL: %s", log_level_as_string(config->LOG_LEVEL)));
+}
+
+t_super_block_config* get_super_block_config() {
+	return superBlockConfig;
+}
+
+void load_super_block() {
+	char *filePath = get_file_system_config()->PATH_SUPERBLOQUE;
+	t_config *config = config_create(filePath);
+	superBlockConfig = malloc(sizeof(t_super_block_config));
+
+	superBlockConfig->BLOCK_SIZE = config_get_int_value(config, "BLOCK_SIZE");
+	superBlockConfig->BLOCK_COUNT = config_get_int_value(config, "BLOCK_COUNT");
+}
+
+void log_super_block(t_super_block_config *superBlockConfig) {
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, "SUPERBLOQUE VALUES: ");
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("BLOCK_SIZE: %s", string_itoa(superBlockConfig->BLOCK_SIZE)));
+	write_to_log(LOG_TARGET_ALL, LOG_LEVEL_INFO, string_from_format("BLOCK_COUNT: %s", string_itoa(superBlockConfig->BLOCK_COUNT)));
 }

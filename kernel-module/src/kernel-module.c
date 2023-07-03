@@ -10,6 +10,7 @@ int main(void) {
 	init_semaphores();
 
 	build_resources_list(kernelEnv->RESOURCES,kernelEnv->RESOURCES_INSTANCES);
+	start_open_files_table_list();
 
 	int serverSocketId = start_server(kernelEnv->IP, kernelEnv->PORT, get_logger(), MODULE_NAME);
 
