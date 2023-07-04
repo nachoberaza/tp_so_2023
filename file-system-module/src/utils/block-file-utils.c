@@ -20,11 +20,11 @@ void create_block_file(){
 	fclose(filePointer);
 }
 
-char* open_block_file(FILE **filePointer){
+t_file_block* open_block_file(){
+	t_file_block* fileBlock = malloc(sizeof(t_file_block));
+	fileBlock->filePointer = fopen(get_file_system_config()->PATH_BLOQUES, "r+");
 
-	*filePointer = fopen(get_file_system_config()->PATH_BLOQUES, "r+");
-
-	int fileDescriptor = fileno(filePointer);
+	int fileDescriptor = fileno(fileBlock->filePointer);
 
 	if (fileDescriptor == -1) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - extract_from_block] Error abriendo archivo\n");
@@ -34,20 +34,21 @@ char* open_block_file(FILE **filePointer){
 	int blockCount = get_super_block_config()->BLOCK_COUNT;
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
 
-	char* bmap = mmap(NULL, blockCount * blockSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	fileBlock->bmap = mmap(NULL, blockCount * blockSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
 
-	if (bmap == MAP_FAILED) {
+	if (fileBlock->bmap == MAP_FAILED) {
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - extract_from_block] Error mapeando archivo\n");
-		fclose(filePointer);
+		fclose(fileBlock->filePointer);
 		exit(EXIT_FAILURE);
 	}
+
+	return fileBlock;
 }
 
 void write_in_block(t_instruction* instruction, char* value){
 	char* fileName = list_get(instruction->parameters, 0);
 	int size = atoi(list_get(instruction->parameters, 2));
 	int pointer = atoi(list_get(instruction->parameters, 4));
-
 
 	t_fcb* fcb = get_fcb_by_name(fileName);
 
@@ -61,16 +62,15 @@ void write_in_block(t_instruction* instruction, char* value){
 }
 
 void write_in_block_file(int directPointer, char* value, int size){
-	FILE *filePointer;
 	int blockCount = get_super_block_config()->BLOCK_COUNT;
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
 
-	char* bmap = open_block_file(&filePointer);
+	t_file_block* fileBlock = open_block_file();
 
-	strncpy(bmap, value, size);
+	strncpy(fileBlock->bmap, value, size);
 
-	fclose(filePointer);
-	munmap(bmap, blockCount * blockSize);
+	fclose(fileBlock->filePointer);
+	munmap(fileBlock->bmap, blockCount * blockSize);
 }
 
 int get_pointer(t_fcb* fcb, int blockNumber){
@@ -87,29 +87,14 @@ int get_pointer(t_fcb* fcb, int blockNumber){
 }
 
 int extract_from_block(int indirectPointer, int offset, int size){
-	FILE *filePointer = fopen(get_file_system_config()->PATH_BLOQUES, "r");
-
-	int fileDescriptor = fileno(filePointer);
-
-	if (fileDescriptor == -1) {
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - extract_from_block] Error abriendo archivo\n");
-		exit(EXIT_FAILURE);
-	}
-
 	int blockCount = get_super_block_config()->BLOCK_COUNT;
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
 
-	char* bmap = mmap(NULL, blockCount * blockSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	t_file_block* fileBlock = open_block_file();
+	int value = fileBlock->bmap[indirectPointer + offset];
 
-	if (bmap == MAP_FAILED) {
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - extract_from_block] Error mapeando archivo\n");
-		fclose(filePointer);
-		exit(EXIT_FAILURE);
-	}
-	int value = bmap[indirectPointer + offset];
-
-	fclose(filePointer);
-	munmap(bmap, blockCount * blockSize);
+	fclose(fileBlock->filePointer);
+	munmap(fileBlock->bmap, blockCount * blockSize);
 	return value;
 }
 

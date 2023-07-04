@@ -10,6 +10,7 @@
 	#include <shared/memory/memory.h>
  	#include "config-utils.h"
 	#include "../utils/fcb-utils.h"
+	#include "../utils/block-file-utils.h"
 	#include <sys/mman.h>
 	#include <fcntl.h>
 
