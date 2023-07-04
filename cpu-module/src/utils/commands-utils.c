@@ -219,7 +219,7 @@ int execute_mov_in(t_execution_context* context){
 	char* reg = list_get(instruction->parameters, 0);
 	int regSize = get_amount_of_bytes_per_register(reg, context);
 
-	int physicalAddress = get_physical_address(get_logger(), context,regSize, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
+	int physicalAddress = get_physical_address(get_logger(), context, regSize, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
 	if (physicalAddress == -1){
 		add_error_in_execution_context_reason(context->reason, REASON_ERROR,ERROR_SEG_FAULT);
 		return 0;
@@ -295,12 +295,40 @@ int execute_f_seek(t_execution_context* context){
 int execute_f_read(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_f_read] Ejecutando F_READ");
 	context->reason->executionContextState = REASON_F_READ;
+
+	t_instruction* instruction = list_get(context->instructions, context->programCounter);
+
+	int size = atoi(list_get(instruction->parameters, 2));
+	int physicalAddress = get_physical_address(get_logger(), context, size, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
+
+	if (physicalAddress == -1){
+		add_error_in_execution_context_reason(context->reason, REASON_ERROR, ERROR_SEG_FAULT);
+		return 0;
+	}
+
+	list_clean(context->reason->parameters);
+	list_add(context->reason->parameters, string_itoa(physicalAddress));
+
 	return 0;
 }
 
 int execute_f_write(t_execution_context* context){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/commands-utils - execute_f_write] Ejecutando F_WRITE");
 	context->reason->executionContextState = REASON_F_WRITE;
+
+	t_instruction* instruction = list_get(context->instructions, context->programCounter);
+
+	int size = atoi(list_get(instruction->parameters, 2));
+	int physicalAddress = get_physical_address(get_logger(), context, size, list_get(instruction->parameters, 1), get_cpu_env()->SEGMENT_MAX_SIZE);
+
+	if (physicalAddress == -1){
+		add_error_in_execution_context_reason(context->reason, REASON_ERROR, ERROR_SEG_FAULT);
+		return 0;
+	}
+
+	list_clean(context->reason->parameters);
+	list_add(context->reason->parameters, string_itoa(physicalAddress));
+
 	return 0;
 }
 

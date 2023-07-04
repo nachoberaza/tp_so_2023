@@ -11,6 +11,7 @@
 	#include "memory-utils.h"
 	#include "kernel-communication-utils.h"
 	#include "cpu-communication-utils.h"
+	#include "fs-communication-utils.h"
 	#include <unistd.h>
 	#include "../structs/modules.h"
 

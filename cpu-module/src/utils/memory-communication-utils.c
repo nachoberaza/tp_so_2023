@@ -19,7 +19,6 @@ void send_mov_in_to_memory(t_execution_context* context, int size, int physicalA
 	fill_buffer_with_memory_data(memoryData,package);
 
 	send_package(package, get_memory_connection());
-
 }
 
 void send_mov_out_to_memory(t_execution_context* context, char* value, int size,int physicalAddress){

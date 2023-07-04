@@ -37,14 +37,16 @@
 	void execute_kernel_f_read(t_pcb* pcb);
 	void execute_kernel_f_close(t_pcb* pcb);
 	void execute_kernel_f_truncate(t_pcb* pcb);
+	t_instruction* duplicate_instruction(t_instruction* currentInstruction);
     int open_files_table_contains(char *fileName);
     void add_file_to_open_files_table(t_pcb* pcb,char *fileName);
     void add_file_to_process_open_files_table(t_pcb* pcb, t_instruction* instruction);
-    void send_instruction_to_fs(t_instruction* instruction);
+    void send_instruction_to_fs(t_instruction* instruction, int pid);
     void send_current_instruction_to_fs(t_pcb* pcb);
     void remove_file_from_process_open_files_table(t_pcb* pcb, t_instruction* instruction);
     void remove_file_from_open_files_table(t_resource* resource);
     void request_file(t_resource* resource, t_pcb* pcb);
     int get_open_file_index(t_list * list,char* fileName);
+    void await_f_write(t_pcb* pcb);
 
 #endif

@@ -1,9 +1,11 @@
 #include "file-system-communication-utils.h"
 
 t_list *openFilesTable;
+int countFileOperations;
 
 void start_open_files_table_list() {
 	openFilesTable = list_create();
+	countFileOperations = 0;
 }
 
 t_list* get_open_files_table_list(){
@@ -17,21 +19,21 @@ t_open_file_row* new_open_file_row(char *fileName){
 	return openFileRow;
 }
 
-
 void execute_kernel_f_open(t_pcb* pcb){
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	char *fileName = list_get(instruction->parameters, 0);
 
 	if(!open_files_table_contains(fileName)){
-		send_instruction_to_fs(instruction);
+
+		send_instruction_to_fs(instruction, pcb->executionContext->pid);
 
 		int response;
 		recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 
 		if(response == OPERATION_RESULT_ERROR){
 			instruction->command = F_CREATE;
-			send_instruction_to_fs(instruction);
+			send_instruction_to_fs(instruction, pcb->executionContext->pid);
 
 			recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 			write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
@@ -85,18 +87,7 @@ void execute_kernel_f_seek(t_pcb* pcb){
 	t_package* package = create_package();
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
-	fill_package_buffer(package, &(instruction->command), sizeof(command));
-
-	int parameterCount = list_size(instruction->parameters);
-
-	fill_package_buffer(package, &parameterCount, sizeof(int));
-	for (int j = 0; j < parameterCount; j++){
-		char* parameter = list_get(instruction->parameters, j);
-
-		fill_package_buffer(package, parameter, strlen(parameter) + 1);
-	}
-
-	send_package(package, get_file_system_connection());
+	send_instruction_to_fs(instruction, pcb->executionContext->pid);
 
 	//TODO: Esta logica varia
 	operation_result response;
@@ -140,52 +131,69 @@ void execute_kernel_f_read(t_pcb* pcb){
 }
 
 void execute_kernel_f_write(t_pcb* pcb){
-	//TODO: Hacer fopen
 	t_package* package = create_package();
-	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+	t_instruction* currentInstruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
-	fill_package_buffer(package, &(instruction->command), sizeof(command));
+	t_instruction* instruction = duplicate_instruction(currentInstruction);
 
-	int parameterCount = list_size(instruction->parameters);
+	list_add(instruction->parameters, list_get(pcb->executionContext->reason->parameters, 0));
+	list_add(instruction->parameters, "0");
 
-	fill_package_buffer(package, &parameterCount, sizeof(int));
-	for (int j = 0; j < parameterCount; j++){
-		char* parameter = list_get(instruction->parameters, j);
+	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, instruction);
 
-		fill_package_buffer(package, parameter, strlen(parameter) + 1);
-	}
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+	memoryData->pid = pcb->executionContext->pid;
+	memoryData->instruction = instruction;
+
+	fill_buffer_with_memory_data(memoryData,package);
 
 	send_package(package, get_file_system_connection());
 
-	//TODO: Esta logica varia
+	countFileOperations++;
+	move_to_blocked(pcb);
+
+	pthread_t ioThread;
+	int threadStatus = pthread_create(&ioThread, NULL, (void *) await_f_write, (void*)pcb);
+	if (threadStatus != 0){
+	   write_to_log(
+	    	LOG_TARGET_INTERNAL,
+			LOG_LEVEL_INFO,
+			string_from_format("[utils/cpu-communication-utils - execute_kernel_f_write] Hubo un problema al crear el ioThread - Reason: %s", strerror(threadStatus))
+	   );
+	   exit(EXIT_FAILURE);
+	}
+}
+
+t_instruction* duplicate_instruction(t_instruction* currentInstruction){
+	t_instruction* instruction = malloc(sizeof(t_instruction));
+	instruction->command = currentInstruction->command;
+	instruction->parameters = list_create();
+	int size = list_size(currentInstruction->parameters);
+
+	for (int i = 0; i < size; i++){
+		list_add(instruction->parameters, string_duplicate(list_get(currentInstruction->parameters, i)));
+	}
+
+	return instruction;
+}
+
+void await_f_write(t_pcb* pcb){
 	operation_result response;
 	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	if(response == OPERATION_RESULT_OK){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_write] Ejecutado correctamente");
+		countFileOperations--;
+		move_pcb_to_short_term_end(pcb);
 		return;
 	}
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_write] Ocurrió un error en FS");
 }
 
 void execute_kernel_f_truncate(t_pcb* pcb){
-	//TODO: Hacer fopen
-	t_package* package = create_package();
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
-
-	fill_package_buffer(package, &(instruction->command), sizeof(command));
-
-	int parameterCount = list_size(instruction->parameters);
-
-	fill_package_buffer(package, &parameterCount, sizeof(int));
-	for (int j = 0; j < parameterCount; j++){
-		char* parameter = list_get(instruction->parameters, j);
-
-		fill_package_buffer(package, parameter, strlen(parameter) + 1);
-	}
-
-	send_package(package, get_file_system_connection());
+	send_instruction_to_fs(instruction, pcb->executionContext->pid);
 
 	//TODO: Esta logica varia
 	operation_result response;
@@ -252,9 +260,14 @@ void request_file(t_resource* resource, t_pcb* pcb){
 	resource->instances--;
 }
 
-void send_instruction_to_fs(t_instruction* instruction){
+void send_instruction_to_fs(t_instruction* instruction, int pid){
 	t_package* package = create_package();
-	fill_buffer_with_instruction(instruction,package);
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+	memoryData->pid = pid;
+	memoryData->instruction = instruction;
+
+	fill_buffer_with_memory_data(memoryData, package);
+
 	send_package(package, get_file_system_connection());
 }
 

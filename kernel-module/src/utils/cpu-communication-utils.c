@@ -144,10 +144,6 @@ void handle_cpu_response(t_pcb* pcb){
 	}
 }
 
-
-
-
-
 void execute_kernel_wait(t_pcb* pcb){
 	write_to_log(
 			LOG_TARGET_INTERNAL,
