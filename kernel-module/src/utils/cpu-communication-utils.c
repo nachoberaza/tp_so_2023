@@ -154,7 +154,9 @@ void execute_kernel_wait(t_pcb* pcb){
 
 	t_resource* resource = get_resource(get_resources_list(),resourceName);
 
-	check_null_resource(resource);
+	if(check_null_resource(resource,pcb) == OPERATION_RESULT_ERROR){
+		return;
+	}
 
 	if(resource->instances <= 0){
 		write_to_log(
@@ -180,7 +182,9 @@ void execute_kernel_signal(t_pcb* pcb){
 
 	t_resource* resource= get_resource(get_resources_list(),resourceName);
 
-	check_null_resource(resource);
+	if(check_null_resource(resource,pcb) == OPERATION_RESULT_ERROR){
+		return;
+	}
 
 	resource->instances++;
 

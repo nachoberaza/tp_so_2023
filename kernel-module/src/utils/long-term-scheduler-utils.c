@@ -62,7 +62,7 @@ void move_to_exit(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		string_from_format("Cambio de Estado: PID: %d - Estado Anterior: %s - Estado Actual: %s",
 		pcb->executionContext->pid, state_as_string(pcb->state), state_as_string(STATE_EXIT))
 	);
 
