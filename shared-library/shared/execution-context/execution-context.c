@@ -446,3 +446,16 @@ char* get_string_array_instruction_parameters(t_instruction* instruction){
 	return parameters;
 }
 
+t_instruction* duplicate_instruction(t_instruction* currentInstruction){
+	t_instruction* instruction = malloc(sizeof(t_instruction));
+	instruction->command = currentInstruction->command;
+	instruction->parameters = list_create();
+	int size = list_size(currentInstruction->parameters);
+
+	for (int i = 0; i < size; i++){
+		list_add(instruction->parameters, string_duplicate(list_get(currentInstruction->parameters, i)));
+	}
+
+	return instruction;
+}
+

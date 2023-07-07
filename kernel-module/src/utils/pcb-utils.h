@@ -41,6 +41,7 @@
 	void move_to_running(t_pcb* pcb);
 	char * state_as_string(state_process state);
 	char* get_string_array_pid(t_list* list);
+	t_open_file_row* create_open_file_row(char *fileName);
 
 
 #endif

@@ -246,3 +246,10 @@ char* get_string_array_pid(t_list* list){
 	return pids;
 }
 
+t_open_file_row* create_open_file_row(char *fileName){
+	t_open_file_row *openFileRow = malloc(sizeof(t_open_file_row));
+	openFileRow->file = fileName;
+	openFileRow->pointer = 0;
+	return openFileRow;
+}
+
