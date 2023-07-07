@@ -23,6 +23,12 @@ void execute_kernel_f_open(t_pcb* pcb){
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	char *fileName = list_get(instruction->parameters, 0);
+	string_trim(&fileName);
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_INFO,
+	string_from_format("Abrir Archivo: %s",fileName));
 
 	if(!open_files_table_contains(fileName)){
 
@@ -42,44 +48,67 @@ void execute_kernel_f_open(t_pcb* pcb){
 		}
 
 		add_file_to_open_files_table(pcb,fileName);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/file-system-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		add_file_to_process_open_files_table(pcb,fileName);
+
+		write_to_log(
+				LOG_TARGET_MAIN,
+				LOG_LEVEL_INFO,
+				string_from_format("PID: %d - Abrir Archivo: %s",pcb->executionContext->pid,fileName));
+
+		return;
 	}
 
+
 	t_resource* resource = get_resource(openFilesTable, fileName);
-	request_file(resource,pcb);
-	add_file_to_process_open_files_table(pcb,instruction);
+	add_file_to_process_open_files_table(pcb,fileName);
 
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/file-system-communication-utils -execute_kernel_f_open] PID: %d - Abrir Archivo: %s",
-				pcb->executionContext->pid,resource->name)
+		string_from_format("PID: %d - Bloqueado por: %s", pcb->executionContext->pid,fileName)
 	);
+
+	list_add(resource->blocked, pcb);
+	move_to_blocked(pcb);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/file-system-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
 }
 
 void execute_kernel_f_close(t_pcb* pcb){
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	char *fileName = list_get(instruction->parameters, 0);
-	t_resource* resource = get_resource(openFilesTable, fileName);
-	remove_file_from_process_open_files_table(pcb,instruction);
-	if(list_is_empty(resource->blocked)){
-		remove_file_from_open_files_table(resource);
-	}else{
-		t_pcb* processBloqued = list_get(resource->blocked, 0);
-		list_remove(resource->blocked, 0);
-		move_to_ready(processBloqued);
-	}
+
+	process_file_release(pcb,fileName);
 
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("[utils/file-system-communication-utils - execute_kernel_f_close] PID: %d - Cerrar Archivo: %s",
-				pcb->executionContext->pid,resource->name)
-	);
+		string_from_format("PID: %d - Cerrar Archivo: %s",pcb->executionContext->pid, fileName));
 }
+
 void remove_file_from_open_files_table(t_resource* resource){
-	list_remove(openFilesTable, get_resource_index(openFilesTable,resource->name));
+	int i = get_resource_index(openFilesTable,resource->name);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+						string_from_format("[utils/fs-communication-utils - process_file_release]recurso: %s,Index : %d",resource->name,i));
+	list_remove(openFilesTable, i);
+}
+
+void process_file_release(t_pcb* pcb, char* fileName){
+	t_resource* resource = get_resource(openFilesTable, fileName);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+					string_from_format("[utils/fs-communication-utils - process_file_release] Nombre recurso: %s",resource->name));
+	remove_file_from_process_open_files_table(pcb,fileName);
+
+	if(list_is_empty(resource->blocked)){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/fs-communication-utils - process_file_release] Blocked vacia");
+		remove_file_from_open_files_table(resource);
+	}else{
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/fs-communication-utils - process_file_release] Blocked No vacia");
+		t_pcb* processBloqued = list_get(resource->blocked, 0);
+		list_remove(resource->blocked, 0);
+		move_to_ready(processBloqued);
+	}
 }
 
 void execute_kernel_f_seek(t_pcb* pcb){
@@ -200,39 +229,44 @@ void execute_kernel_f_truncate(t_pcb* pcb){
 	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	if(response == OPERATION_RESULT_OK){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/fs-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
 		return;
 	}
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/fs-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
 }
 
-void add_file_to_process_open_files_table(t_pcb* pcb, t_instruction* instruction){
-	t_open_file_row *openFile = new_open_file_row(list_get(instruction->parameters, 0));
+void add_file_to_process_open_files_table(t_pcb* pcb, char* fileName){
+	t_open_file_row *openFile = new_open_file_row(fileName);
 	add_file(pcb,openFile);
 }
 
-void remove_file_from_process_open_files_table(t_pcb* pcb, t_instruction* instruction){
-	char* fileName = list_get(instruction->parameters, 0);
-	int fileIndex = get_open_file_index(pcb->openFilesTable,fileName);
-	if(fileIndex == NULL)
-			exit(EXIT_FAILURE);
+void remove_file_from_process_open_files_table(t_pcb* pcb, char* fileName){
+	int fileIndex = get_open_file_index(pcb->openFilesTable, fileName);
+
+	if(fileIndex == NULL){
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR,
+				"[utils/fs-communication-utils - remove_file_from_process_open_files_table] No encontre indice");
+	}
 
 	list_remove(pcb->openFilesTable, fileIndex);
 }
 
 int get_open_file_index(t_list * list,char* fileName){
 	int size = list_size(list);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+		string_from_format("[utils/fs-communication-utils - get_open_file_index] Size list file: %d",size));
 
 	for(int i=0; i< size;i++){
 		t_open_file_row* openFileRow = list_get(list,i);
-
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+						string_from_format("[utils/fs-communication-utils - get_open_file_index] Nombre archivo: %s , fileName: %s",openFileRow->file,fileName));
 		if(!strcmp(openFileRow->file,fileName)){
 			return i;
 		}
 	}
 
-	return NULL;
+	return -1;
 }
 
 
@@ -251,7 +285,7 @@ void request_file(t_resource* resource, t_pcb* pcb){
 		write_to_log(
 					LOG_TARGET_MAIN,
 					LOG_LEVEL_INFO,
-					string_from_format("[utils/file-system-communication-utils - block_process_f_open] PID: %d - Solicito por: %s",
+					string_from_format("PID: %d - Solicito por: %s",
 							pcb->executionContext->pid,resource->name)
 				);
 				move_to_blocked(pcb);
@@ -276,4 +310,17 @@ void send_current_instruction_to_fs(t_pcb* pcb){
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 	fill_buffer_with_instruction(instruction,package);
 	send_package(package, get_file_system_connection());
+}
+
+void process_release_all_files(t_pcb* pcb){
+	int size = list_size(pcb->openFilesTable);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+		string_from_format("[utils/fs-communication-utils - process_release_all_files] Archivos abiertos pid :%d , files :%d",pcb->executionContext->pid,size));
+
+	for(int i=size -1; i>=0; i--){
+		t_open_file_row *openFile = list_get(pcb->openFilesTable,i);
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
+				string_from_format("[utils/fs-communication-utils - process_release_all_files] Nombre archivo: %s",openFile->file));
+		process_file_release(pcb, openFile->file);
+	}
 }

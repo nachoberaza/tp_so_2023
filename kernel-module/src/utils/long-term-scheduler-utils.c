@@ -72,6 +72,8 @@ void move_to_exit(t_pcb* pcb){
 			string_from_format("Finaliza el proceso %d - Motivo: %s", pcb->executionContext->pid,reason)
 	);
 
+	process_release_all_files(pcb);
+
 
 	delete_process_segment_table(pcb->executionContext->pid);
 
@@ -82,7 +84,6 @@ void move_to_exit(t_pcb* pcb){
 	send(pcb->clientSocketId, &result, sizeof(operation_result), 0);
 
 	free_pcb(pcb);
-
 
 	execute_long_term_scheduler();
 }

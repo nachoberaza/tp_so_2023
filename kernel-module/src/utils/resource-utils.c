@@ -76,12 +76,30 @@ operation_result check_null_resource(t_resource* resource,t_pcb* pcb){
 
 int get_resource_index(t_list * list,char* resourceName){
 	int size = list_size(list);
+	string_trim(&resourceName);
+
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_ERROR,
+		string_from_format("[utils/resources-utils - get_resource_index] Recurso a buscar : %s",resourceName)
+	);
 
 	for(int i=0; i< size;i++){
 		t_resource* resource = list_get(list,i);
-		if(!strcmp(resource->name,resourceName)){
+		char* name = resource->name;
+		string_trim(&name);
+
+		write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_ERROR,
+			string_from_format("[utils/resources-utils - get_resource_index] Nombre recurso encontrado: %s",resource->name)
+		);
+
+
+		if(!strcmp(name,resourceName)){
 			return i;
 		}
 	}
-	return NULL;
+
+	return -1;
 }

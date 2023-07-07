@@ -35,12 +35,6 @@ t_pcb* new_pcb(int clientSocketId){
 void build_pcb(t_list *lines, int clientSocketId) {
 	t_pcb* pcb = create_pcb_from_lines(lines, clientSocketId);
 
-	t_open_file_row* openFileRow = malloc(sizeof(t_open_file_row));
-
-	openFileRow->file = "asd";
-	openFileRow->pointer = "asd2";
-	add_file(pcb, openFileRow);
-
 	pcb->executionContext->reason->executionContextState = REASON_YIELD;
 
 	strncpy(pcb->executionContext->cpuRegisters->AX, "Hi", sizeof(char) * 4);
