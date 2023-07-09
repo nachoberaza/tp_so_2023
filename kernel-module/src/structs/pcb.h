@@ -19,7 +19,7 @@
 
 	typedef struct {
 		char* file;
-		char* pointer;
+		int pointer;
 	} t_open_file_row;
 
 	typedef struct {

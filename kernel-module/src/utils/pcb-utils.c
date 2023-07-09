@@ -152,7 +152,7 @@ void log_pcb(t_pcb* pcb) {
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("File: %s", openFileRow->file));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %s \n", openFileRow->pointer));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %d \n", openFileRow->pointer));
 }
 
 

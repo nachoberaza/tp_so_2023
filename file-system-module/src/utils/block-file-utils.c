@@ -58,6 +58,8 @@ void write_in_block(t_instruction* instruction, char* value){
 
 	int directPointer = get_pointer(fcb, blockNumber);
 
+	directPointer = directPointer + (pointer % blockSize);
+
 	write_in_block_file(directPointer, value, size);
 }
 
@@ -66,8 +68,11 @@ void write_in_block_file(int directPointer, char* value, int size){
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
 
 	t_file_block* fileBlock = open_block_file();
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, string_from_format("[utils/file-utils - write_in_block_file] directPointer: %d", directPointer));
 
-	strncpy(fileBlock->bmap, value, size);
+	char* currentAddress = fileBlock->bmap + directPointer;
+
+	strncpy(currentAddress, value, size);
 
 	fclose(fileBlock->filePointer);
 	munmap(fileBlock->bmap, blockCount * blockSize);

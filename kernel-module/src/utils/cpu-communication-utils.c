@@ -59,12 +59,29 @@ t_execution_context* listen_cpu_response() {
 	return context;
 }
 
-void handle_cpu_response(t_pcb* pcb){
+void log_context_reason(t_pcb* pcb){
 	write_to_log(
-			LOG_TARGET_INTERNAL,
-			LOG_LEVEL_INFO,
-			string_from_format("[utils/cpu-communication-utils - handle_cpu_response] Reason: %d", pcb->executionContext->reason->executionContextState)
-	);
+				LOG_TARGET_INTERNAL,
+				LOG_LEVEL_INFO,
+				string_from_format("[utils/cpu-communication-utils - log_context_reason] Reason: %s", executionContextStateNames[pcb->executionContext->reason->executionContextState])
+		);
+	int size = list_size(pcb->executionContext->reason->parameters);
+	write_to_log(
+					LOG_TARGET_INTERNAL,
+					LOG_LEVEL_INFO,
+					string_from_format("[utils/cpu-communication-utils - log_context_reason] Logging %d parameters: ", size)
+			);
+	for (int i=0; i<size; i++){
+		write_to_log(
+						LOG_TARGET_INTERNAL,
+						LOG_LEVEL_INFO,
+						string_from_format("[utils/cpu-communication-utils - log_context_reason] Parameter: %s", list_get(pcb->executionContext->reason->parameters, i))
+				);
+	}
+}
+void handle_cpu_response(t_pcb* pcb){
+	log_context_reason(pcb);
+
 	switch(pcb->executionContext->reason->executionContextState){
 		case REASON_YIELD:{
 			write_to_log(

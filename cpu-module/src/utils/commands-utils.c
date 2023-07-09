@@ -249,7 +249,7 @@ int execute_mov_out(t_execution_context* context){
 
 	int physicalAddress = get_physical_address(get_logger(), context, regSize, list_get(instruction->parameters, 0), get_cpu_env()->SEGMENT_MAX_SIZE);
 
-	log_segment_table(context->segmentTable, get_logger(), LOG_LEVEL_DEBUG, false);
+	//log_segment_table(context->segmentTable, get_logger(), LOG_LEVEL_DEBUG, false);
 
 	if (physicalAddress == -1){
 		add_error_in_execution_context_reason(context->reason, REASON_ERROR,ERROR_SEG_FAULT);

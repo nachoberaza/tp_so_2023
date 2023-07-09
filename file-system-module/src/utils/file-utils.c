@@ -70,9 +70,6 @@ operation_result execute_fs_f_write(t_memory_data* memoryData){
 				value)
 	);
 
-	int blockPointer = atoi(list_get(memoryData->instruction->parameters, 4));
-
-
 	write_in_block(memoryData->instruction, value);
 	return OPERATION_RESULT_OK;
 }
