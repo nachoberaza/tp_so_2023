@@ -1,0 +1,178 @@
+#include "block-file-utils.h"
+
+t_bitarray *blockfile;
+const int emptyPointerValue = 40;
+const int pointerLength = 4;
+
+void create_block_file(){
+	t_log_level logLevel = LOG_LEVEL_INFO;
+	FILE *filePointer = fopen(get_file_system_config()->PATH_BLOQUES, "a+");
+
+	int fileDescriptor = fileno(filePointer);
+
+	if (fileDescriptor == -1) {
+		write_to_log(LOG_TARGET_INTERNAL, logLevel, "[utils/filesystem - utils - create_block_file] Error abriendo archivo\n");
+		exit(EXIT_FAILURE);
+	}
+
+	int size = get_super_block_config()->BLOCK_COUNT * get_super_block_config()->BLOCK_SIZE;
+
+	ftruncate(fileDescriptor, size);
+
+	fclose(filePointer);
+}
+
+t_file_block* open_block_file(){
+	t_file_block* fileBlock = malloc(sizeof(t_file_block));
+	fileBlock->filePointer = fopen(get_file_system_config()->PATH_BLOQUES, "r+");
+
+	int fileDescriptor = fileno(fileBlock->filePointer);
+
+	if (fileDescriptor == -1) {
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - open_block_file] Error abriendo archivo\n");
+		exit(EXIT_FAILURE);
+	}
+
+	int blockCount = get_super_block_config()->BLOCK_COUNT;
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+
+	fileBlock->bmap = mmap(NULL, blockCount * blockSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+
+	if (fileBlock->bmap == MAP_FAILED) {
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, "[utils/file-utils - open_block_file] Error mapeando archivo\n");
+		fclose(fileBlock->filePointer);
+		exit(EXIT_FAILURE);
+	}
+
+	return fileBlock;
+}
+
+void write_in_block(t_instruction* instruction, char* value){
+	char* fileName = list_get(instruction->parameters, 0);
+	int size = atoi(list_get(instruction->parameters, 2));
+	int pointer = atoi(list_get(instruction->parameters, 4));
+
+	t_fcb* fcb = get_fcb_by_name(fileName);
+
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+
+	int blockNumber = floor(pointer/blockSize);
+
+	int directPointer = get_pointer(fcb, blockNumber) * blockSize;
+
+	directPointer = directPointer + (pointer % blockSize);
+
+	write_in_block_file(directPointer, value, size);
+}
+
+void write_in_block_file(int directPointer, void* value, int size){
+	int blockCount = get_super_block_config()->BLOCK_COUNT;
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+
+	t_file_block* fileBlock = open_block_file();
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, string_from_format("[utils/file-utils - write_in_block_file] DirectPointer: %d", directPointer));
+
+	char* currentAddress = fileBlock->bmap + directPointer;
+
+	memcpy(currentAddress, value, size);
+	//fflush(fileBlock->filePointer);
+
+	fclose(fileBlock->filePointer);
+	munmap(fileBlock->bmap, blockCount * blockSize);
+}
+
+int get_pointer(t_fcb* fcb, int blockNumber){
+	const int pointerSize = 4;
+	if (blockNumber == 0)
+		return fcb->directPointer;
+
+	int offset = pointerSize * (blockNumber - 1);
+	uint32_t value = extract_uint32_from_block(fcb->indirectPointer *  get_super_block_config()->BLOCK_SIZE, offset);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - get_pointer] Se obtuvo el valor: %d\n", value));
+	return (int)value;
+}
+
+uint32_t extract_uint32_from_block(int indirectPointer, int offset){
+	int blockCount = get_super_block_config()->BLOCK_COUNT;
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+
+	t_file_block* fileBlock = open_block_file();
+	uint32_t value = fileBlock->bmap[indirectPointer + offset];
+
+	fclose(fileBlock->filePointer);
+	munmap(fileBlock->bmap, blockCount * blockSize);
+	return value;
+}
+
+
+void truncate_file(t_fcb* fcb, int size){
+	int fcbCurrentSize = get_fcb_size(fcb);
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+
+	int blockCount = floor(size / blockSize);
+	if (size % blockSize != 0)
+		blockCount++;
+
+	for(int i=fcbCurrentSize; i<blockCount; i++){
+		assign_new_block(fcb, i);
+	}
+
+	int maxBlockSize = blockSize / 4;
+
+
+	for(int i=blockCount; i<maxBlockSize; i++){
+		int position = (fcb->indirectPointer * blockSize) + (i - 1) * pointerLength;
+		write_in_block_file(position, &emptyPointerValue, pointerLength);
+	}
+
+	//persist_fcb(fcb);
+}
+
+void assign_new_block(t_fcb* fcb, int currentSize){
+	uint32_t block = (uint32_t)get_first_empty_block();
+	if (currentSize == 0)
+	{
+		fcb->directPointer = block;
+		mark_block_as_used(block);
+		return;
+	}
+	else if (currentSize == 1){
+		fcb->indirectPointer = block;
+		mark_block_as_used(block);
+	}
+	block = (uint32_t)get_first_empty_block();
+
+	int directPointer = fcb->indirectPointer;
+
+	int position = (directPointer * get_super_block_config()->BLOCK_SIZE) + (currentSize - 1) * pointerLength;
+
+	write_in_block_file(position, &block, pointerLength);
+	mark_block_as_used(block);
+}
+
+int get_fcb_size(t_fcb *fcb){
+	const int pointerSize = 4;
+	int size = 0;
+	if (!is_block_used(fcb->directPointer))
+		return 0;
+	size++;
+
+	int offset = 0;
+	uint32_t value = 0;
+	int currentPointer = 0;
+
+	while (1){
+		offset = pointerSize * currentPointer;
+		value = (int) extract_uint32_from_block(fcb->indirectPointer, offset);
+
+		if (value == emptyPointerValue)
+			return size;
+
+		if (!is_block_used(value))
+			return size;
+
+		size++;
+	}
+}
+

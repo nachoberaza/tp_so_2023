@@ -19,14 +19,14 @@
 
 	typedef struct {
 		char* file;
-		char* pointer;
+		int pointer;
 	} t_open_file_row;
 
 	typedef struct {
 		int clientSocketId;
 		double nextBurstEstimate;
 		int timeArrivalReady;
-		t_list* openFilesTable;//lista con elementos t_open_file_row
+		t_list* openFilesTable;
 		state_process state;
 		bool firstTimeInReady;
 		t_execution_context* executionContext;

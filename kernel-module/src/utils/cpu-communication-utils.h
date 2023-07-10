@@ -44,5 +44,6 @@
 	void execute_kernel_io(t_pcb* pcb);
 	void send_current_instruction_to_fs(t_pcb* pcb);
 	void* sleepThread(void* args);
+	void log_context_reason(t_pcb* pcb);
 
 #endif

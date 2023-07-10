@@ -4,7 +4,7 @@ t_bitarray *bitmap;
 
 void create_bitmap(char* file, size_t size){
 	t_log_level logLevel = LOG_LEVEL_INFO;
-	FILE *filePointer = fopen(file, "w+");
+	FILE *filePointer = fopen(file, "a+");
 
 	int fileDescriptor = fileno(filePointer);
 
@@ -27,8 +27,6 @@ void create_bitmap(char* file, size_t size){
 
 	fclose(filePointer);
 	msync(file, size , MS_SYNC);
-
-	//log_bitmap();
 }
 
 t_bitarray *get_bitmap(){
@@ -47,9 +45,13 @@ off_t get_first_empty_block(){
 }
 
 void mark_block_as_used(off_t index){
-	 bitarray_set_bit(get_bitmap(),index);
+	 bitarray_set_bit(get_bitmap(), index);
 }
 
 void mark_block_as_unused(off_t index){
-	 bitarray_clean_bit(get_bitmap(),index);
+	 bitarray_clean_bit(get_bitmap(), index);
+}
+
+int is_block_used(int index){
+	return bitarray_test_bit(get_bitmap(), index);
 }

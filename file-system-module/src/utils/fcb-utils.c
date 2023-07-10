@@ -97,10 +97,8 @@ void log_fcb_list(t_list* fcbList){
 		log_fcb(fcb);
 	}
 }
-
-char *get_fcb_path(t_instruction* instruction){
+char *get_fcb_path(char* fileName){
 	char* filePath = get_file_system_config()->PATH_FCB;
-	char* fileName = list_get(instruction->parameters, 0);
 	char* fileExtension = ".dat";
 
 	// Obtener la longitud total de la cadena resultante

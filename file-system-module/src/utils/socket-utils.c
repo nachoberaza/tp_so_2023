@@ -69,34 +69,32 @@ void listen_kernel_connection(int clientSocketId) {
 			operation_code operationCode = receive_operation_code(clientSocketId);
 			write_log_grouping(get_logger(), LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, string_from_format("kernel thread - Operation code : %d", operationCode));
 
-			t_instruction* instruction = decode_instruction(clientSocketId);
-
+			t_memory_data* memoryData = decode_memory_data(get_logger(), clientSocketId);
 			/*
 			*	La respuesta en realidad varia dedpendiendo del método,
 			*	Ahora manda solo un result pero deberiamos tener las N posibles respuesta
 			*	Y recibirlas/decodearlas del lado del kernel
 			*/
 
+			log_memory_data(memoryData, get_logger(), LOG_LEVEL_DEBUG);
+
 			operation_result result;
 
-			switch (instruction->command){
+			switch (memoryData->instruction->command){
 				case F_CREATE:
-					result = execute_fs_f_create(instruction);
+					result = execute_fs_f_create(memoryData->instruction);
 					break;
 				case F_OPEN:
-					result = execute_fs_f_open(instruction);
+					result = execute_fs_f_open(memoryData->instruction);
 					break;
 				case F_READ:
-					result = execute_fs_f_read(instruction);
+					result = execute_fs_f_read(memoryData);
 					break;
 				case F_WRITE:
-					result = execute_fs_f_write(instruction);
+					result = execute_fs_f_write(memoryData);
 					break;
 				case F_TRUNCATE:
-					result = execute_fs_f_truncate(instruction);
-					break;
-				case F_SEEK:
-					result = execute_fs_f_seek(instruction);
+					result = execute_fs_f_truncate(memoryData->instruction);
 					break;
 				default:
 					result = OPERATION_RESULT_ERROR;

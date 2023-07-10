@@ -58,26 +58,45 @@ t_resource* get_resource(t_list * list,char* resourceName){
 	return NULL;
 }
 
-void check_null_resource(t_resource* resource){
+operation_result check_null_resource(t_resource* resource,t_pcb* pcb){
 	if(resource == NULL){
-			write_to_log(
-				LOG_TARGET_INTERNAL,
-				LOG_LEVEL_INFO,
-				string_from_format("[utils/cpu-communication-utils - execute_kernel_signal] No existe el recurso")
-				);
-			//TODO: cambiar a exit y sacarlo de la lista
-			exit(EXIT_FAILURE);
-		}
+		write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_ERROR,
+			string_from_format("[utils/resources-utils - check_null_resource] No existe el recurso")
+			);
+
+		add_error_in_execution_context_reason(pcb->executionContext->reason , REASON_ERROR , ERROR_INVALID_RESOURCE);
+		move_to_exit(pcb);
+		return OPERATION_RESULT_ERROR;
+	}
+
+	return OPERATION_RESULT_OK;
 }
 
 int get_resource_index(t_list * list,char* resourceName){
 	int size = list_size(list);
 
+	write_to_log(
+		LOG_TARGET_INTERNAL,
+		LOG_LEVEL_INFO,
+		string_from_format("[utils/resources-utils - get_resource_index] Recurso a buscar : %s",resourceName)
+	);
+
 	for(int i=0; i< size;i++){
 		t_resource* resource = list_get(list,i);
+
+		write_to_log(
+			LOG_TARGET_INTERNAL,
+			LOG_LEVEL_INFO,
+			string_from_format("[utils/resources-utils - get_resource_index] Nombre recurso encontrado: %s",resource->name)
+		);
+
+
 		if(!strcmp(resource->name,resourceName)){
 			return i;
 		}
 	}
-	return NULL;
+
+	return -1;
 }

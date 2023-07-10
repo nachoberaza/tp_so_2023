@@ -23,7 +23,6 @@ void listen_cpu_connection(int clientSocketId) {
 				return;
 			break;
 		}
-
 	}
 }
 
@@ -32,7 +31,7 @@ void execute_memory_mov_in(t_memory_data* data, int clientSocketId, char* origin
 	int size = atoi(list_get(data->instruction->parameters, 1));
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
-			string_from_format("PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s",data->pid,address,size,origin));
+			string_from_format("PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s",data->pid, address, size, origin));
 
 	char* value = malloc(size);
 
@@ -66,5 +65,3 @@ void execute_memory_mov_out(t_memory_data* data, int clientSocketId,char* origin
 	operation_result result;
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }
-
-

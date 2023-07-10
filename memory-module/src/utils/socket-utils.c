@@ -68,10 +68,3 @@ void handle_filesystem_connection(int clientSocketId) {
 		exit(EXIT_FAILURE);
 	}
 }
-
-void listen_filesystem_connection(int clientSocketId) {
-	while(1){
-		sleep(30);
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, "[utils/socket-utils - listen_filesystem_connection] Escuchando al modulo file system");
-	}
-}

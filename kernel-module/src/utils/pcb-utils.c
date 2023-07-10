@@ -35,12 +35,6 @@ t_pcb* new_pcb(int clientSocketId){
 void build_pcb(t_list *lines, int clientSocketId) {
 	t_pcb* pcb = create_pcb_from_lines(lines, clientSocketId);
 
-	t_open_file_row* openFileRow = malloc(sizeof(t_open_file_row));
-
-	openFileRow->file = "asd";
-	openFileRow->pointer = "asd2";
-	add_file(pcb, openFileRow);
-
 	pcb->executionContext->reason->executionContextState = REASON_YIELD;
 
 	strncpy(pcb->executionContext->cpuRegisters->AX, "Hi", sizeof(char) * 4);
@@ -158,7 +152,7 @@ void log_pcb(t_pcb* pcb) {
 
 void write_open_file_row_to_internal_logs(t_open_file_row* openFileRow) {
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("File: %s", openFileRow->file));
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %s \n", openFileRow->pointer));
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_TRACE, string_from_format("Pointer: %d \n", openFileRow->pointer));
 }
 
 
@@ -187,7 +181,7 @@ void move_to_ready(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		string_from_format("Cambio de Estado: PID: %d - Estado Anterior: %s - Estado Actual: %s",
 				pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_READY))
 	);
 
@@ -205,7 +199,7 @@ void move_to_running(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		string_from_format("Cambio de Estado: PID: %d - Estado Anterior: %s - Estado Actual: %s",
 		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_RUNNING))
 	);
 
@@ -223,7 +217,7 @@ void move_to_blocked(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN		,
 		LOG_LEVEL_INFO,
-		string_from_format("Cambio de Estado: “PID: %d - Estado Anterior: %s - Estado Actual: %s",
+		string_from_format("Cambio de Estado: PID: %d - Estado Anterior: %s - Estado Actual: %s",
 		pcb->executionContext->pid,state_as_string(pcb->state),state_as_string(STATE_BLOCK))
 	);
 
@@ -250,5 +244,12 @@ char* get_string_array_pid(t_list* list){
 	}
 
 	return pids;
+}
+
+t_open_file_row* create_open_file_row(char *fileName){
+	t_open_file_row *openFileRow = malloc(sizeof(t_open_file_row));
+	openFileRow->file = fileName;
+	openFileRow->pointer = 0;
+	return openFileRow;
 }
 

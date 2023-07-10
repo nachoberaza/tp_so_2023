@@ -43,5 +43,6 @@
 	char * error_as_string(error reason);
 	void add_error_in_execution_context_reason(t_execution_context_reason* reason , execution_context_state state , error err);
 	char* get_string_array_instruction_parameters(t_instruction* instruction);
+	t_instruction* duplicate_instruction(t_instruction* currentInstruction);
 
 #endif
