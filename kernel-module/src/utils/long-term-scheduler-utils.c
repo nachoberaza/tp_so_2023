@@ -74,7 +74,6 @@ void move_to_exit(t_pcb* pcb){
 
 	process_release_all_files(pcb);
 
-
 	delete_process_segment_table(pcb->executionContext->pid);
 
 	wait_short_term();

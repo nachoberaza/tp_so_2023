@@ -155,18 +155,29 @@ void send_memory_data_to_memory(t_pcb* pcb){
 }
 
 void request_compaction_to_memory_and_retry(t_pcb* pcb){
+	int printedLog = 0;
 	t_package* package = create_package();
 	package->operationCode = COMPRESS_SEGMENT_TABLE;
 
 	fill_package_buffer(package, &(pcb->executionContext->pid), sizeof(int));
 
 
-	//TODO:validar si hay operaciones entre FS y memory
+	while(get_count_fs_operations() > 0){
+		if(!printedLog){
+			write_to_log(
+						LOG_TARGET_INTERNAL,
+						LOG_LEVEL_TRACE,
+						"Compactación: Esperando Fin de Operaciones de FS"
+				);
+			printedLog =1;
+		}
+	}
+
 
 	write_to_log(
 			LOG_TARGET_INTERNAL,
 			LOG_LEVEL_TRACE,
-			"Compactación: <Se solicitó compactación / Esperando Fin de Operaciones de FS>"
+			"Compactación: Se solicitó compactación"
 	);
 
 	send_package(package, get_memory_connection());

@@ -1,15 +1,19 @@
 #include "file-system-communication-utils.h"
 
 t_list *openFilesTable;
-int countFileOperations;
+int countFSOperations;
 
 void start_open_files_table_list() {
 	openFilesTable = list_create();
-	countFileOperations = 0;
+	countFSOperations = 0;
 }
 
 t_list* get_open_files_table_list(){
 	return openFilesTable;
+}
+
+int get_count_fs_operations(){
+	return countFSOperations;
 }
 
 void execute_kernel_f_open(t_pcb* pcb){
@@ -82,7 +86,6 @@ void execute_kernel_f_close(t_pcb* pcb){
 }
 
 void execute_kernel_f_seek(t_pcb* pcb){
-	//TODO: Hacer fopen
 	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	char* fileName = list_get(instruction->parameters, 0);
@@ -91,6 +94,11 @@ void execute_kernel_f_seek(t_pcb* pcb){
 	t_open_file_row* openFile = get_open_file(pcb->openFilesTable, fileName);
 
 	openFile->pointer = atoi(pointer);
+
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("PID: %d - Actualizar puntero Archivo: %s - Puntero %d",pcb->executionContext->pid,fileName,openFile->pointer));
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
 			string_from_format("[utils/cpu-communication-utils - execute_kernel_f_seek] Archivo %s apuntando a %d", openFile->file, openFile->pointer));
@@ -148,7 +156,14 @@ void execute_kernel_f_write(t_pcb* pcb){
 
 	send_package(package, get_file_system_connection());
 
-	countFileOperations++;
+	//REVISAR LA INFO DEL LOG
+	write_to_log(
+		LOG_TARGET_MAIN,
+		LOG_LEVEL_INFO,
+		string_from_format("PID: %d -  Escribir Archivo: %s - Puntero %s - Dirección Memoria %d - Tamaño %d",
+				pcb->executionContext->pid,fileName,pointer,list_get(currentInstruction->parameters, 1),list_get(currentInstruction->parameters, 2)));
+
+	countFSOperations++;
 	move_to_blocked(pcb);
 
 	pthread_t ioThread;
@@ -156,7 +171,7 @@ void execute_kernel_f_write(t_pcb* pcb){
 	if (threadStatus != 0){
 	   write_to_log(
 	    	LOG_TARGET_INTERNAL,
-			LOG_LEVEL_INFO,
+			LOG_LEVEL_ERROR,
 			string_from_format("[utils/cpu-communication-utils - execute_kernel_f_write] Hubo un problema al crear el ioThread - Reason: %s", strerror(threadStatus))
 	   );
 	   exit(EXIT_FAILURE);
@@ -169,7 +184,7 @@ void await_f_write(t_pcb* pcb){
 
 	if(response == OPERATION_RESULT_OK){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_write] Ejecutado correctamente");
-		countFileOperations--;
+		countFSOperations--;
 		move_pcb_to_short_term_end(pcb);
 		return;
 	}
@@ -182,6 +197,8 @@ void execute_kernel_f_truncate(t_pcb* pcb){
 	t_instruction* currentInstruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	t_instruction* instruction = duplicate_instruction(currentInstruction);
+	char* fileName = list_get(currentInstruction->parameters,0);
+	char* size = list_get(currentInstruction->parameters,2);
 
 	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
 	memoryData->pid = pcb->executionContext->pid;
@@ -191,12 +208,16 @@ void execute_kernel_f_truncate(t_pcb* pcb){
 
 	send_package(package, get_file_system_connection());
 
-	//TODO: Esta logica varia
 	operation_result response;
 	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	if(response == OPERATION_RESULT_OK){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/fs-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		write_to_log(
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format("PID: %d - Archivo: %s - Tamaño: %s",
+						pcb->executionContext->pid,fileName,size));
 		return;
 	}
 
@@ -257,11 +278,14 @@ void process_release_all_files(t_pcb* pcb){
 				string_from_format("[utils/fs-communication-utils - process_release_all_files] Nombre archivo: %s", openFile->file));
 		process_file_release(pcb, openFile->file);
 	}
+
+	list_destroy_and_destroy_elements(pcb->openFilesTable, (void*) destroy_open_files_row);
 }
 
 void process_file_release(t_pcb* pcb, char* fileName){
 	t_resource* resource = get_resource(openFilesTable, fileName);
-	remove_file_from_process_open_files_table(pcb,fileName);
+	//Elimino la lista y todos los archivos abiertos del
+	//remove_file_from_process_open_files_table(pcb,fileName);
 
 	if(list_is_empty(resource->blocked)){
 		remove_file_from_open_files_table(resource);
@@ -305,19 +329,5 @@ void send_instruction_to_fs(t_instruction* instruction, int pid){
 
 	send_package(package, get_file_system_connection());
 }
-
-/*void request_file(t_resource* resource, t_pcb* pcb){
-	if(resource->instances <= 0){
-		write_to_log(
-					LOG_TARGET_MAIN,
-					LOG_LEVEL_INFO,
-					string_from_format("PID: %d - Solicito por: %s",
-							pcb->executionContext->pid,resource->name)
-				);
-				move_to_blocked(pcb);
-				list_add(resource->blocked, pcb);
-	}
-	resource->instances--;
-}*/
 
 

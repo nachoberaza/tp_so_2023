@@ -185,6 +185,8 @@ void compact_memory() {
 
 		segment->baseDirection = updatedBaseDirection;
 		updatedBaseDirection += segment->segmentSize;
+
+		list_add(newSegmentTable,segment);
 	}
 	list_clean(segmentTableGlobal);
 	list_add_all(segmentTableGlobal, newSegmentTable);
