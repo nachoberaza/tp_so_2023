@@ -17,7 +17,7 @@
 	#include <shared/logs/log.h>
  	#include "config-utils.h"
 	#include "fcb-utils.h"
-	#include "block-file-utils.h"
+	#include "bitmap-utils.h"
 	#include "config-utils.h"
 	#include "logger-utils.h"
 
@@ -29,8 +29,11 @@
 	void create_block_file();
 	t_file_block* open_block_file();
 	int get_pointer(t_fcb* fcb, int blockNumber);
-	void write_in_block_file(int directPointer, char* value, int size);
+	void write_in_block_file(int directPointer, void* value, int size);
 	void write_in_block(t_instruction* instruction, char* value);
-	int extract_from_block(int indirectPointer, int offset, int size);
+	uint32_t extract_uint32_from_block(int indirectPointer, int offset);
+	void truncate_file(t_fcb* fcb, int size);
+	void assign_new_block(t_fcb* fcb, int currentSize);
+	int get_fcb_size(t_fcb *fcb);
 
 #endif

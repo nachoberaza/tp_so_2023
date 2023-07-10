@@ -1,6 +1,5 @@
 #include "filesystem-utils.h"
 
-
 void create_filesystem_structures(){
 	load_super_block();
 	load_fcb_list();

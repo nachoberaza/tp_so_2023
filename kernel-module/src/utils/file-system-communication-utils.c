@@ -178,8 +178,18 @@ void await_f_write(t_pcb* pcb){
 }
 
 void execute_kernel_f_truncate(t_pcb* pcb){
-	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
-	send_instruction_to_fs(instruction, pcb->executionContext->pid);
+	t_package* package = create_package();
+	t_instruction* currentInstruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+
+	t_instruction* instruction = duplicate_instruction(currentInstruction);
+
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+	memoryData->pid = pcb->executionContext->pid;
+	memoryData->instruction = instruction;
+
+	fill_buffer_with_memory_data(memoryData,package);
+
+	send_package(package, get_file_system_connection());
 
 	//TODO: Esta logica varia
 	operation_result response;

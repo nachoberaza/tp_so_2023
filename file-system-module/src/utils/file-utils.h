@@ -20,6 +20,5 @@
 	operation_result execute_fs_f_read(t_memory_data* instruction);
 	operation_result execute_fs_f_write(t_memory_data* instruction);
 	operation_result execute_fs_f_truncate(t_instruction* instruction);
-	operation_result execute_fs_f_seek(t_instruction* instruction);
 	void send_f_write_to_memory(t_memory_data* context, int size, int physicalAddress);
 #endif

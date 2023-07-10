@@ -17,6 +17,6 @@
 	uint32_t get_direct_pointer_from_instruction(t_instruction* instruction);
 	void log_fcb(t_fcb* fcb);
 	void log_fcb_list(t_list* fcbList);
-	char *get_fcb_path(t_instruction* instruction);
+	char *get_fcb_path(char* fileName);
 	void persist_fcb(FILE *file,t_fcb *fcb);
 #endif
