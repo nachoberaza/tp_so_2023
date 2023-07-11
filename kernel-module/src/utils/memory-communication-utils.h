@@ -36,4 +36,5 @@
 	void request_compaction_to_memory_and_retry(t_pcb* pcb);
 	void update_segment_table_in_all_proccesses(t_list* newSegmentTable);
 	t_pcb* search_pcb_by_pid(int pid);
+	t_segment_row* duplicate_segment(t_segment_row* segment);
 #endif

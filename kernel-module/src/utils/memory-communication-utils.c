@@ -93,25 +93,35 @@ void execute_kernel_delete_segment(t_pcb* pcb){
 	update_segment_table_in_all_proccesses(segmentTable);
 }
 
+t_segment_row* duplicate_segment(t_segment_row* segment){
+	t_segment_row* newSegment = malloc(sizeof(t_segment_row));
+	newSegment->baseDirection = segment->baseDirection;
+	newSegment->id = segment->id;
+	newSegment->pid = segment->pid;
+	newSegment->segmentSize = segment->segmentSize;
+
+	return newSegment;
+}
+
+
 void update_segment_table_in_all_proccesses(t_list* newSegmentTable){
 	int size = list_size(newSegmentTable);
 	int sizePcbList = list_size(get_short_term_list());
 	t_segment_row* segmentZero = list_get(newSegmentTable,0);
 
-
-
 	for(int i=0; i< sizePcbList; i++){
 		t_pcb* pcb = list_get(get_short_term_list(),i);
 
+		//clean and destroy
 		list_clean(pcb->executionContext->segmentTable);
-		list_add(pcb->executionContext->segmentTable, segmentZero);
+		list_add(pcb->executionContext->segmentTable, duplicate_segment(segmentZero));
 	}
 
 	for(int i=0; i< size; i++){
-		t_segment_row* segment = list_get(newSegmentTable,i);
+		t_segment_row* segment = list_get(newSegmentTable, i);
 		t_pcb* pcb = search_pcb_by_pid(segment->pid);
 		if(pcb != NULL){
-			list_add(pcb->executionContext->segmentTable,segment);
+			list_add(pcb->executionContext->segmentTable, segment);
 		}
 	}
 

@@ -168,7 +168,7 @@ int add_segment_worst_algorithm(t_segment_row* segment) {
 
 void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i){
 	segment->baseDirection = row->baseDirection;
-	list_add(segmentTableGlobal, segment);
+	list_add_sorted(segmentTableGlobal, segment, (void*)compare_base_segment_row);
 	if (row->segmentSize == segment->segmentSize)
 	{
 		list_remove(freeSpacesList, i);
@@ -184,11 +184,11 @@ void compact_memory() {
 	for(int i = 0 ; i < list_size(segmentTableGlobal) ; i++){
 		t_segment_row* segment = list_get(segmentTableGlobal, i);
 
-		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,string_from_format("PID: %d- Segmento: %d- Base: %d - Tamaño %d",
-				segment->pid,segment->id,segment->baseDirection, segment->segmentSize));
-
 		segment->baseDirection = updatedBaseDirection;
 		updatedBaseDirection += segment->segmentSize;
+
+		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,string_from_format("PID: %d- Segmento: %d- Base: %d - Tamaño %d",
+				segment->pid,segment->id,segment->baseDirection, segment->segmentSize));
 
 		list_add(newSegmentTable,segment);
 	}
