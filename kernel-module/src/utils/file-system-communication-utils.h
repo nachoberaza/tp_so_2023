@@ -47,6 +47,6 @@
     void process_release_all_files(t_pcb* pcb);
     void process_file_release(t_pcb* pcb, char* fileName);
     t_open_file_row* get_open_file(t_list * list, char* fileName);
-   /* void request_file(t_resource* resource, t_pcb* pcb);*/
+    int get_count_fs_operations();
 
 #endif

@@ -57,10 +57,13 @@ void execute_memory_compress_segment_table(int clientSocketId){
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, "Solicitud de Compactación");
 
+	sleep(get_memory_config()->COMPACTION_DELAY);
+
 	compact_memory();
 
 	t_package* package = create_package();
 	fill_package_with_segment_table(package, get_segment_table_global());
+	
 	send_package(package, clientSocketId);
 }
 

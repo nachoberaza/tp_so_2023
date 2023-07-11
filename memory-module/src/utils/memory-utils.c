@@ -16,7 +16,13 @@ void create_memory_structures() {
 	segmentZero->segmentSize = get_memory_config()->SEGMENT_ZERO_SIZE;
 	list_add(segmentTableGlobal, segmentZero);
 
-	reinitialize_free_spaces_list();
+	t_segment_row* emptySpace = malloc(sizeof(t_segment_row));
+	emptySpace->pid=-1;
+	emptySpace->id = 0;
+	emptySpace->baseDirection = get_memory_config()->SEGMENT_ZERO_SIZE;
+	emptySpace->segmentSize = get_memory_config()->MEMORY_SIZE - get_memory_config()->SEGMENT_ZERO_SIZE;
+
+	list_add(freeSpacesList, emptySpace);
 }
 
 void* get_memory() {
@@ -173,8 +179,6 @@ void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int 
 }
 
 void compact_memory() {
-	reinitialize_free_spaces_list();
-
 	t_list* newSegmentTable = list_create();
 	int updatedBaseDirection = 0;
 	for(int i = 0 ; i < list_size(segmentTableGlobal) ; i++){
@@ -185,19 +189,22 @@ void compact_memory() {
 
 		segment->baseDirection = updatedBaseDirection;
 		updatedBaseDirection += segment->segmentSize;
+
+		list_add(newSegmentTable,segment);
 	}
+	reinitialize_free_spaces_list(updatedBaseDirection);
 	list_clean(segmentTableGlobal);
 	list_add_all(segmentTableGlobal, newSegmentTable);
 }
 
-void reinitialize_free_spaces_list(){
+void reinitialize_free_spaces_list(int baseDirection){
 	list_clean(freeSpacesList);
 
-	t_segment_row* emptySpace = malloc(sizeof(t_segment_row));
-	emptySpace->pid=-1;
-	emptySpace->id = 0;
-	emptySpace->baseDirection = get_memory_config()->SEGMENT_ZERO_SIZE;
-	emptySpace->segmentSize = get_memory_config()->MEMORY_SIZE - get_memory_config()->SEGMENT_ZERO_SIZE;
+	t_segment_row* remainingSpace = malloc(sizeof(t_segment_row));
+	remainingSpace->pid=-1;
+	remainingSpace->id = 1;
+	remainingSpace->baseDirection = baseDirection;
+	remainingSpace->segmentSize = get_memory_config()->MEMORY_SIZE - baseDirection;
 
-	list_add(freeSpacesList, emptySpace);
+	list_add(freeSpacesList, remainingSpace);
 }

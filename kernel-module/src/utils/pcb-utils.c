@@ -113,7 +113,6 @@ void free_pcb(t_pcb* pcb){
 	);
 
 	destroy_execution_context(get_logger(), pcb->executionContext);
-	list_destroy_and_destroy_elements(pcb->openFilesTable, (void*) destroy_open_files_row);
 	free(pcb);
 
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/pcb-utils - free_pcb] PCB Liberado");

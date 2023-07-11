@@ -26,6 +26,6 @@
 	int add_segment_worst_algorithm(t_segment_row* segment);
 	void add_segment_in_empty_space(t_segment_row* row, t_segment_row* segment, int i);
 	void compact_memory();
-	void reinitialize_free_spaces_list();
+	void reinitialize_free_spaces_list(int baseDirection);
 
 #endif
