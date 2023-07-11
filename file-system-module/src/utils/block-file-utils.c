@@ -55,15 +55,41 @@ void write_in_block(t_instruction* instruction, char* value){
 	t_fcb* fcb = get_fcb_by_name(fileName);
 
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
+	int bytesToWrite;
+	int bytesRemaining = size;
 
-	int blockNumber = floor(pointer/blockSize);
+	for(int i = 0 ; bytesRemaining != 0; i++){
+		int blockNumber = floor(pointer/blockSize) + i;
+		int directPointer = get_pointer(fcb, blockNumber) * blockSize;
 
-	int directPointer = get_pointer(fcb, blockNumber) * blockSize;
+		if (i == 0) {
+			bytesToWrite = blockSize - (pointer % blockSize);
+		} else {
+			bytesToWrite = (bytesRemaining < blockSize) ? bytesRemaining : blockSize;
+		}
 
-	directPointer = directPointer + (pointer % blockSize);
-
-	write_in_block_file(directPointer, value, size);
+		if(i == 0 && pointer % blockSize != 0){
+			directPointer += (pointer % blockSize);
+		}
+		bytesRemaining -= bytesToWrite;
+		write_in_block_file(directPointer, value, bytesToWrite);
+	}
 }
+
+int get_pointer(t_fcb* fcb, int blockNumber){
+	const int pointerSize = 4;
+	if (blockNumber == 0)
+		return fcb->directPointer;
+
+	// OFFSET DE BLOQUE DE PUNTEROS
+	int offset = pointerSize * (blockNumber - 1);
+	// EXTRAE EL PUNTERO
+	uint32_t value = extract_uint32_from_block(fcb->indirectPointer *  get_super_block_config()->BLOCK_SIZE, offset);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - get_pointer] Se obtuvo el valor: %d\n", value));
+	return (int)value;
+}
+
 
 void write_in_block_file(int directPointer, void* value, int size){
 	int blockCount = get_super_block_config()->BLOCK_COUNT;
@@ -81,17 +107,6 @@ void write_in_block_file(int directPointer, void* value, int size){
 	munmap(fileBlock->bmap, blockCount * blockSize);
 }
 
-int get_pointer(t_fcb* fcb, int blockNumber){
-	const int pointerSize = 4;
-	if (blockNumber == 0)
-		return fcb->directPointer;
-
-	int offset = pointerSize * (blockNumber - 1);
-	uint32_t value = extract_uint32_from_block(fcb->indirectPointer *  get_super_block_config()->BLOCK_SIZE, offset);
-
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - get_pointer] Se obtuvo el valor: %d\n", value));
-	return (int)value;
-}
 
 uint32_t extract_uint32_from_block(int indirectPointer, int offset){
 	int blockCount = get_super_block_config()->BLOCK_COUNT;
