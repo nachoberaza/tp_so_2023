@@ -9,6 +9,7 @@
 	#include <shared/execution-context/execution-context.h>
 	#include <shared/memory/memory.h>
  	#include "config-utils.h"
+	#include "socket-utils.h"
 	#include "../utils/fcb-utils.h"
 	#include "../utils/block-file-utils.h"
 	#include <sys/mman.h>
@@ -21,4 +22,5 @@
 	operation_result execute_fs_f_write(t_memory_data* instruction);
 	operation_result execute_fs_f_truncate(t_instruction* instruction);
 	void send_f_write_to_memory(t_memory_data* context, int size, int physicalAddress);
+	void send_f_read_to_memory(t_memory_data* context, char* value, int size, int physicalAddress);
 #endif

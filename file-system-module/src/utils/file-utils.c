@@ -41,9 +41,17 @@ operation_result execute_fs_f_open(t_instruction* instruction){
 	return OPERATION_RESULT_OK;
 }
 
-operation_result execute_fs_f_read(t_memory_data* instruction){
+operation_result execute_fs_f_read(t_memory_data* memoryData){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_read] Ejecutando F_READ");
-	return OPERATION_RESULT_OK;
+	char* readValue = read_block(memoryData->instruction);
+	int size = atoi(list_get(memoryData->instruction->parameters, 2));
+	int address = atoi(list_get(memoryData->instruction->parameters, 3));
+
+	send_f_read_to_memory(memoryData, readValue, size, address);
+	operation_result response;
+	recv(get_memory_connection(), &response, sizeof(int), MSG_WAITALL);
+
+	return response;
 }
 
 operation_result execute_fs_f_write(t_memory_data* memoryData){
@@ -82,6 +90,28 @@ void send_f_write_to_memory(t_memory_data* context, int size, int physicalAddres
 	memoryInstruction->command = F_WRITE;
 	memoryInstruction->parameters = list_create();
 	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
+	list_add(memoryInstruction->parameters, string_itoa(size));
+
+	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, memoryInstruction);
+
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+	memoryData->pid = context->pid;
+	memoryData->instruction = memoryInstruction;
+
+
+	fill_buffer_with_memory_data(memoryData, package);
+
+	send_package(package, get_memory_connection());
+}
+
+void send_f_read_to_memory(t_memory_data* context, char* value, int size, int physicalAddress){
+	t_package* package = create_package();
+	t_instruction* memoryInstruction = malloc(sizeof(t_instruction));
+
+	memoryInstruction->command = F_READ;
+	memoryInstruction->parameters = list_create();
+	list_add(memoryInstruction->parameters, string_itoa(physicalAddress));
+	list_add(memoryInstruction->parameters, value);
 	list_add(memoryInstruction->parameters, string_itoa(size));
 
 	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, memoryInstruction);
