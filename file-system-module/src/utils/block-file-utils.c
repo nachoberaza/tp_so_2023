@@ -49,6 +49,7 @@ t_file_block* open_block_file(){
 
 void write_in_block(t_instruction* instruction, char* value){
 	char* fileName = list_get(instruction->parameters, 0);
+	char* actualValue = value;
 	int size = atoi(list_get(instruction->parameters, 2));
 	int pointer = atoi(list_get(instruction->parameters, 4));
 
@@ -63,7 +64,7 @@ void write_in_block(t_instruction* instruction, char* value){
 		int directPointer = get_pointer(fcb, blockNumber) * blockSize;
 
 		if (i == 0) {
-			bytesToWrite = blockSize - (pointer % blockSize);
+			bytesToWrite = (bytesRemaining < blockSize) ? bytesRemaining : blockSize - (pointer % blockSize);
 		} else {
 			bytesToWrite = (bytesRemaining < blockSize) ? bytesRemaining : blockSize;
 		}
@@ -72,7 +73,8 @@ void write_in_block(t_instruction* instruction, char* value){
 			directPointer += (pointer % blockSize);
 		}
 		bytesRemaining -= bytesToWrite;
-		write_in_block_file(directPointer, value, bytesToWrite);
+		write_in_block_file(directPointer, actualValue, bytesToWrite);
+		actualValue = string_substring_from(actualValue, bytesToWrite);
 	}
 }
 
