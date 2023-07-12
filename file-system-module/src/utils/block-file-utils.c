@@ -109,6 +109,54 @@ void write_in_block_file(int directPointer, void* value, int size){
 	munmap(fileBlock->bmap, blockCount * blockSize);
 }
 
+char* read_block(t_instruction* instruction){
+	char* fileName = list_get(instruction->parameters, 0);
+	int size = atoi(list_get(instruction->parameters, 2));
+	int pointer = atoi(list_get(instruction->parameters, 4));
+	t_fcb* fcb = get_fcb_by_name(fileName);
+
+	char* readValue = string_new();
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+	int bytesToRead;
+	int bytesRemaining = size;
+
+	for(int i = 0 ; bytesRemaining != 0; i++){
+		int blockNumber = floor(pointer/blockSize) + i;
+		int directPointer = get_pointer(fcb, blockNumber) * blockSize;
+
+		if (i == 0) {
+			bytesToRead = (bytesRemaining < blockSize) ? bytesRemaining : blockSize - (pointer % blockSize);
+		} else {
+			bytesToRead = (bytesRemaining < blockSize) ? bytesRemaining : blockSize;
+		}
+
+		if(i == 0 && pointer % blockSize != 0){
+			directPointer += (pointer % blockSize);
+		}
+		bytesRemaining -= bytesToRead;
+		string_append(&readValue, read_block_file(directPointer, bytesToRead));
+	}
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_ERROR, string_from_format("[utils/file-utils - read_block] Valor leido de file: %s", readValue));
+	return readValue;
+}
+
+
+char* read_block_file(int directPointer, int size){
+	int blockCount = get_super_block_config()->BLOCK_COUNT;
+	int blockSize = get_super_block_config()->BLOCK_SIZE;
+	char* returnValue = string_new();
+	t_file_block* fileBlock = open_block_file();
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - read_block_file] DirectPointer: %d", directPointer));
+
+	char* currentAddress = fileBlock->bmap + directPointer;
+
+	memcpy(returnValue, currentAddress, size);
+	returnValue = string_substring(returnValue, 0, size);
+	fclose(fileBlock->filePointer);
+	munmap(fileBlock->bmap, blockCount * blockSize);
+	return returnValue;
+}
+
 
 uint32_t extract_uint32_from_block(int indirectPointer, int offset){
 	int blockCount = get_super_block_config()->BLOCK_COUNT;

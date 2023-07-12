@@ -105,32 +105,42 @@ void execute_kernel_f_seek(t_pcb* pcb){
 }
 
 void execute_kernel_f_read(t_pcb* pcb){
-	//TODO: Hacer fopen
 	t_package* package = create_package();
-	t_instruction* instruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
+	t_instruction* currentInstruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
-	fill_package_buffer(package, &(instruction->command), sizeof(command));
-	int parameterCount = list_size(instruction->parameters);
+	t_instruction* instruction = duplicate_instruction(currentInstruction);
 
-	fill_package_buffer(package, &parameterCount, sizeof(int));
-	for (int j = 0; j < parameterCount; j++){
-		char* parameter = list_get(instruction->parameters, j);
+	char* fileName = list_get(currentInstruction->parameters, 0);
+	t_open_file_row* openFile = get_open_file(pcb->openFilesTable, fileName);
 
-		fill_package_buffer(package, parameter, strlen(parameter) + 1);
-	}
+	list_add(instruction->parameters, list_get(pcb->executionContext->reason->parameters, 0));
+	char* pointer = string_itoa(openFile->pointer);
+	list_add(instruction->parameters, pointer);
+
+	write_instruction_to_internal_log(get_logger(), LOG_LEVEL_INFO, instruction);
+
+	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
+	memoryData->pid = pcb->executionContext->pid;
+	memoryData->instruction = instruction;
+
+	fill_buffer_with_memory_data(memoryData,package);
 
 	send_package(package, get_file_system_connection());
 
-	//TODO: Esta logica varia
+	countFileOperations++;
+	move_to_blocked(pcb);
+
 	operation_result response;
 	recv(get_file_system_connection(), &response, sizeof(int), MSG_WAITALL);
 
 	if(response == OPERATION_RESULT_OK){
-		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ejecutado correctamente");
+		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_read] Ejecutado correctamente");
+		countFileOperations--;
+		move_pcb_to_short_term_end(pcb);
 		return;
 	}
 
-	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_open] Ocurrió un error en FS");
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_read] Ocurrió un error en FS");
 }
 
 void execute_kernel_f_write(t_pcb* pcb){

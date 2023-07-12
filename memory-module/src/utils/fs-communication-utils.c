@@ -63,6 +63,6 @@ void execute_memory_f_read(t_memory_data* data, int clientSocketId, char* origin
 
 	memcpy(destination, value, strlen(value));
 
-	operation_result result;
+	operation_result result = OPERATION_RESULT_OK;
 	send(clientSocketId, &result, sizeof(operation_result), NULL);
 }

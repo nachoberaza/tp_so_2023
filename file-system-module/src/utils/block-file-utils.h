@@ -31,6 +31,8 @@
 	int get_pointer(t_fcb* fcb, int blockNumber);
 	void write_in_block_file(int directPointer, void* value, int size);
 	void write_in_block(t_instruction* instruction, char* value);
+	char* read_block(t_instruction* instruction);
+	char* read_block_file(int directPointer, int size);
 	uint32_t extract_uint32_from_block(int indirectPointer, int offset);
 	void truncate_file(t_fcb* fcb, int size);
 	void assign_new_block(t_fcb* fcb, int currentSize);
