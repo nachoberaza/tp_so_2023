@@ -131,7 +131,7 @@ int add_segment_first_algorithm(t_segment_row* segment) {
 		totalAvailableSize += row->segmentSize;
 	}
 
-	if (totalAvailableSize > segment->segmentSize)
+	if (totalAvailableSize >= segment->segmentSize)
 		return NEED_COMPACTION;
 	return OUT_OF_MEMORY;
 }

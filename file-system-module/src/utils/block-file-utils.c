@@ -1,7 +1,6 @@
 #include "block-file-utils.h"
 
 t_bitarray *blockfile;
-const int emptyPointerValue = 40;
 const int pointerLength = 4;
 
 void create_block_file(){
@@ -172,7 +171,7 @@ uint32_t extract_uint32_from_block(int indirectPointer, int offset){
 
 
 void truncate_file(t_fcb* fcb, int size){
-	int fcbCurrentSize = get_fcb_size(fcb);
+	int fcbCurrentSize = fcb->fileSize;
 	int blockSize = get_super_block_config()->BLOCK_SIZE;
 
 	int blockCount = floor(size / blockSize);
@@ -182,16 +181,6 @@ void truncate_file(t_fcb* fcb, int size){
 	for(int i=fcbCurrentSize; i<blockCount; i++){
 		assign_new_block(fcb, i);
 	}
-
-	int maxBlockSize = blockSize / 4;
-
-
-	for(int i=blockCount; i<maxBlockSize; i++){
-		int position = (fcb->indirectPointer * blockSize) + (i - 1) * pointerLength;
-		write_in_block_file(position, &emptyPointerValue, pointerLength);
-	}
-
-	//persist_fcb(fcb);
 }
 
 void assign_new_block(t_fcb* fcb, int currentSize){
@@ -214,30 +203,5 @@ void assign_new_block(t_fcb* fcb, int currentSize){
 
 	write_in_block_file(position, &block, pointerLength);
 	mark_block_as_used(block);
-}
-
-int get_fcb_size(t_fcb *fcb){
-	const int pointerSize = 4;
-	int size = 0;
-	if (!is_block_used(fcb->directPointer))
-		return 0;
-	size++;
-
-	int offset = 0;
-	uint32_t value = 0;
-	int currentPointer = 0;
-
-	while (1){
-		offset = pointerSize * currentPointer;
-		value = (int) extract_uint32_from_block(fcb->indirectPointer, offset);
-
-		if (value == emptyPointerValue)
-			return size;
-
-		if (!is_block_used(value))
-			return size;
-
-		size++;
-	}
 }
 

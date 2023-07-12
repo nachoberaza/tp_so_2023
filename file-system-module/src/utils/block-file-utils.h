@@ -36,6 +36,5 @@
 	uint32_t extract_uint32_from_block(int indirectPointer, int offset);
 	void truncate_file(t_fcb* fcb, int size);
 	void assign_new_block(t_fcb* fcb, int currentSize);
-	int get_fcb_size(t_fcb *fcb);
 
 #endif

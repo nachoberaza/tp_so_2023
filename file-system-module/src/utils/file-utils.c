@@ -132,13 +132,20 @@ operation_result execute_fs_f_truncate(t_instruction* instruction){
 
 	char* fileName = list_get(instruction->parameters, 0);
 	int size = atoi(list_get(instruction->parameters, 1));
-	t_fcb* fcb = get_fcb_by_name(fileName);
-	int fcbCurrentSize = get_fcb_size(fcb);
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
+			string_from_format("[utils/socket-utils - execute_fs_f_truncate] Name: %s, Size: %d", fileName, size));
 
-	if(fcbCurrentSize == size)
+	t_fcb* fcb = get_fcb_by_name(fileName);
+
+	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
+			string_from_format("[utils/socket-utils - execute_fs_f_truncate] FCB obtenido: %s", fcb->fileName));
+
+	if(fcb->fileSize == size)
 		return OPERATION_RESULT_OK;
 
 	truncate_file(fcb, size);
+
+	fcb->fileSize = size;
 
 	FILE *fcbPointer  = fopen(get_fcb_path(fileName), "w");
 	persist_fcb(fcbPointer,fcb);

@@ -175,8 +175,8 @@ void request_compaction_to_memory_and_retry(t_pcb* pcb){
 	while(get_count_fs_operations() > 0){
 		if(!printedLog){
 			write_to_log(
-						LOG_TARGET_INTERNAL,
-						LOG_LEVEL_TRACE,
+						LOG_TARGET_MAIN,
+						LOG_LEVEL_INFO,
 						"Compactación: Esperando Fin de Operaciones de FS"
 				);
 			printedLog =1;
@@ -185,8 +185,8 @@ void request_compaction_to_memory_and_retry(t_pcb* pcb){
 
 
 	write_to_log(
-			LOG_TARGET_INTERNAL,
-			LOG_LEVEL_TRACE,
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
 			"Compactación: Se solicitó compactación"
 	);
 

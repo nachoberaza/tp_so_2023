@@ -127,7 +127,15 @@ void execute_kernel_f_read(t_pcb* pcb){
 
 	send_package(package, get_file_system_connection());
 
-	countFileOperations++;
+	//REVISAR LA INFO DEL LOG
+		write_to_log(
+			LOG_TARGET_MAIN,
+			LOG_LEVEL_INFO,
+			string_from_format("PID: %d -  Leer Archivo: %s - Puntero %s - Dirección Memoria %s - Tamaño %s",
+					pcb->executionContext->pid, fileName, pointer, list_get(currentInstruction->parameters, 3), list_get(currentInstruction->parameters, 2)));
+
+
+	countFSOperations++;
 	move_to_blocked(pcb);
 
 	operation_result response;
@@ -135,7 +143,7 @@ void execute_kernel_f_read(t_pcb* pcb){
 
 	if(response == OPERATION_RESULT_OK){
 		write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, "[utils/cpu-communication-utils - execute_kernel_f_read] Ejecutado correctamente");
-		countFileOperations--;
+		countFSOperations--;
 		move_pcb_to_short_term_end(pcb);
 		return;
 	}
@@ -170,8 +178,8 @@ void execute_kernel_f_write(t_pcb* pcb){
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
-		string_from_format("PID: %d -  Escribir Archivo: %s - Puntero %s - Dirección Memoria %d - Tamaño %d",
-				pcb->executionContext->pid,fileName,pointer,list_get(currentInstruction->parameters, 1),list_get(currentInstruction->parameters, 2)));
+		string_from_format("PID: %d -  Escribir Archivo: %s - Puntero %s - Dirección Memoria %s - Tamaño %s",
+				pcb->executionContext->pid, fileName, pointer, list_get(currentInstruction->parameters, 3), list_get(currentInstruction->parameters, 2)));
 
 	countFSOperations++;
 	move_to_blocked(pcb);
@@ -207,8 +215,8 @@ void execute_kernel_f_truncate(t_pcb* pcb){
 	t_instruction* currentInstruction = list_get(pcb->executionContext->instructions, pcb->executionContext->programCounter - 1);
 
 	t_instruction* instruction = duplicate_instruction(currentInstruction);
-	char* fileName = list_get(currentInstruction->parameters,0);
-	char* size = list_get(currentInstruction->parameters,2);
+	char* fileName = list_get(currentInstruction->parameters, 0);
+	char* size = list_get(currentInstruction->parameters, 1);
 
 	t_memory_data* memoryData = malloc(sizeof(t_memory_data));
 	memoryData->pid = pcb->executionContext->pid;
@@ -295,7 +303,7 @@ void process_release_all_files(t_pcb* pcb){
 void process_file_release(t_pcb* pcb, char* fileName){
 	t_resource* resource = get_resource(openFilesTable, fileName);
 	//Elimino la lista y todos los archivos abiertos del
-	//remove_file_from_process_open_files_table(pcb,fileName);
+	remove_file_from_process_open_files_table(pcb, fileName);
 
 	if(list_is_empty(resource->blocked)){
 		remove_file_from_open_files_table(resource);
@@ -326,7 +334,10 @@ void remove_file_from_process_open_files_table(t_pcb* pcb, char* fileName){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG,
 						string_from_format("[utils/fs-communication-utils - remove_file_from_process_open_files_table] File: %s,Index : %d",fileName,fileIndex));
 
+	t_open_file_row* open_file_row = list_get(pcb->openFilesTable, fileIndex);
 	list_remove(pcb->openFilesTable, fileIndex);
+
+	destroy_open_files_row(open_file_row);
 }
 
 void send_instruction_to_fs(t_instruction* instruction, int pid){
