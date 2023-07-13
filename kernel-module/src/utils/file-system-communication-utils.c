@@ -132,7 +132,7 @@ void execute_kernel_f_read(t_pcb* pcb){
 			LOG_TARGET_MAIN,
 			LOG_LEVEL_INFO,
 			string_from_format("PID: %d -  Leer Archivo: %s - Puntero %s - Dirección Memoria %s - Tamaño %s",
-					pcb->executionContext->pid, fileName, pointer, list_get(currentInstruction->parameters, 3), list_get(currentInstruction->parameters, 2)));
+					pcb->executionContext->pid, fileName, pointer, list_get(instruction->parameters, 3), list_get(instruction->parameters, 2)));
 
 
 	countFSOperations++;
@@ -179,7 +179,7 @@ void execute_kernel_f_write(t_pcb* pcb){
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
 		string_from_format("PID: %d -  Escribir Archivo: %s - Puntero %s - Dirección Memoria %s - Tamaño %s",
-				pcb->executionContext->pid, fileName, pointer, list_get(currentInstruction->parameters, 3), list_get(currentInstruction->parameters, 2)));
+				pcb->executionContext->pid, fileName, pointer, list_get(instruction->parameters, 3), list_get(instruction->parameters, 2)));
 
 	countFSOperations++;
 	move_to_blocked(pcb);

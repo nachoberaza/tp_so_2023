@@ -79,14 +79,14 @@ void write_in_block(t_instruction* instruction, char* value){
 
 int get_pointer(t_fcb* fcb, int blockNumber){
 	const int pointerSize = 4;
-	if (blockNumber == 0)
+	if (blockNumber == 0){
+		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Acceso Bloque - Archivo: %s - Bloque Archivo: %d - Bloque File System: %d", fcb->fileName, blockNumber, fcb->directPointer));
 		return fcb->directPointer;
+	}
 
-	// OFFSET DE BLOQUE DE PUNTEROS
 	int offset = pointerSize * (blockNumber - 1);
-	// EXTRAE EL PUNTERO
 	uint32_t value = extract_uint32_from_block(fcb->indirectPointer *  get_super_block_config()->BLOCK_SIZE, offset);
-
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Acceso Bloque - Archivo: %s - Bloque Archivo: %d - Bloque File System: %d", fcb->fileName, blockNumber, value));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_DEBUG, string_from_format("[utils/file-utils - get_pointer] Se obtuvo el valor: %d\n", value));
 	return (int)value;
 }

@@ -28,9 +28,6 @@ operation_result execute_fs_f_open(t_instruction* instruction){
 
 	t_fcb* fcb = get_fcb_by_name(fileName);
 
-	if (fcb == NULL)
-		return OPERATION_RESULT_ERROR;
-
 	write_to_log(
 		LOG_TARGET_MAIN,
 		LOG_LEVEL_INFO,
@@ -38,14 +35,19 @@ operation_result execute_fs_f_open(t_instruction* instruction){
 				fileName)
 	);
 
+	if (fcb == NULL)
+		return OPERATION_RESULT_ERROR;
+
 	return OPERATION_RESULT_OK;
 }
 
 operation_result execute_fs_f_read(t_memory_data* memoryData){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_read] Ejecutando F_READ");
-	char* readValue = read_block(memoryData->instruction);
 	int size = atoi(list_get(memoryData->instruction->parameters, 2));
 	int address = atoi(list_get(memoryData->instruction->parameters, 3));
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
+							string_from_format("Leer Archivo: %s - Puntero: %s - Memoria: %d - Tamaño: %d", list_get(memoryData->instruction->parameters, 0), list_get(memoryData->instruction->parameters, 4), address, size));
+	char* readValue = read_block(memoryData->instruction);
 
 	send_f_read_to_memory(memoryData, readValue, size, address);
 	operation_result response;
@@ -59,6 +61,8 @@ operation_result execute_fs_f_write(t_memory_data* memoryData){
 
 	int size = atoi(list_get(memoryData->instruction->parameters, 2));
 	int address = atoi(list_get(memoryData->instruction->parameters, 3));
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
+						string_from_format("Escribir Archivo: %s - Puntero: %s - Memoria: %d - Tamaño: %d", list_get(memoryData->instruction->parameters, 0), list_get(memoryData->instruction->parameters, 4), address, size));
 
 	send_f_write_to_memory(memoryData, size, address);
 
@@ -128,10 +132,9 @@ void send_f_read_to_memory(t_memory_data* context, char* value, int size, int ph
 
 operation_result execute_fs_f_truncate(t_instruction* instruction){
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO, "[utils/socket-utils - execute_fs_f_truncate] Ejecutando F_TRUNCATE");
-
-
 	char* fileName = list_get(instruction->parameters, 0);
 	int size = atoi(list_get(instruction->parameters, 1));
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Truncar Archivo: %s - Tamaño: %d", fileName, size));
 	write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
 			string_from_format("[utils/socket-utils - execute_fs_f_truncate] Name: %s, Size: %d", fileName, size));
 

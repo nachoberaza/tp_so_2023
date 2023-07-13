@@ -37,6 +37,7 @@ off_t get_first_empty_block(){
 	t_bitarray *bitmapToCheck = get_bitmap();
 
 	for(off_t index = 0; index < (bitmapToCheck->size);index++){
+		write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Acceso a Bitmap - Bloque: %d - Estado: %d", index, is_block_used(index)));
 		if(!bitarray_test_bit(bitmapToCheck,index)){
 			return index;
 		}
@@ -45,10 +46,12 @@ off_t get_first_empty_block(){
 }
 
 void mark_block_as_used(off_t index){
+	 write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Acceso a Bitmap - Bloque: %d - Estado: 1", index));
 	 bitarray_set_bit(get_bitmap(), index);
 }
 
 void mark_block_as_unused(off_t index){
+	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO, string_from_format("Acceso a Bitmap - Bloque: %d - Estado: 0", index));
 	 bitarray_clean_bit(get_bitmap(), index);
 }
 
