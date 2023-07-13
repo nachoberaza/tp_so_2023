@@ -2,6 +2,7 @@
 
 t_bitarray *blockfile;
 const int pointerLength = 4;
+const int emptyPointerValue = 0;
 
 void create_block_file(){
 	t_log_level logLevel = LOG_LEVEL_INFO;
@@ -180,6 +181,25 @@ void truncate_file(t_fcb* fcb, int size){
 
 	for(int i=fcbCurrentSize; i<blockCount; i++){
 		assign_new_block(fcb, i);
+	}
+
+	//Si block count es 1 o 0 entonces el puntero indirecto no tiene nada
+	if (blockCount < 2)
+		return;
+
+	int previouslyAssignedBlocks = fcb->fileSize / blockSize;
+
+	if (previouslyAssignedBlocks <= blockCount)
+		return;
+
+	//Recorro el resto de los valores dentro del bloque y desasigno todo
+	for(int i=blockCount; i<previouslyAssignedBlocks; i++){
+		int position = (fcb->indirectPointer * blockSize) + (i - 1) * pointerLength;
+		//En teoria es el numero del bloque esto
+		uint32_t block = extract_uint32_from_block(fcb->indirectPointer * blockSize, (i - 1) * pointerLength);
+		if (is_block_used(block))
+			mark_block_as_unused(block);
+		write_in_block_file(position, &emptyPointerValue, pointerLength);
 	}
 }
 
