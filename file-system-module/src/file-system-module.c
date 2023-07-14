@@ -1,8 +1,13 @@
 #include "file-system-module.h"
 
 
-int main(void) {
-	init_file_system_config(MODULE_NAME);
+int main(int argc, char** argv) {
+
+    if (argc < 2) {
+        return EXIT_FAILURE;
+    }
+
+	init_file_system_config(argv[1]);
 
 	t_file_system_config* fileSystemEnv = get_file_system_config();
 	init_logger(MODULE_NAME, fileSystemEnv->LOG_LEVEL);

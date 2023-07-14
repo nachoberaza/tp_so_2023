@@ -15,5 +15,5 @@
 	int get_kernel_connection();
 	void handle_kernel_handshake();
 	void handle_kernel_response();
-	void send_instructions_to_kernel();
+	void send_instructions_to_kernel(char* instructionsPath);
 #endif

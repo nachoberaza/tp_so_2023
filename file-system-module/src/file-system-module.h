@@ -12,6 +12,8 @@
 	#include <shared/logs/log.h>
 	#include "utils/config-utils.h"
 	#include "utils/logger-utils.h"
+	#include "utils/socket-utils.h"
+	#include "utils/filesystem-utils.h"
 
 #endif
 

@@ -4,6 +4,7 @@
 	#include <stdlib.h>
 	#include <commons/config.h>
 	#include <commons/string.h>
+	#include <string.h>
 	#include <commons/log.h>
 	#include "logger-utils.h"
 	#include "../structs/config.h"
@@ -20,7 +21,7 @@
 		t_log_level LOG_LEVEL;
 	} t_memory_config;
 
-	void create_memory_config(char *moduleName);
+	void create_memory_config(char *fileName);
 	t_memory_config* get_memory_config();
 	t_assignment_algorithm get_assignment_algorithm();
 	void log_config(t_memory_config *config);

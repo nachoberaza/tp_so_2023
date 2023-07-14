@@ -6,9 +6,7 @@ t_cpu_config* get_cpu_env(){
 	return cpuEnv;
 }
 
-void create_cpu_config(char *moduleName) {
-	char *fileName = string_from_format("%s.config", moduleName);
-
+void create_cpu_config(char *fileName) {
 	t_config *config = config_create(fileName);
 	cpuEnv = malloc(sizeof(t_cpu_config));
 

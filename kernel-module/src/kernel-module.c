@@ -1,7 +1,12 @@
 #include "kernel-module.h"
 
-int main(void) {
-	init_kernel_config(MODULE_NAME);
+int main(int argc, char** argv) {
+
+    if (argc < 2) {
+        return EXIT_FAILURE;
+    }
+
+	init_kernel_config(argv[1]);
 	t_kernel_config* kernelEnv = get_kernel_config();
 	init_logger(MODULE_NAME, kernelEnv->LOG_LEVEL);
 

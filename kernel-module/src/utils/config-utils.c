@@ -2,9 +2,7 @@
 
 t_kernel_config *kernelConfig;
 
-void init_kernel_config(char *moduleName) {
-	char *fileName = string_from_format("%s.config", moduleName);
-
+void init_kernel_config(char *fileName) {
 	t_config *config = config_create(fileName);
 	kernelConfig = malloc(sizeof(t_kernel_config));
 

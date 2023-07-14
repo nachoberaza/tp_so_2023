@@ -42,8 +42,8 @@ void handle_kernel_response() {
 }
 
 
-void send_instructions_to_kernel(){
+void send_instructions_to_kernel(char* instructionsPath){
 	t_buffer* buffer = create_buffer();
-	fill_buffer_from_file(buffer);
+	fill_buffer_from_file(buffer, instructionsPath);
 	send_buffer(buffer, kernelConnection);
 }

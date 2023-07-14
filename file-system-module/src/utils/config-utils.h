@@ -25,7 +25,7 @@
 		int BLOCK_COUNT;
 	}t_super_block_config;
 
-	void init_file_system_config(char *moduleName);
+	void init_file_system_config(char *fileName);
 	t_file_system_config* get_file_system_config();
 	t_super_block_config* get_super_block_config();
 	void log_config(t_file_system_config *config);

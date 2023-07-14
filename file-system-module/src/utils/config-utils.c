@@ -3,9 +3,7 @@
 t_file_system_config  *fileSystemConfig;
 t_super_block_config *superBlockConfig;
 
-void init_file_system_config(char *moduleName) {
-	char *fileName = string_from_format("%s.config", moduleName);
-
+void init_file_system_config(char *fileName) {
 	t_config *config = config_create(fileName);
 	fileSystemConfig = malloc(sizeof(t_file_system_config));
 

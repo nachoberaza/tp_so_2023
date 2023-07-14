@@ -1,8 +1,13 @@
 #include "cpu-module.h"
 
 
-int main(void) {
-	create_cpu_config(MODULE_NAME);
+int main(int argc, char** argv) {
+
+    if (argc < 2) {
+        return EXIT_FAILURE;
+    }
+
+	create_cpu_config(argv[1]);
 
 	init_logger(MODULE_NAME, get_cpu_env()->LOG_LEVEL);
 

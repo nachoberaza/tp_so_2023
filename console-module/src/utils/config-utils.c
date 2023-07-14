@@ -1,8 +1,6 @@
 #include "config-utils.h"
 
-t_console_config* create_console_config(char *moduleName) {
-	char *fileName = string_from_format("%s.config", moduleName);
-
+t_console_config* create_console_config(char *fileName) {
 	t_config *config = config_create(fileName);
 	t_console_config *consoleConfig = malloc(sizeof(t_console_config));
 

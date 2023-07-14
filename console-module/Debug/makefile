@@ -38,7 +38,7 @@ all: main-build
 main-build: console-module
 
 dependents:
-	-cd /home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug && $(MAKE) all
+	-cd /home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug && $(MAKE) clean all
 
 # Tool invocations
 console-module: $(OBJS) $(USER_OBJS) /home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug/libshared-library.so makefile $(OPTIONAL_TOOL_DEPS)

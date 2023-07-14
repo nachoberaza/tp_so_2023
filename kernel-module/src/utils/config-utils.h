@@ -26,7 +26,7 @@ typedef struct {
 	t_log_level LOG_LEVEL;
 } t_kernel_config;
 
-void init_kernel_config(char *moduleName);
+void init_kernel_config(char *fileName);
 t_kernel_config* get_kernel_config();
 planning_algorithm get_planning_algorithm();
 void log_config(t_kernel_config *config);

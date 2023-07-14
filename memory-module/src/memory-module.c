@@ -1,7 +1,12 @@
 #include "memory-module.h"
 
-int main(void) {
-	create_memory_config(MODULE_NAME);
+int main(int argc, char** argv) {
+
+    if (argc < 2) {
+        return EXIT_FAILURE;
+    }
+
+	create_memory_config(argv[1]);
 
 	t_memory_config *memoryEnv = get_memory_config();
 

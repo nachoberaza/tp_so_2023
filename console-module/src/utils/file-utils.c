@@ -1,12 +1,12 @@
 #include "file-utils.h"
 
-void fill_buffer_from_file(t_buffer* buffer){
+void fill_buffer_from_file(t_buffer* buffer, char* instructionsPath){
 	FILE * file;
 	// Variable para uso interno de getline
 	size_t bufferSize = 800;
 	ssize_t lineLength;
 
-	file = fopen("console.code", "r");
+	file = fopen(instructionsPath, "r");
 
 	if (file == NULL)
 		exit(EXIT_FAILURE);

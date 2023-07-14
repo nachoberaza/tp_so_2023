@@ -9,6 +9,6 @@
 	#include <readline/readline.h>
 	#include "logger-utils.h"
 
-	void fill_buffer_from_file(t_buffer *buffer);
+	void fill_buffer_from_file(t_buffer *buffer, char* instructionsPath);
 
 #endif

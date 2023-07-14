@@ -13,7 +13,7 @@
 		t_log_level LOG_LEVEL;
 	} t_console_config;
 
-	t_console_config* create_console_config(char *moduleName);
+	t_console_config* create_console_config(char *fileName);
 	void log_config(t_console_config *config);
 
 #endif

@@ -2,9 +2,7 @@
 
 t_memory_config *memoryConfig;
 
-void create_memory_config(char *moduleName) {
-	char *fileName = string_from_format("%s.config", moduleName);
-
+void create_memory_config(char *fileName) {
 	t_config *config = config_create(fileName);
 	memoryConfig = malloc(sizeof(t_memory_config));
 
