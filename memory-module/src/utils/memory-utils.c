@@ -51,6 +51,24 @@ operation_result delete_segment_if_exists(int segmentId, int pid){
 		t_segment_row* actualSegment = list_get(segmentTableGlobal, i);
 		if(actualSegment->pid == pid && actualSegment->id == segmentId){
 			list_remove(segmentTableGlobal, i);
+			actualSegment->id = -1;
+			for(int j = list_size(freeSpacesList) - 1 ; j >= 0 ; j--){
+				t_segment_row* actualFreeSpace = list_get(freeSpacesList, j);
+				if(actualFreeSpace->baseDirection == (actualSegment->baseDirection + actualSegment->segmentSize)){
+					list_remove(freeSpacesList, j);
+					actualSegment->segmentSize += actualFreeSpace->segmentSize;
+					write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
+							string_from_format("[utils/memory-utils - add_to_memory] Primer IF actualFreeSpace base: %d, segment base+size %d", actualFreeSpace->baseDirection, actualSegment->segmentSize + actualSegment->baseDirection));
+									}
+				if(actualSegment->baseDirection == (actualFreeSpace->baseDirection + actualFreeSpace->segmentSize)){
+					list_remove(freeSpacesList, j);
+					actualSegment->segmentSize += actualFreeSpace->segmentSize;
+					actualSegment->baseDirection = actualFreeSpace->baseDirection;
+					write_to_log(LOG_TARGET_INTERNAL, LOG_LEVEL_INFO,
+								string_from_format("[utils/memory-utils - add_to_memory] Segundo  IF actualSegment base: %d, freeSpaces base+size %d", actualFreeSpace->baseDirection, actualSegment->segmentSize + actualSegment->baseDirection));
+					}
+			}
+			list_add_sorted(get_free_spaces_list(), actualSegment, (void*)compare_base_segment_row);
 			return OPERATION_RESULT_OK;
 		}
 	}
@@ -141,14 +159,16 @@ int add_segment_worst_algorithm(t_segment_row* segment) {
 	int totalAvailableSize = 0;
 	int worstSegmentIndex = -1;
 	int worstSegmentSizeDiff = 0;
+	int found = 0;
 
     for (int i = 0; i < size; i++) {
         t_segment_row* row = list_get(freeSpacesList, i);
         int rowSizeDiff = row->segmentSize - segment->segmentSize;
 
-        if (rowSizeDiff > worstSegmentSizeDiff) {
-            worstSegmentIndex = i;
-            worstSegmentSizeDiff = rowSizeDiff;
+        if (rowSizeDiff > worstSegmentSizeDiff || (rowSizeDiff == 0 && found==0)) {
+				worstSegmentIndex = i;
+				worstSegmentSizeDiff = rowSizeDiff;
+				found = 1;
         }
 
         totalAvailableSize += row->segmentSize;

@@ -139,10 +139,6 @@ void execute_memory_delete_segment(t_memory_data* data, int clientSocketId){
 
 	delete_segment_if_exists(segmentId,data->pid);
 
-	segment->id = -1;
-
-	list_add_sorted(get_free_spaces_list(), segment, (void*)compare_base_segment_row);
-
 	log_segment_table(get_segment_table_global(),get_logger(),LOG_LEVEL_INFO, false);
 
 	write_to_log(LOG_TARGET_MAIN, LOG_LEVEL_INFO,
