@@ -7,8 +7,8 @@ void init_logger(char* moduleName, t_log_level logLevel) {
 	logger = malloc(sizeof(t_log_grouping));
 
 	//Only write to console in the internal logger to avoid duplication
-	logger->main = start_logger(moduleName, logLevel, 0);
-	logger->internal = start_logger(internalLogName, logLevel, 1);
+	logger->main = start_logger(moduleName, logLevel, 1);
+	logger->internal = start_logger(internalLogName, logLevel, 0);
 }
 
 t_log_grouping* get_logger(){
