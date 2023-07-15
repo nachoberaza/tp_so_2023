@@ -38,13 +38,13 @@ all: main-build
 main-build: memory-module
 
 dependents:
-	-cd /home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug && $(MAKE) clean all
+	-cd /home/utnso/Documents/TP-Tuki/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug && $(MAKE) all
 
 # Tool invocations
-memory-module: $(OBJS) $(USER_OBJS) /home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug/libshared-library.so makefile $(OPTIONAL_TOOL_DEPS)
+memory-module: $(OBJS) $(USER_OBJS) /home/utnso/Documents/TP-Tuki/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug/libshared-library.so makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug" -o "memory-module" $(OBJS) $(USER_OBJS) $(LIBS) -lshared-library -lpthread -lcommons
+	gcc -L"/home/utnso/Documents/TP-Tuki/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug" -o "memory-module" $(OBJS) $(USER_OBJS) $(LIBS) -lshared-library -lpthread -lcommons
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -54,6 +54,6 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents main-build
-/home/utnso/Documents/dev/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug/libshared-library.so:
+/home/utnso/Documents/TP-Tuki/tp-2023-1c-Compu-mundo-hiper-mega-red/shared-library/Debug/libshared-library.so:
 
 -include ../makefile.targets
