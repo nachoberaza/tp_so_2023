@@ -60,5 +60,4 @@ dkms.conf
 */.vscode
 */Release/
 
-# Custom files
-executions.mk
+.idea

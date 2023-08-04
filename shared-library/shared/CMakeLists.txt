@@ -1,0 +1,5 @@
+add_subdirectory(execution-context)
+add_subdirectory(logs)
+add_subdirectory(memory)
+add_subdirectory(serialization)
+add_subdirectory(sockets structs)
