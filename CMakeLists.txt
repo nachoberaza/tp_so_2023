@@ -10,7 +10,7 @@ project(
 )
 
 set(SHARED_LIBRARY_NAME shared_library)
-set(SO_COMMONS_LIBRARY so_commons_library)
+set(COMMONS_LIBRARY commons)
 
 add_subdirectory(console-module)
 add_subdirectory(cpu-module)
